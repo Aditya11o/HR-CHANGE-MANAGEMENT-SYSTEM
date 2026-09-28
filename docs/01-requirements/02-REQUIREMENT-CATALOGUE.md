@@ -57,12 +57,12 @@ Every requirement in this catalogue is tagged with its official classification m
 | `REQ-MOD1-11` | `MOD1-CHG-01` / `MOD1-CHG-REQ-11` | The system shall provide a standardized digital change format for Change in Department / School [Format (f)]. | Module I | `[A]` | Module I Brief, Structure 3(f) | `REQ-MOD1-02` | Moves employee node between organizational subtrees. |
 | `REQ-MOD1-12` | `MOD1-CHG-01` / `MOD1-CHG-REQ-13` | The system shall provide a standardized digital change format for Change in Location (campus/office) [Format (g)]. | Module I | `[A]` | Module I Brief, Structure 3(g) | `REQ-MOD1-01` | Captures physical workstation change. |
 | `REQ-MOD1-13` | `MOD1-CHG-01` / `MOD1-CHG-REQ-14` | The system shall provide a standardized digital change format for Additional Responsibility Added (e.g., Dean, HOD, Proctor, Warden) [Format (h)]. | Module I | `[A]` | Module I Brief, Structure 3(h) | `REQ-MOD1-01` | Appends secondary role without removing primary post. |
-| `REQ-MOD1-14` | `MOD1-CHG-REQ-15` | The system shall track effective start dates and expected tenures associated with additional responsibilities; administrative allowances are subject to HR confirmation (`[E] TBD`). | Module I | `[B/E]` | Module I Brief, Structure 3(h) | `REQ-MOD1-13` | Allowance formula is `[E] TBD`. |
+| `REQ-MOD1-14` | `MOD1-CHG-REQ-15` | The system shall track effective start dates and expected tenures associated with additional responsibilities (administrative allowances are subject to HR policy confirmation, classified under REQ-TBD-09). | Module I | `[B]` | Module I Brief, Structure 3(h) | `REQ-MOD1-13` | Allowance formula is `[E] TBD` (REQ-TBD-09). |
 | `REQ-MOD1-15` | `MOD1-CHG-01` / `MOD1-CHG-REQ-16` | The system shall provide a standardized digital change format for Change in Qualifications (degrees, certifications, licenses) [Format (i)]. | Module I | `[A]` | Module I Brief, Structure 3(i) | `REQ-MOD1-01` | Supports digital document upload and verification proof. |
 | `REQ-MOD1-16` | `MOD1-CHG-01` / `MOD1-CHG-REQ-18` | The system shall provide an extensible change format for Any Other Employee Service Condition [Format (j)]. | Module I | `[A]` | Module I Brief, Structure 3(j) | `REQ-MOD1-01` | HR-configurable change mechanism. |
 | `REQ-MOD1-17` | `MOD1-APP-01` / `MOD1-APP-REQ-01` | All employee data changes shall follow a mandatory two-level approval hierarchy: Level 1 (HR Level) followed by Level 2 (Senior Management Level). | Module I | `[A]` | Module I Brief, Approval Hierarchy (a, b) | `REQ-MOD1-06` to `16` | Strict sequential gating. |
 | `REQ-MOD1-18` | `MOD1-DAT-01` / `MOD1-EFF-REQ-01` | The database change methodology shall natively support an `effective_date` parameter for all change formats, allowing future-dated change scheduling. | Module I | `[A]` | Module I Brief, Methodology | `REQ-MOD1-17` | Temporal scheduling core. |
-| `REQ-MOD1-19` | `MOD1-EFF-REQ-03` | Approved changes shall become effective on the specified `effective_date` [A]; execution timing shall be executed via automated background/scheduled processing [C]. | Module I | `[A/C]` | Module I Brief, Methodology & Tech Baseline | `REQ-MOD1-18` | Decoupled business rule from execution cron. |
+| `REQ-MOD1-19` | `MOD1-EFF-REQ-03` | Automated Scheduled Activation Processing: The technical activation timing for approved changes on `effective_date` shall be executed via automated background/scheduled processing, committing updates, realigning the Org Chart, and emitting ERP sync events. | Module I | `[C]` | Tech Architecture Baseline, Section 7 | `REQ-MOD1-18` | Approved technical execution timing. |
 
 ---
 
@@ -100,7 +100,7 @@ Every requirement in this catalogue is tagged with its official classification m
 | `REQ-MOD3-01` | `MOD3-GD-EVAL-01` | For Group-D staff, the system shall route a monthly digital Evaluation Form (Enclosure 1) to the HOD for each reporting member. | Module III (Group-D) | `[A]` | Group-D Brief, Section 1 & 2(a) | `REQ-MOD1-01` | Role-specific KPIs & competencies. |
 | `REQ-MOD3-02` | `MOD3-GD-REQ-05` | Group-D monthly evaluation forms shall have a strict submission due date of the 7th of every month. | Module III (Group-D) | `[A]` | Group-D Brief, Section 2(c) | `REQ-MOD3-01` | Monthly operational deadline. |
 | `REQ-MOD3-03` | `MOD3-GD-REQ-06` | The system shall provide an automated 3-day grace period up to the 10th of the month, sending daily reminders on the 8th, 9th, and 10th. | Module III (Group-D) | `[A]` | Group-D Brief, Section 2(c, d) | `REQ-MOD3-02` | Automated grace period & reminders. |
-| `REQ-MOD3-04` | `MOD3-GD-REQ-08` | Submission locks on the 10th of the month [A]; missed evaluations are flagged as "Not Submitted" for HR; execution cutoff scheduled via background processing [C]. | Module III (Group-D) | `[A/C]` | Group-D Brief, Section 2(e) | `REQ-MOD3-03` | Auto-lockout & non-compliance flag. |
+| `REQ-MOD3-04` | `MOD3-GD-REQ-08` | Auto-Lockout & "Not Submitted" Non-Compliance Flag: If the monthly evaluation is not submitted within the grace period (by the 10th of the month), the system shall automatically lock submission and flag the evaluation as "Not Submitted" for HR (technical execution timing at 23:59 governed by approved technical baseline [C]). | Module III (Group-D) | `[A]` | Group-D Brief, Section 2(e) | `REQ-MOD3-03` | Explicit business auto-lockout on 10th of month. |
 | `REQ-MOD3-05` | `MOD3-GD-APP-01` | Group-D evaluations shall require mandatory digital sign-off and approval from the Vice President – Administration before becoming final. | Module III (Group-D) | `[A]` | Group-D Brief, Section 2(b) | `REQ-MOD3-01` | VP-Admin executive approval gate. |
 | `REQ-MOD3-06` | `MOD3-GD-REQ-10` | The system shall automatically collate submitted monthly evaluations into a Monthly Performance Report (Enclosure 2 Template) for HR. | Module III (Group-D) | `[A]` | Group-D Brief, Section 3 | `REQ-MOD3-05` | Automated monthly collation. |
 | `REQ-MOD3-07` | `MOD3-GD-ANN-01` | The system shall trigger an Annual Report for Group-D staff at one (1) year of employment (and subsequent years) based on Date of Joining (DOJ). | Module III (Group-D) | `[A]` | Group-D Brief, Section 4(a) | `REQ-MOD1-01` | Annual anniversary milestone. |
@@ -184,7 +184,8 @@ Every requirement in this catalogue is tagged with its official classification m
 | `REQ-DOC-04` | `MOD2-REC-REQ-21` | The system shall auto-generate official Letter of Intent (LOI) documents upon Management approval of candidate selection. | Module II | `[A]` | Module II Brief, Selection A(e), B(b) | `REQ-MOD2-16`, `18` | Auto-generated PDF letter. |
 | `REQ-DOC-05` | `MOD3-FAC-REQ-09` | The system shall auto-generate official compensation revision letters for faculty upon Management approval of ECM appraisal outcomes. | Module III | `[A]` | Faculty ECM Brief, Section 6(b) | `REQ-MOD3-18` | Auto-generated PDF letter. |
 | `REQ-DOC-06` | `SHR-DOC-REQ-01` | Binary files (CVs, certificates, letters) shall be stored in Object Storage with access controls and checksums stored in relational database metadata. | Shared / Technical | `[C]` | Approved Tech Baseline | None | Binary/metadata separation. |
-| `REQ-DOC-07` | `SHR-DOC-REQ-02` | File uploads shall undergo MIME-type validation and SHA-256 integrity hashing [B]; 10MB file limit is an operational threshold (`[D] Proposed Detail`). | Shared / Security | `[B/D]` | Universal Baseline & FRD Quality Review | None | 10MB limit is proposed engineering detail. |
+| `REQ-DOC-07` | `SHR-DOC-REQ-02(a)` | File Upload Security & Validation: All file uploads shall undergo strict MIME-type validation and SHA-256 integrity hashing to ensure document security and file integrity. | Shared / Security | `[B]` | Universal Baseline | None | Security validation primitive. |
+| `REQ-DOC-08` | `SHR-DOC-REQ-02(b)` | Operational File Size Enforcement: Document uploads shall enforce an operational file size limit (proposed threshold of maximum 10MB per document), subject to University IT confirmation. | Shared / Storage | `[D]` | FRD Quality Review & Architecture Baseline | `REQ-DOC-07` | Proposed engineering threshold; not official university policy. |
 
 ---
 
@@ -194,9 +195,43 @@ Every requirement in this catalogue is tagged with its official classification m
 |---|---|---|---|---|---|---|---|
 | `REQ-EXT-01` | `MOD1-CDB-03` / `SHR-ERP-REQ-01` | The Central Employee Database shall be fully reflected and synchronized with the University Enterprise Resource Planning (ERP) platform. | Module I / ERP | `[A]` | Module I Brief, Structure (1) | `REQ-MOD1-01` | Full ERP reflection mandate. |
 | `REQ-EXT-02` | `SHR-ERP-REQ-02` | Outbound ERP synchronization payloads shall be written to an immutable outbox within the local transaction to ensure eventual consistency. | Architecture / ERP | `[C]` | Approved Tech Baseline | `REQ-EXT-01` | Transactional outbox pattern. |
-| `REQ-EXT-03` | `SHR-ERP-REQ-03` | The specific physical protocol and payload structure for ERP synchronization is classified as `[E] TBD` pending University IT confirmation. | Architecture / ERP | `[E]` | Module I Brief & Tech Baseline | `REQ-EXT-01` | REST, DB staging, or SFTP (`[E] TBD`). |
-| `REQ-EXT-04` | `SHR-TBD-01` | Institutional Single Sign-On (SSO) integration mechanism (Google Workspace, Microsoft Entra ID, or LDAP) is classified as `[E] TBD`. | Security / SSO | `[E]` | Universal Baseline | None | Enterprise IdP configuration (`[E] TBD`). |
-| `REQ-EXT-05` | `REQ-TBD-07` | External Subject Expert secure access mechanism (time-limited magic links or OTP-verified portal) is classified as `[E] TBD`. | Security / External | `[E]` | Module II Selection A(a) | None | External authentication model (`[E] TBD`). |
+| `REQ-EXT-03` | `SHR-ERP-REQ-03` | The specific physical protocol and payload structure for ERP synchronization is classified as `[E] TBD` pending University IT confirmation. | Architecture / ERP | `[E]` | Module I Brief & Tech Baseline | `REQ-EXT-01` | REST, DB staging, or SFTP (`[E] TBD` / REQ-TBD-01). |
+| `REQ-EXT-04` | `SHR-TBD-01` | Institutional Single Sign-On (SSO) integration mechanism (Google Workspace, Microsoft Entra ID, or LDAP) is classified as `[E] TBD`. | Security / SSO | `[E]` | Universal Baseline | None | Enterprise IdP configuration (`[E] TBD` / REQ-TBD-07a). |
+| `REQ-EXT-05` | `REQ-TBD-07` | External Subject Expert secure access mechanism (time-limited magic links or OTP-verified portal) is classified as `[E] TBD`. | Security / External | `[E]` | Module II Selection A(a) | None | External authentication model (`[E] TBD` / REQ-TBD-07b). |
+
+---
+
+## Section K: Classification Reconciliation & TBD Register Cross-Reference
+
+### 1. Mathematical Classification Summary
+Every atomic requirement in this catalogue has been assigned a single, unambiguous classification code. The counts mathematically reconcile across all sections:
+
+| Classification Marker | Classification Name | Atomic Count | Percentage | Mathematical Verification Formula |
+|:---:|---|:---:|:---:|---|
+| **`[A]`** | **Explicit Requirement** | **88** | 84.62% | Directly stated in official PDFs |
+| **`[B]`** | **Logical Implication** | **8** | 7.69% | Operationally and logically necessary primitives |
+| **`[C]`** | **Approved Technical Decision** | **4** | 3.85% | Approved technical architecture decisions |
+| **`[D]`** | **Proposed Detail** | **1** | 0.96% | Proposed engineering threshold (10MB upload limit) |
+| **`[E]`** | **TBD / Open Decision** | **3** | 2.88% | Standalone atomic integration requirements pending IT confirmation |
+| **TOTAL** | | **104** | **100.00%** | **88 + 8 + 4 + 1 + 3 = 104** |
+
+### 2. Reconciliation with the TBD Register (`REQ-TBD-01` through `REQ-TBD-11`)
+The project maintains a dedicated Controlled TBD Register in [`05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md) containing eleven (11) items. Their exact relationship to this atomic requirement catalogue is structured as follows:
+
+| TBD Register ID | Open Decision Title / Domain | Nature of Item | How Represented in Catalogue |
+|---|---|---|---|
+| **`REQ-TBD-01`** | ERP Synchronization Architecture & Protocol | Standalone System Integration Requirement | Catalogued as **`REQ-EXT-03`** (`[E]`) in Section J. |
+| **`REQ-TBD-02`** | Standardized Attachment & Enclosure Schemas | Schema & Form Template Field Gap | Qualifies **`REQ-DOC-02`** & **`REQ-DOC-03`** (digital form maintenance is `[A]`; field schemas are `[E] TBD`). |
+| **`REQ-TBD-03`** | Staff Appraisal Track Boundary Definitions | Operational Track Allocation Policy Gap | Qualifies **`REQ-MOD3-10`** & **`REQ-MOD3-14`** (track rules for Lab Techs / Teaching Associates). |
+| **`REQ-TBD-04`** | TNU Protocol Parameter Weights & Quorums | Mathematical Weightage & Governance Gap | Qualifies **`REQ-MOD2-15`** & **`REQ-MOD3-18`** (matrix compilation is `[A]`; scoring weights are `[E] TBD`). |
+| **`REQ-TBD-05`** | Pre-Defined Compensation Revision Slabs | Financial Compensation Policy Gap | Qualifies **`REQ-MOD3-09`** & **`REQ-MOD3-19`** (increment reviews are `[A]`; monetary slabs are `[E] TBD`). |
+| **`REQ-TBD-06`** | Resignation Upstream Intake & Clearance | Workflow Initiation Interface Gap | Qualifies **`REQ-MOD2-08`** & **`REQ-INT-02`** (resignation replacement trigger is `[A]`; upstream intake is `[E] TBD`). |
+| **`REQ-TBD-07(a)`** | Enterprise Single Sign-On (IdP) | Standalone System Security Requirement | Catalogued as **`REQ-EXT-04`** (`[E]`) in Section J. |
+| **`REQ-TBD-07(b)`** | External Subject Expert Access Protocol | Standalone System Security Requirement | Catalogued as **`REQ-EXT-05`** (`[E]`) in Section J. |
+| **`REQ-TBD-08`** | LOI vs. Formal Appointment Letter Lifecycle | Contractual & Legal Lifecycle Gap | Qualifies **`REQ-MOD2-19`** & **`REQ-DOC-04`** (LOI issuance is `[A]`; post-joining contract is `[E] TBD`). |
+| **`REQ-TBD-09`** | Administrative Allowance for Secondary Roles | HR Financial Policy Gap | Qualifies **`REQ-MOD1-13`** & **`REQ-MOD1-14`** (Format 3(h) is `[A]`; allowance rule is `[E] TBD`). |
+| **`REQ-TBD-10`** | Outbound Communication Gateways & Relays | Infrastructure Host Configuration Gap | Qualifies **`REQ-SLA-10`** (queue dispatch is `[C]`; SMTP relay and SMS gateway credentials are `[E] TBD`). |
+| **`REQ-TBD-11`** | Document Retention & Archival Lifecycle | Legal & Compliance Retention Schedule Gap | Qualifies **`REQ-AUD-01`** & **`REQ-DOC-06`** (audit log is `[A]`; retention schedule is `[E] TBD`). |
 
 ---
 *End of Document — Comprehensive Requirement Catalogue.*

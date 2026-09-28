@@ -58,30 +58,43 @@ The system scope comprises four core capability domains:
 
 ---
 
-## 3. Out-of-Scope Capabilities
+## 3. Out-of-Scope Capabilities & Scope Boundaries
 
-To ensure clear focus and prevent operational overreach, the following systems, functions, and processes are explicitly designated as **OUT OF SCOPE**:
+To maintain disciplined system focus and prevent operational overreach, boundaries between system capabilities and external functions are classified according to their governing authority:
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                   EXPLICITLY OUT OF SCOPE                                        │
+│                             SYSTEM SCOPE BOUNDARIES & EXCLUSIONS                                 │
 ├──────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ 1. Core ERP Financial Ledgers & General Accounting                                               │
-│ 2. End-to-End Payroll Disbursement, Bank NACH/NEFT Batch Processing, and Tax Filing              │
-│ 3. Physical Biometric Attendance Hardware & Turnstile Access Controllers                         │
-│ 4. Student Information Systems (SIS), Admissions, Fee Collection, and Course Grading            │
-│ 5. Learning Management System (LMS) Delivery (Moodle, Blackboard, Canvas)                        │
-│ 6. Public Self-Service Applicant Portal (Candidates do not create self-managed accounts)          │
-│ 7. Travel, Expense, and Medical Claim Management Systems                                         │
-│ 8. Campus Facility Booking & Vehicle Fleet Management Systems                                    │
+│ SOURCE-SUPPORTED EXCLUSIONS [A]                                                                  │
+│ • Core ERP Financial Ledgers & General Institutional Accounting                                  │
+│ • End-to-End Payroll Disbursement, Bank NACH/NEFT Batch Processing, and Tax Filing               │
+├──────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ LOGICAL SCOPE BOUNDARIES [B]                                                                     │
+│ • Physical Biometric Attendance Hardware & Turnstile Access Controllers                          │
+│ • Student Information Systems (SIS), Admissions, Fee Collection, and Course Grading             │
+│ • Learning Management System (LMS) Delivery (Moodle, Blackboard, Canvas)                         │
+│ • Public Self-Service Applicant Portal Accounts (Recruiter-driven ingestion into CV Database)     │
+├──────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ PROPOSED BOUNDARIES [D] & OPEN POLICY CONFIRMATIONS [E]                                          │
+│ • Travel, Expense, and Medical Reimbursement Claims ([E] TBD - Format j vs. Financial ERP)      │
+│ • Campus Facility Booking & Vehicle Fleet Management ([D] Proposed External System)             │
 └──────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-1. **ERP Financial Accounting & General Ledger:** The system manages service condition records (salary scales, allowances, bands), but does not replace the university's financial accounting, balance sheets, or general ledgers.
-2. **Complete Payroll Computation & Banking Disbursement:** The system tracks salary adjustments and exports them to the next salary cycle, but actual payroll calculation (gross-to-net deductions, provident fund contributions, tax TDS withholding, payslip rendering, and direct bank transfers) remains inside the external Payroll/ERP system.
-3. **Hardware-Level Time & Attendance:** Physical biometric time clocks, RFID access turnstiles, and daily swipe-card logs are managed by campus security infrastructure.
-4. **Student Lifecycle Management:** Admissions, academic curriculum registries, student fee collections, and examination grading remain within dedicated academic software.
-5. **Public Applicant Self-Service Portal:** The sourcing engine captures incoming applications from designated channels (emails, web forms, social media, Internshala) into the Central CV Database; candidates do not maintain long-term self-service portal accounts.
+### 3.1 Source-Supported Scope Exclusions (`[A]` / Confirmed Baseline)
+1. **ERP Financial Accounting & General Ledger [A]:** The system manages service condition records (salary scales, allowances, bands), but does not replace the university's financial accounting, balance sheets, or general ledgers.
+2. **Complete Payroll Computation & Banking Disbursement [A]:** The system tracks salary adjustments and exports them to the next salary cycle, but actual payroll calculation (gross-to-net deductions, provident fund contributions, tax TDS withholding, payslip rendering, and direct bank transfers) remains inside the external Payroll/ERP system.
+
+### 3.2 Logical Scope Boundaries (`[B]` Logical Implication)
+3. **Hardware-Level Time & Attendance [B]:** Physical biometric time clocks, RFID access turnstiles, and daily swipe-card logs are managed by campus security infrastructure; attendance exceptions influencing appraisals are passed via administrative input rather than direct hardware polling.
+4. **Student Lifecycle Management [B]:** Admissions, academic curriculum registries, student fee collections, and examination grading remain strictly within dedicated academic student information systems.
+5. **Learning Management System (LMS) [B]:** Course delivery, student assignment grading, and online classroom platforms are independent academic applications decoupled from HR service records.
+6. **Public Applicant Self-Service Portal [B]:** The sourcing engine captures incoming applications from designated channels (emails, web forms, social media, Internshala) into the Central CV Database; candidates do not maintain long-term self-service portal accounts.
+
+### 3.3 Proposed Boundaries & Open Policy Decisions (`[D]` / `[E]` TBD)
+7. **Travel, Expense, and Medical Reimbursement Claims (`[E] TBD`):** Subject to formal HR confirmation whether employee reimbursement claims fall under Format (j) "Any other service condition" or are processed via an external financial ERP module.
+8. **Campus Facility Booking & Fleet Management (`[D] Proposed Detail`):** Campus room bookings and vehicle management are proposed external administrative functions outside the core HR change management boundary.
 
 ---
 
@@ -106,9 +119,9 @@ Each module functions as an encapsulated domain within a cohesive **Modular Mono
 ```
 
 ### Module Boundary Invariants
-1. **Module II never writes directly to Module I database tables:** When a candidate completes onboarding, Module II emits an event (`ONBOARDING_COMPLETED`), and Module I consumes this event to create the master employee record.
-2. **Module III never updates Module I salary fields directly:** When an appraisal outcome is approved by Management, Module III raises a formal `ServiceChangeRequest` inside Module I, preserving the mandatory two-level approval and audit trail.
-3. **Module I never mutates recruitment requisitions:** Module I accepts resignations and signals Module II via an event, but never manipulates Module II trackers or selection scorecards.
+1. **Module II never writes directly to Module I database tables (Logical Encapsulation [B]):** When a candidate completes onboarding, Module II emits an onboarding completion event (orchestrated via an approved event pattern such as `ONBOARDING_COMPLETED` [C]), and Module I consumes this event to create the master employee record.
+2. **Module III never updates Module I salary fields directly (Logical Encapsulation [B]):** When an appraisal outcome is approved by Management, Module III raises a formal `ServiceChangeRequest` inside Module I, preserving the mandatory two-level approval and audit trail.
+3. **Module I never mutates recruitment requisitions (Logical Encapsulation [B]):** Module I accepts resignations and signals Module II via an event, but never manipulates Module II trackers or selection scorecards.
 
 ---
 
@@ -152,12 +165,12 @@ The system interfaces with several external institutional systems. Where exact p
 
 | External System | Functional Boundary & Interaction | Boundary Nature | Platform / Protocol Status |
 |---|---|---|---|
-| **University ERP** | Master employee records, structural units, designations, and approved service condition changes are reflected into the ERP. | Outbound synchronization via Transactional Outbox. | **`[E] TBD`** (Specific ERP platform, e.g. SAP/Oracle/Banner, and protocol are unconfirmed). |
-| **Enterprise Identity Provider (IdP)** | Authentication of university faculty, staff, and leadership for Single Sign-On (SSO). | Inbound SAML / OAuth / OIDC authentication tokens. | **`[E] TBD`** (Google Workspace, Microsoft Entra ID, or LDAP unconfirmed). |
-| **External Subject Experts** | Statutory Selection Committee (SCM) members evaluating candidates remotely. | Secure, time-limited evaluation session. | **`[E] TBD`** (Magic link or OTP portal authentication unconfirmed). |
-| **Outbound Email Relay** | Dispatches automated notifications, SLA warnings, advance intimations, and PDF letters. | Asynchronous SMTP relay connection. | **`[E] TBD`** (Host configuration and credentials unconfirmed). |
-| **Object Storage Provider** | Storage of binary artifacts (CVs, degree certificates, research proof, PDF letters). | S3-compatible object storage API. | **`[E] TBD`** (On-premises MinIO vs. Managed Cloud S3 unconfirmed). |
-| **External Sourcing Channels** | Incoming CV ingestion from print ads, website, social media, and Internshala. | Batch ingestion / email capture / webhook feeds. | **`[E] TBD`** (Detailed ingestion formats unconfirmed). |
+| **University ERP** | Master employee records, structural units, designations, and approved service condition changes are reflected into the ERP (`[A]`). | Outbound synchronization via Transactional Outbox pattern (`[C]`). | **`[E] TBD`** (Specific ERP platform, e.g. SAP/Oracle/Banner, and physical sync protocol are unconfirmed; REQ-TBD-01). |
+| **Enterprise Identity Provider (IdP)** | Authentication of university faculty, staff, and leadership for Single Sign-On (SSO) (`[B]`). | Inbound authentication tokens; protocols such as SAML, OAuth2, or OIDC are proposed technical details (`[D]`). | **`[E] TBD`** (Google Workspace, Microsoft Entra ID, or LDAP unconfirmed; REQ-TBD-07a). |
+| **External Subject Experts** | Statutory Selection Committee (SCM) members evaluating candidates remotely (`[A]`). | Secure, time-limited evaluation session (`[B]`). | **`[E] TBD`** (Magic link or OTP portal authentication unconfirmed; REQ-TBD-07b). |
+| **Outbound Email Relay** | Dispatches automated notifications, SLA warnings, advance intimations, and PDF letters (`[A]`). | Asynchronous SMTP relay connection (`[C]`). | **`[E] TBD`** (Host configuration and credentials unconfirmed; REQ-TBD-10). |
+| **Object Storage Provider** | Storage of binary artifacts (CVs, degree certificates, research proof, PDF letters) (`[A]`). | Separation of binary blobs from database metadata (`[C]`); S3-compatible API protocol (`[C]`). | **`[E] TBD`** (On-premises MinIO vs. Managed Cloud S3 unconfirmed; REQ-TBD-10). |
+| **External Sourcing Channels** | Incoming CV ingestion from print ads, website, social media, and Internshala (`[A]`). | Batch ingestion / email capture / webhook feeds (`[B]`). | **`[E] TBD`** (Detailed ingestion formats unconfirmed; REQ-TBD-02). |
 
 > [!CAUTION]
 > **Anti-Invention Constraint:**  
@@ -188,9 +201,9 @@ Data entities are strictly owned by specific domains to guarantee single-source-
 ## 8. Integration Boundaries & Guarantees
 
 All inter-module integrations must adhere to the following architectural guarantees:
-1. **Eventual Consistency via Outbox:** Cross-module state updates and outbound ERP synchronizations must commit an event payload into an outbox table within the local transaction, guaranteeing message delivery even across temporary network partitions.
-2. **Idempotence:** Every integration handler must accept an idempotent idempotency key (`idempotency_key`) to prevent duplicate processing of financial increments, master record creations, or requisition triggers.
-3. **Decoupled Failure Domains:** A failure in outbound ERP synchronization or external email relay must never roll back an approved local HR service change or appraisal sign-off.
+1. **Eventual Consistency via Outbox [C]:** Cross-module state updates and outbound ERP synchronizations must commit an event payload into an outbox table within the local transaction, guaranteeing message delivery even across temporary network partitions.
+2. **Idempotence [B]:** Every integration handler must be idempotent to prevent duplicate processing of financial increments, master record creations, or requisition triggers (technical enforcement via an `idempotency_key` parameter [C]).
+3. **Decoupled Failure Domains [B]:** A failure in outbound ERP synchronization or external email relay must never roll back an approved local HR service change or appraisal sign-off.
 
 ---
 

@@ -323,7 +323,7 @@ All requirements throughout the project baseline adhere to the governing classif
 
 ## 25. Open Questions / TBD Summary
 
-The following major items require institutional confirmation (detailed in [`05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md)):
+The following eleven items require institutional confirmation (detailed in [`05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md)):
 1. **`REQ-TBD-01`:** Specific ERP vendor platform and integration protocol for full reflection.
 2. **`REQ-TBD-02`:** Field-level Excel/Word schemas for Attachments 1-3, Enclosures 1-4, and TNU Protocol.
 3. **`REQ-TBD-03`:** Appraisal track boundary definition for Lab Technicians, Teaching Associates, and Technical Assistants.
@@ -333,6 +333,8 @@ The following major items require institutional confirmation (detailed in [`05-R
 7. **`REQ-TBD-07`:** Institutional Identity Provider (SSO) and authentication model for external subject experts.
 8. **`REQ-TBD-08`:** Operational distinction and lifecycle handoff between Letter of Intent (LOI) and formal Appointment Letter.
 9. **`REQ-TBD-09`:** Policy confirmation regarding administrative allowances for additional responsibilities.
+10. **`REQ-TBD-10`:** Outbound notification gateway configurations (SMTP host and SMS/WhatsApp endpoints).
+11. **`REQ-TBD-11`:** Statutory document retention schedules for candidate CVs, scorecards, and audit logs.
 
 ---
 

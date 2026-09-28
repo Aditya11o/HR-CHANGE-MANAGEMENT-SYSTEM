@@ -18,21 +18,21 @@ In strict compliance with enterprise engineering standards and the **Anti-Invent
 
 ---
 
-## 2. Summary of Open Items
+## 2. Summary of Open Items & Catalogue Mapping
 
-| TBD ID | Topic / Domain | Affected Module | Decision Owner | Urgency / Downstream Impact | Status |
+| TBD ID | Topic / Domain | Affected Module | Decision Owner | Requirement Catalogue Mapping | Status |
 |---|---|---|---|---|---|
-| `REQ-TBD-01` | ERP Synchronization Architecture & Protocol | Module I / Shared | University IT / ERP Team | High (Blocks Phase 09 API ERP Adapter Specification) | **OPEN** |
-| `REQ-TBD-02` | Standardized Attachment & Enclosure Schemas | Modules II & III | HR Department / Deans | High (Blocks Phase 08 Database Schema for Forms) | **OPEN** |
-| `REQ-TBD-03` | Staff Appraisal Track Boundary Definitions | Modules II & III | HR Leadership / Registrar | Medium (Blocks Phase 06 Workflow Routing for Tech Staff) | **OPEN** |
-| `REQ-TBD-04` | TNU Protocol Parameter Weights & Quorums | Module III (Faculty) | Academic Council / Registrar | High (Blocks Phase 08 ECM Evaluation Matrix Calculations) | **OPEN** |
-| `REQ-TBD-05` | Pre-Defined Compensation Revision Slabs | Module III (GD & Fac) | Senior Management / Finance | Medium (Blocks Phase 06 Automated Increment Calculation) | **OPEN** |
-| `REQ-TBD-06` | Resignation Upstream Intake & Clearance | Modules I & II | HR Leadership / Deans | Medium (Blocks Phase 06 Resignation Submission Workflow) | **OPEN** |
-| `REQ-TBD-07` | Enterprise SSO & External Expert Access | Enterprise Security | University IT / Security | High (Blocks Phase 11 Security & IAM Specifications) | **OPEN** |
-| `REQ-TBD-08` | LOI vs. Formal Appointment Letter Lifecycle | Module II (Onboarding) | HR Department / Legal | Medium (Blocks Phase 06 Document Generation Pipeline) | **OPEN** |
-| `REQ-TBD-09` | Administrative Allowance for Secondary Roles | Module I (Format h) | HR Leadership / Finance | Low (Affects Format 3(h) Financial Field Mapping) | **OPEN** |
-| `REQ-TBD-10` | Outbound Communication Gateways & Relays | Shared Infrastructure | University IT / Systems | Medium (Blocks Phase 12 Notification Gateway Config) | **OPEN** |
-| `REQ-TBD-11` | Document Retention & Archival Lifecycle | Enterprise Compliance | Registrar / Legal Counsel | Medium (Blocks Phase 08 Storage & Purge Policies) | **OPEN** |
+| `REQ-TBD-01` | ERP Synchronization Architecture & Protocol | Module I / Shared | University IT / ERP Team | Standalone Requirement **`REQ-EXT-03`** (`[E]`) | **OPEN** |
+| `REQ-TBD-02` | Standardized Attachment & Enclosure Schemas | Modules II & III | HR Department / Deans | Qualifies **`REQ-DOC-02`** & **`REQ-DOC-03`** | **OPEN** |
+| `REQ-TBD-03` | Staff Appraisal Track Boundary Definitions | Modules II & III | HR Leadership / Registrar | Qualifies **`REQ-MOD3-10`** & **`REQ-MOD3-14`** | **OPEN** |
+| `REQ-TBD-04` | TNU Protocol Parameter Weights & Quorums | Module III (Faculty) | Academic Council / Registrar | Qualifies **`REQ-MOD2-15`** & **`REQ-MOD3-18`** | **OPEN** |
+| `REQ-TBD-05` | Pre-Defined Compensation Revision Slabs | Module III (GD & Fac) | Senior Management / Finance | Qualifies **`REQ-MOD3-09`** & **`REQ-MOD3-19`** | **OPEN** |
+| `REQ-TBD-06` | Resignation Upstream Intake & Clearance | Modules I & II | HR Leadership / Deans | Qualifies **`REQ-MOD2-08`** & **`REQ-INT-02`** | **OPEN** |
+| `REQ-TBD-07` | Enterprise SSO & External Expert Access | Enterprise Security | University IT / Security | Standalone Requirements **`REQ-EXT-04`** & **`REQ-EXT-05`** (`[E]`) | **OPEN** |
+| `REQ-TBD-08` | LOI vs. Formal Appointment Letter Lifecycle | Module II (Onboarding) | HR Department / Legal | Qualifies **`REQ-MOD2-19`** & **`REQ-DOC-04`** | **OPEN** |
+| `REQ-TBD-09` | Administrative Allowance for Secondary Roles | Module I (Format h) | HR Leadership / Finance | Qualifies **`REQ-MOD1-13`** & **`REQ-MOD1-14`** | **OPEN** |
+| `REQ-TBD-10` | Outbound Communication Gateways & Relays | Shared Infrastructure | University IT / Systems | Qualifies **`REQ-SLA-10`** | **OPEN** |
+| `REQ-TBD-11` | Document Retention & Archival Lifecycle | Enterprise Compliance | Registrar / Legal Counsel | Qualifies **`REQ-AUD-01`** & **`REQ-DOC-06`** | **OPEN** |
 
 ---
 
@@ -164,6 +164,32 @@ In strict compliance with enterprise engineering standards and the **Anti-Invent
 - **Decision Owner:** University Registrar / Legal Compliance Directorate.
 - **Dependency & Downstream Impact:** Data archival and retention cleanup scripts in Phase 08 and Phase 11.
 - **Status:** **`[E] TBD / OPEN`**
+
+---
+
+## 4. Reconciliation with Requirement Catalogue (`DOC-01-CAT-02`)
+
+The eleven (11) open items documented in this register correspond directly to the system requirements established in [`02-REQUIREMENT-CATALOGUE.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/02-REQUIREMENT-CATALOGUE.md) as follows:
+
+1. **Standalone Atomic System Requirements (`[E]` in Catalogue - 3 items):**
+   - `REQ-TBD-01` is formally catalogued as **`REQ-EXT-03`** (ERP Synchronization Physical Protocol & Transport Architecture).
+   - `REQ-TBD-07` is formally catalogued as two distinct security integration requirements:
+     - **`REQ-EXT-04`** (Institutional Single Sign-On Identity Provider Integration Protocol).
+     - **`REQ-EXT-05`** (External Subject Expert Remote Evaluation Access Mechanism).
+
+2. **Policy, Formula, and Schema Open Decisions (8 items):**
+   The remaining eight items represent institutional policy rules, mathematical formulas, or physical document schemas that qualify existing catalogue requirements rather than functioning as separate software requirements:
+   - `REQ-TBD-02` parameterizes `REQ-DOC-02` and `REQ-DOC-03` (field-level template schemas).
+   - `REQ-TBD-03` parameterizes `REQ-MOD3-10` and `REQ-MOD3-14` (appraisal track boundary definitions).
+   - `REQ-TBD-04` parameterizes `REQ-MOD2-15` and `REQ-MOD3-18` (TNU protocol scoring weights and committee quorums).
+   - `REQ-TBD-05` parameterizes `REQ-MOD3-09` and `REQ-MOD3-19` (pre-defined compensation revision slabs).
+   - `REQ-TBD-06` parameterizes `REQ-MOD2-08` and `REQ-INT-02` (resignation upstream intake interface).
+   - `REQ-TBD-08` parameterizes `REQ-MOD2-19` and `REQ-DOC-04` (LOI vs. formal appointment letter lifecycle).
+   - `REQ-TBD-09` parameterizes `REQ-MOD1-13` and `REQ-MOD1-14` (administrative allowances for secondary roles).
+   - `REQ-TBD-10` parameterizes `REQ-SLA-10` (outbound email SMTP relay and SMS gateway credentials).
+   - `REQ-TBD-11` parameterizes `REQ-AUD-01` and `REQ-DOC-06` (statutory document retention and archival schedules).
+
+This explicit structure guarantees that every open item is accounted for without inflating the count of atomic system requirements.
 
 ---
 *End of Document — Requirements TBD and Open Decisions Log.*
