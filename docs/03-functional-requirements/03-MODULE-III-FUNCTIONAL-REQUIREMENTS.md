@@ -103,7 +103,7 @@ The following actors and roles are explicitly defined across the three performan
 - **`MOD3-GD-REQ-07` [A] Automated Notifications & Reminders:** The system shall send automated reminders to the HOD before the due date (prior to the 7th) and daily during the grace period (8th, 9th, 10th).
 
 ### 4.5 Auto-Lock
-- **`MOD3-GD-REQ-08` [A] Hard Cutoff & Auto-Lockout:** If the form is not submitted within the grace period, the system shall **auto-lock** submission for that month at 23:59 on the 10th and flag the evaluation as **"Not Submitted"** for that Group-D member, with the record and failure reason visible to HR.
+- **`MOD3-GD-REQ-08` [A/C] Hard Cutoff & Auto-Lockout:** (Explicit Business Cutoff [A]) If the form is not submitted within the grace period (up to the 10th of the month), the system shall automatically lock submission for that month and flag the evaluation as **"Not Submitted"** for that Group-D member, with the record and failure reason visible to HR; (Approved Technical Decision [C]) The 23:59 time boundary represents a technical execution-time detail for scheduled background processing rather than an independent business policy.
 
 ### 4.6 VP-Administration Approval
 - **`MOD3-GD-REQ-09` [A] Mandatory VP Approval Gate:** The HOD shall complete and submit the form online; submission shall require formal digital sign-off / approval from the **Vice President – Administration** before it is treated as final.
@@ -314,7 +314,7 @@ The system shall generate the following mandatory reports:
 | `MOD3-GD-REQ-05` | 4.2 | 7th of Month Submission Due Date | `[A] EXPLICIT` | Group-D Section 2(c) |
 | `MOD3-GD-REQ-06` | 4.3 | 3-Day Automated Grace Period (Up to 10th) | `[A] EXPLICIT` | Group-D Section 2(c) |
 | `MOD3-GD-REQ-07` | 4.4 | Pre-Due Date & Grace Period Reminders | `[A] EXPLICIT` | Group-D Section 2(d) |
-| `MOD3-GD-REQ-08` | 4.5 | Auto-Lockout & "Not Submitted" Flag | `[A] EXPLICIT` | Group-D Section 2(e) |
+| `MOD3-GD-REQ-08` | 4.5 | Auto-Lockout & "Not Submitted" Flag | `[A/C] EXPLICIT/TECH` | Group-D Section 2(e) |
 | `MOD3-GD-REQ-09` | 4.6 | VP – Administration Approval Sign-Off | `[A] EXPLICIT` | Group-D Section 2(b) |
 | `MOD3-GD-REQ-10` | 4.6 | Monthly Report Collation (Enclosure 2) | `[A] EXPLICIT` | Group-D Section 3 |
 | `MOD3-GD-REQ-11` | 4.7 | Annual Report 1-Year Milestone Trigger | `[A] EXPLICIT` | Group-D Section 4(a) |

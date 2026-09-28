@@ -96,7 +96,7 @@ These shared capabilities ensure architectural cohesion, eliminate operational r
 ## 10. Document and File Management
 
 - **`SHR-DOC-REQ-01` [C] Separation of Binary Storage & Database Metadata:** Binary files (CVs, degree certificates, research evidence, PDF letters) shall be stored in Object Storage; PostgreSQL shall store only metadata, access permissions, and checksums.
-- **`SHR-DOC-REQ-02` [B] File Upload Security & Validation:** All file uploads shall undergo strict MIME-type validation, file size enforcement (e.g., max 10MB per document), and SHA-256 integrity hashing.
+- **`SHR-DOC-REQ-02` [B/D] File Upload Security & Validation:** All file uploads shall undergo strict MIME-type validation and SHA-256 integrity hashing ([B] Logical Implication); the specific file size limit (e.g., max 10MB per document) is classified as **[D] Proposed Detail** (a proposed operational threshold subject to University IT confirmation, not an official university policy).
 - **`SHR-DOC-REQ-03` [C] Time-Limited Presigned Access:** Authorized users shall access stored documents via secure, time-limited presigned URLs.
 
 ---

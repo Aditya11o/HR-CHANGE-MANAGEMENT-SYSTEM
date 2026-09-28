@@ -91,7 +91,7 @@ The following actors and roles are explicitly involved in Module I operations:
 - **`MOD1-ORG-REQ-01` [A] Connected Org Chart:** The system shall provide an Organization Chart directly connected to the Central Employee Database.
 - **`MOD1-ORG-REQ-02` [A] Automated Updating:** The Organization Chart shall automatically update whenever changes occur in the Central Employee Database (e.g., updates to reporting lines, designations, departments, or supervisory roles).
 - **`MOD1-ORG-REQ-03` [B] Hierarchical Tree Traversal:** The Organization Chart shall support multi-level hierarchical visualization, allowing authorized users to navigate from executive leadership down to schools, departments, programs, and individual reportees.
-- **`MOD1-ORG-REQ-04` [C] High-Performance Caching:** The hierarchy shall be cached in Redis with immediate event-driven cache invalidation upon any approved change in reporting authority or department.
+- **`MOD1-ORG-REQ-04` [B] Real-Time Hierarchy Responsiveness:** The organizational hierarchy shall render with high performance and sub-second responsiveness, ensuring immediate, real-time reflection across visual tree structures upon any approved change in reporting authority, designation, or department (caching architecture governed by the approved technical baseline).
 
 ---
 
@@ -136,7 +136,7 @@ The system shall support standardized digital change formats across ten specific
 
 ### 7.8 Additional Responsibility Added
 - **`MOD1-CHG-REQ-14` [A] Format 3(h) — Additional Responsibility Added:** The system shall provide a standardized format to assign secondary institutional roles (e.g., Dean, Head of Department, Proctor, Warden, Committee Chair, Cell Coordinator) without removing primary designations.
-- **`MOD1-CHG-REQ-15` [B] Secondary Role Tracking:** The system shall track effective start dates, expected tenures, and administrative allowances associated with the additional responsibility.
+- **`MOD1-CHG-REQ-15` [B] Secondary Role Tracking:** The system shall track effective start dates and expected tenures associated with the additional responsibility; whether any administrative allowance is associated with specific additional responsibilities is subject to HR policy confirmation and is classified as **[E] TBD**.
 
 ### 7.9 Change in Qualifications
 - **`MOD1-CHG-REQ-16` [A] Format 3(i) — Change in Qualifications:** The system shall provide a standardized format to record the attainment of higher academic degrees, post-doctoral qualifications, statutory certifications, or professional licenses.
@@ -205,7 +205,7 @@ The system shall support standardized digital change formats across ten specific
 - **`MOD1-EFF-REQ-02` [B] Immediate vs. Future-Dated Activation:**
   - If `effective_date` $\le$ `current_date`, approved changes shall be committed to the master record immediately upon Level 2 approval.
   - If `effective_date` > `current_date`, the request remains in `APPROVED_PENDING_ACTIVATION` state until the scheduled date.
-- **`MOD1-EFF-REQ-03` [C] Automated Midnight Activation Worker:** A daily background scheduler shall query all pending approved requests whose `effective_date` matches the current date, commit the updates to the master database, realign the Org Chart, emit ERP synchronization events, and notify stakeholders.
+- **`MOD1-EFF-REQ-03` [A/C] Scheduled Activation Processing:** (Explicit Business Rule [A]) An approved change shall become effective on the specified effective date (`effective_date`); (Approved Technical Execution [C]) The technical activation timing shall be executed via automated background/scheduled processing that evaluates pending approved requests matching the effective date, commits updates to the master database, realigns the Org Chart, emits ERP synchronization events, and dispatches stakeholder notifications.
 
 ---
 
@@ -289,7 +289,7 @@ The system shall support standardized digital change formats across ten specific
 | `MOD1-APP-REQ-01` | 9 | Two-Level Approval Hierarchy | `[A] EXPLICIT` | Module I, Level Approval Hierarchy (a, b) |
 | `MOD1-APP-REQ-02` | 9 | Role-Based Gating & Order Enforcement | `[B] LOGICAL` | Derived from Approval Hierarchy |
 | `MOD1-EFF-REQ-01` | 10 | Effective Date Database Methodology | `[A] EXPLICIT` | Module I, Methodology |
-| `MOD1-EFF-REQ-03` | 10 | Automated Midnight Activation Worker | `[C] APPROVED TECH` | Tech Architecture Baseline, Section 7 |
+| `MOD1-EFF-REQ-03` | 10 | Scheduled Activation Processing | `[A/C] EXPLICIT/TECH` | Tech Architecture Baseline, Section 7 |
 | `MOD1-AUD-REQ-01` | 11 | Immutable Audit Trail | `[A] EXPLICIT` | Module I, Methodology |
 | `MOD1-AUD-REQ-02` | 11 | Audit Payload State Diffing | `[B] LOGICAL` | Derived from Audit Requirement |
 | `MOD1-VER-REQ-01` | 12 | Complete Version History | `[A] EXPLICIT` | Module I, Methodology |
