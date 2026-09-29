@@ -203,6 +203,9 @@ Every requirement in this catalogue is tagged with its official classification m
 
 ## Section K: Classification Reconciliation & TBD Register Cross-Reference
 
+> [!NOTE]
+> **Catalogue Scope & Structure:** Sections A–J contain the primary atomic requirement catalogue (totaling 104 atomic requirements). Section K contains governance/TBD reconciliation mappings and is excluded from the 104 atomic requirement count.
+
 ### 1. Mathematical Classification Summary
 Every atomic requirement in this catalogue has been assigned a single, unambiguous classification code. The counts mathematically reconcile across all sections:
 

@@ -25,7 +25,7 @@ This technical architecture baseline governs the entire solution lifecycle acros
   1. *Group-D / Band I Monthly & Annual Appraisal Workflow*
   2. *KRA/KPI Appraisal Lifecycle (General Staff)*
   3. *Faculty Annual Appraisal via Evaluation Committee Meeting (ECM Route)*
-- **Shared Platform Infrastructure:** Identity & Access Management (IAM), Role-Based Access Control (RBAC), Workflow & State Machine Engine, SLA & Timeline Engine, Asynchronous Job Scheduler, Notification Management, Document & File Storage, Audit & Versioning Engine, and Real-Time Reporting.
+- **Shared Platform Infrastructure:** Identity & Access Management (IAM), Role-Based Access Control (RBAC), Workflow & State Machine Engine, SLA & Timeline Engine, Asynchronous Job Scheduler, Notification Management, Document & File Storage, Audit & Versioning Engine, Real-Time Reporting, and Real-Time Communication Layer (Socket.IO).
 
 ### 1.3 Governance Directive
 No subsequent functional or technical document may introduce architectural patterns, frameworks, or database engines that contradict this approved baseline without formal change-control approval. Application scaffolding, database migration creation, and code implementation are strictly prohibited during this documentation-only phase.
@@ -86,6 +86,7 @@ The following technology selections represent the official and approved architec
 | **Backend Framework** | **NestJS** | Enterprise-grade, modular Node.js framework providing dependency injection, routing, validation pipes, interceptors, and guards. | **APPROVED BASELINE** | Implements the Modular Monolith pattern with strong domain encapsulation and structured module boundaries. |
 | **Backend Language** | **TypeScript** | Strongly-typed enterprise application programming language across all backend controllers, services, repositories, and domain models. | **APPROVED BASELINE** | Strict mode enabled; enforces interface compliance and compile-time verification. |
 | **API Protocol** | **REST API** | Standardized, resource-oriented HTTP/JSON communication protocol for client-to-server and integration interactions. | **APPROVED BASELINE** | OpenAPI / Swagger specification documentation for all endpoints; strict DTO validation via class-validator. |
+| **Real-Time Communication Layer** | **Socket.IO (over WebSocket)** | Server-to-client live event push for approval queue counters, SLA warnings, dynamic org-chart invalidation, and in-app alerts. | **APPROVED BASELINE** | NestJS Gateway (@nestjs/platform-socket.io) + socket.io-client. Scales horizontally via @socket.io/redis-adapter. Ephemeral notification channel; REST remains primary. |
 | **Primary Database** | **PostgreSQL** | Relational System of Record providing ACID compliance, complex joins, foreign keys, temporal logging, and JSONB for configurable forms. | **APPROVED BASELINE** | Supports robust indexing, transactional consistency, window functions for reporting, and row-level locking. |
 | **Caching & In-Memory Store** | **Redis** | High-performance in-memory data store for caching reference data (org tree, role permissions) and backing job queues. | **APPROVED BASELINE** | Key-value caching with TTLs; distributed locking where needed; backing broker for asynchronous workers. |
 | **Background Queue / Workers** | **Background Workers / Scheduler (e.g., BullMQ / NestJS Schedule)** | Asynchronous execution of temporal SLA countdowns, auto-locks, reminder notifications, PDF generation, and ERP sync. | **APPROVED BASELINE** | Decouples long-running and periodic background jobs from synchronous HTTP request/response lifecycles. |
@@ -448,10 +449,10 @@ Core shared services provide reusable, cross-cutting infrastructure across all d
 │ • Antivirus & MIME validation │ • Full before/after entity     │ • Real-time funnel metrics      │
 │ • Secure presigned URL access │   state diffs & version trees  │ • Streaming tabular data export │
 ├───────────────────────────────┼────────────────────────────────┼─────────────────────────────────┤
-│ 10. PDF Generation Service    │ 11. ERP Integration Layer      │                                 │
-│ • Headless document renderer  │ • Transactional outbox engine  │                                 │
-│ • Dynamic template population │ • Idempotent sync dispatcher   │                                 │
-│ • Tamper-evident letter print │ • Retry & reconciliation logs  │                                 │
+│ 10. PDF Generation Service    │ 11. ERP Integration Layer      │ 12. Real-Time Gateway (Socket.IO│
+│ • Headless document renderer  │ • Transactional outbox engine  │ • Server-to-client event push   │
+│ • Dynamic template population │ • Idempotent sync dispatcher   │ • Redis Pub/Sub adapter         │
+│ • Tamper-evident letter print │ • Retry & reconciliation logs  │ • Invalidation & badge alerts   │
 └───────────────────────────────┴────────────────────────────────┴─────────────────────────────────┘
 ```
 
@@ -468,6 +469,7 @@ Core shared services provide reusable, cross-cutting infrastructure across all d
 9. **Reporting Engine:** High-performance reporting service executing optimized SQL aggregation queries and database views. Generates real-time dashboard statistics and streams tabular reports (XLSX, CSV).
 10. **PDF / Document Generation Service:** Server-side templating engine rendering official university documents (LOIs, Appointment Letters, ECM Outcome Notices, Group-D Monthly Reports) into immutable, digitally verifiable PDFs.
 11. **ERP Integration Layer:** Manages synchronization with the institutional ERP. Implements a reliable Transactional Outbox pattern to guarantee eventual consistency and auditability without blocking web requests.
+12. **Real-Time Communication Gateway (Socket.IO):** Bi-directional WebSocket gateway delivering live event notifications, approval queue badge counters, org-chart cache invalidation triggers, and SLA lockout warnings to connected Next.js clients. Uses Redis Pub/Sub for horizontal scaling; preserves PostgreSQL as sole system of record.
 
 ---
 
@@ -678,7 +680,224 @@ The deployment architecture is vendor-neutral, containerized, and deployable on 
 
 ---
 
-# 16. Technology Decision Records (TDRs)
+# 16. Real-Time Communication Architecture
+
+### 16.1 Purpose
+This section establishes the official real-time communication strategy, architectural boundaries, and protocol selections for the University HR Change Management & Automation System. Its purpose is to define how live updates, workflow status changes, SLA warnings, and dynamic organizational reflections are delivered to connected web clients while strictly preserving the integrity, security, and modular monolith architecture of the platform.
+
+### 16.2 Business Need
+Throughout the university's operations across Modules I, II, and III, multiple workflows require timely operational visibility:
+- **Dynamic Organization Structure (Module I):** When employee reassignments, promotions, or departmental transfers are approved, users viewing the interactive Organization Chart require prompt reflection of updated reporting hierarchies without manual page refreshes.
+- **Pending Approvals & Live Counters (Modules I, II, & III):** HR Officers, Deans, and Executive Management oversee sequential approval queues. Live counter badges and status transitions prevent bottlenecks and eliminate stale pending lists.
+- **Recruitment Trackers & Candidate Movement (Module II):** The 30-day Open Positions Tracker and "Yet to Join" pre-onboarding pipeline demand timely synchronization across Deans, HODs, HR recruiters, and IT administrators as candidates accept Letters of Intent (LOIs).
+- **Time-Sensitive SLA Warnings & Auto-Lockouts (Module III):** Group-D monthly evaluations enforce a strict 10th-of-the-month lockout (23:59). Active evaluators require urgent visual warnings as deadlines approach. Similarly, quarterly KRA/KPI reviews and Faculty ECM schedules require timely in-app notifications.
+
+### 16.3 Real-Time vs. REST Architectural Distinction
+To avoid architectural ambiguity, a strict separation of concerns is maintained between the synchronous **REST API** and the **Real-Time Push Layer**:
+
+```
+                                  Next.js Frontend
+                                         │
+                    ┌────────────────────┴────────────────────┐
+                    │                                         │
+                 REST API                              Real-Time Layer
+            (HTTP/HTTPS Requests)                   (Socket.IO WebSocket)
+                    │                                         │
+                    └────────────────────┬────────────────────┘
+                                         │
+                                  NestJS Modular
+                                     Monolith
+                                         │
+                    ┌────────────────────┼────────────────────┐
+                    │                    │                    │
+               PostgreSQL              Redis               Workers
+            System of Record        Cache/Queue           Scheduler
+              (ACID State)          & Pub/Sub             (BullMQ)
+```
+
+1. **REST API (Primary Interaction Channel):**
+   - Authoritative channel for all client-to-server commands, state mutations, and transactional workflows.
+   - Handles all CRUD operations, form submissions, change request creations, multi-level approvals, and rejections.
+   - Handles all master data queries, paginated lists, complex SQL reports, Excel/CSV exports, and file uploads/downloads.
+   - Initial page hydration: Next.js pages always fetch their full initial state via authenticated REST endpoints.
+2. **Real-Time Layer (Server-to-Client Notification Channel):**
+   - Strictly a **server-to-client push channel** for lightweight invalidation signals, badge counter deltas, and in-app alerts.
+   - Transmits ephemeral event notifications (e.g., `approval.pending`, `orgchart.updated`, `sla.warning`).
+   - Does **NOT** execute business transactions or mutations.
+   - Does **NOT** store business state.
+   - Acts as an invalidation trigger prompting the client to re-fetch authoritative data via REST when needed.
+
+### 16.4 Real-Time Use Case Catalogue
+Every functional use case across the three modules requiring timely visibility is categorized below:
+
+| Functional Domain | Operational Use Case | Primary Protocol | Real-Time Push Mechanism | Background Worker Role | Classification |
+|---|---|:---:|:---:|:---:|:---:|
+| **Module I** | Dynamic Org Chart realignments & reporting tree updates | `[REST]` (Fetch tree) | `[REAL-TIME PUSH]` (`orgchart.updated` triggers branch re-fetch) | Invalidate Redis cache | `[COMBINATION]` |
+| **Module I** | Employee service-change approval status transitions | `[REST]` (Submit approval) | `[REAL-TIME PUSH]` (`approval.completed` updates status badge) | Write audit log; effective date check | `[COMBINATION]` |
+| **Module I** | Midnight effective-date scheduled activation | `[REST]` (Fetch profile) | `[REAL-TIME PUSH]` (`employee.activated` pushes notification to HR) | `[BACKGROUND]` (BullMQ cron commits at 00:00) | `[COMBINATION]` |
+| **Module I** | Pending approval counter indicators (HR & Management) | `[REST]` (Fetch approvals) | `[REAL-TIME PUSH]` (`approval.pending` increments counter badge) | None | `[COMBINATION]` |
+| **Module I** | Digital employee file updates & document archiving | `[REST]` (Upload file) | `[REAL-TIME PUSH]` (`employee.file.updated` alerts viewing HR staff) | Checksum & virus validation | `[COMBINATION]` |
+| **Module II** | Recruitment requisition (MRF) workflow transitions | `[REST]` (Submit MRF) | `[REAL-TIME PUSH]` (`recruitment.updated` updates pipeline view) | SLA timer initialization | `[COMBINATION]` |
+| **Module II** | Open Positions Tracker (Attachment 3) live updates | `[REST]` (Fetch tracker) | `[REAL-TIME PUSH]` (`recruitment.tracker.updated` triggers row update) | Weekly digest collation | `[COMBINATION]` |
+| **Module II** | Candidate pipeline status movement (Screening, RCS, Interview)| `[REST]` (Move stage) | `[REAL-TIME PUSH]` (`candidate.status.changed` updates stage view) | Automated screening engine | `[COMBINATION]` |
+| **Module II** | Interview scheduling, panelist assignments, and SCM updates | `[REST]` (Save schedule) | `[REAL-TIME PUSH]` (`interview.scheduled` sends toast to panelists) | `[BACKGROUND]` (Email invitation dispatch) | `[COMBINATION]` |
+| **Module II** | "Yet-to-Join" pre-onboarding tracking upon LOI acceptance | `[REST]` (Accept LOI) | `[REAL-TIME PUSH]` (`onboarding.accepted` alerts Deans, HODs, IT) | `[BACKGROUND]` (Creates Master DB record) | `[COMBINATION]` |
+| **Module II** | Recruitment SLA warning alerts (15-day MRF, 7-day Pro-Chancellor) | `[REST]` (View dashboard) | `[REAL-TIME PUSH]` (`sla.warning` renders amber/red visual banner) | `[BACKGROUND]` (BullMQ evaluates breach threshold) | `[COMBINATION]` |
+| **Module III** | Group-D monthly evaluation pending indicators for HODs | `[REST]` (Fetch forms) | `[REAL-TIME PUSH]` (`appraisal.groupd.pending` increments pending badge)| Monthly form generation on 1st | `[COMBINATION]` |
+| **Module III** | Group-D 10th-of-month auto-lockout countdown & warning | `[REST]` (Submit form) | `[REAL-TIME PUSH]` (`sla.lockout.warning` pushes urgent modal alert) | `[BACKGROUND]` (Worker locks unsubmitted at 23:59)| `[COMBINATION]` |
+| **Module III** | VP-Administration Group-D monthly sign-off reflection | `[REST]` (Submit sign-off) | `[REAL-TIME PUSH]` (`appraisal.groupd.approved` updates final status) | Aggregates annual score record | `[COMBINATION]` |
+| **Module III** | KRA/KPI pending review counters (30-day setup, quarterly reviews) | `[REST]` (Fetch reviews) | `[REAL-TIME PUSH]` (`appraisal.kra.pending` increments pending badge) | SLA timer monitoring | `[COMBINATION]` |
+| **Module III** | Quarterly KRA status transitions (Employee $\rightarrow$ Supervisor) | `[REST]` (Submit verify) | `[REAL-TIME PUSH]` (`appraisal.kra.updated` notifies employee) | Quarterly milestone scheduler | `[COMBINATION]` |
+| **Module III** | Faculty ECM live score compilation & matrix display | `[REST]` (Submit score) | `[REAL-TIME PUSH]` (`appraisal.ecm.score.updated` updates live matrix) | Compiles TNU Protocol scores | `[COMBINATION]` |
+| **Module III** | Faculty eligibility list notification (monthly 10th batch run) | `[REST]` (View list) | `[REAL-TIME PUSH]` (`appraisal.faculty.eligible` alerts HR & Registrar) | `[BACKGROUND]` (Monthly 10th batch scanner) | `[COMBINATION]` |
+| **Shared** | Universal in-app notification delivery (bell alerts & toasts) | `[REST]` (Fetch history) | `[REAL-TIME PUSH]` (`notification.created` delivers toast & badge) | `[BACKGROUND]` (Persists notification record) | `[COMBINATION]` |
+| **Shared** | Universal approval queue counter badges across all modules | `[REST]` (Fetch queue) | `[REAL-TIME PUSH]` (`queue.counter.updated` pushes delta counter) | None | `[COMBINATION]` |
+| **Shared** | Universal SLA reminders, countdowns, and escalation warnings | `[REST]` (View alerts) | `[REAL-TIME PUSH]` (`sla.warning` displays banner alert to supervisor) | `[BACKGROUND]` (BullMQ timer evaluates escalation)| `[COMBINATION]` |
+| **Shared** | Workflow state transitions across all entities | `[REST]` (Execute command) | `[REAL-TIME PUSH]` (`workflow.state.changed` broadcasts to room) | Audit log record written | `[COMBINATION]` |
+| **Shared** | Audit trail & security event monitoring | `[REST]` (Query audit) | `[REAL-TIME PUSH]` (Reserved strictly for critical security alerts) | `[BACKGROUND]` (Interceptors record audit log) | `[REST]` / `[PUSH]` |
+
+### 16.5 Technology Evaluation
+The architectural working group evaluated **Native WebSocket (`ws`)** versus **Socket.IO** across twelve rigorous engineering criteria:
+1. **Fit with Next.js Frontend:** Socket.IO provides a dedicated, lightweight client (`socket.io-client`) that cleanly integrates with React's component lifecycle via custom context providers and hooks. Native WebSocket requires bespoke connection lifecycle wrappers, reconnect loops, and message parsing logic.
+2. **Fit with NestJS Backend:** NestJS provides first-class support for Socket.IO via `@nestjs/platform-socket.io` and `@nestjs/websockets`. Gateway decorators (`@WebSocketGateway()`, `@SubscribeMessage()`, `@WebSocketServer()`) map natively onto Socket.IO namespaces and rooms.
+3. **Server-to-Client Event Delivery:** Socket.IO provides named event multiplexing out of the box, allowing distinct, strongly-typed event handlers. Native WebSocket requires custom application-level framing and JSON parsing wrappers.
+4. **Reconnection Support:** Socket.IO features battle-tested automatic reconnection with configurable exponential backoff and randomized jitter, maintaining client state through transient network blips and workstation sleep cycles. Native WebSocket requires building and maintaining custom heartbeat and retry algorithms.
+5. **Connection Lifecycle Management:** Socket.IO provides declarative lifecycle hooks (`connect`, `disconnect`, `connect_error`, `reconnect_attempt`) with built-in heartbeat ping/pong mechanisms to promptly detect half-open TCP sockets.
+6. **Authentication & Authorization Integration:** Socket.IO supports token transmission during the connection handshake (`auth: { token }`). NestJS `WsGuard` inspects this token before accepting the connection, preventing unauthenticated clients from consuming server resources.
+7. **Room and Channel Support:** Socket.IO natively implements server-side rooms (`socket.join('user:123')`, `socket.join('dept:cse')`, `socket.join('role:dean')`). This provides the exact departmental and role-based scoping required by University HR operations. Native WebSocket requires engineering a bespoke in-memory pub/sub routing registry.
+8. **Horizontal Scaling:** Clustered NestJS instances require cross-node event propagation. Socket.IO provides the official, mature `@socket.io/redis-adapter`, which uses Redis Pub/Sub to distribute room broadcasts across application nodes without custom messaging infrastructure. Native WebSocket requires building a custom Redis Pub/Sub bridge.
+9. **Redis Integration:** Reuses the existing, approved Redis infrastructure ([`TDR-06`](#tdr-06-redis-for-caching-and-queue-orchestration)) without introducing additional brokers.
+10. **Operational Complexity:** Socket.IO runs embedded inside the NestJS process, sharing the HTTP server port (or utilizing a dedicated gateway port) and requiring zero standalone messaging daemons.
+11. **Suitability for HR Workflows:** HR change management is a workflow-driven system characterized by low-to-medium event volumes (notifications, counter updates, invalidation signals), where developer ergonomics, room semantics, and reconnect reliability far outweigh micro-optimizations of raw frame overhead.
+12. **Documentation & Maintainability:** Socket.IO is one of the most widely documented, stable, and community-tested real-time libraries in the Node.js/TypeScript ecosystem.
+
+### 16.6 Socket.IO vs. Native WebSocket Comparison
+
+| Evaluation Dimension | Native WebSocket (`ws` / `@nestjs/platform-ws`) | Socket.IO (`@nestjs/platform-socket.io`) | Architectural Impact for University HR System |
+|---|---|---|---|
+| **Protocol Overhead** | Extremely low (raw RFC 6455 frames). | Low (Engine.IO framing wrapper around WebSocket). | Negligible impact at enterprise HR workflow transaction volumes. |
+| **Reconnection Handling** | Manual implementation required (timers, backoff, jitter). | **Built-in automatic reconnection** with backoff & jitter. | **Decisive Advantage:** Eliminates bespoke client retry state machines. |
+| **Heartbeat / Health Check** | Custom ping/pong message framing required. | **Built-in periodic heartbeats** (ping/pong). | Promptly cleans up stale connections on campus WiFi roaming. |
+| **Room / Channel Abstraction**| None (must implement custom connection-to-room registry). | **Native server-side rooms and namespaces**. | **Decisive Advantage:** Directly satisfies RBAC and departmental isolation. |
+| **Multi-Node Redis Scaling** | Custom Redis Pub/Sub subscription & dispatch code needed. | **Turnkey `@socket.io/redis-adapter`**. | **Decisive Advantage:** Scales Modular Monolith across nodes effortlessly. |
+| **Transport Fallback** | Fails if corporate/campus proxy blocks raw WebSocket. | **Automatic fallback to HTTP long-polling**. | Guarantees connectivity across restrictive institutional networks. |
+| **NestJS Ecosystem Fit** | Supported via platform adapter; requires manual room code.| **First-class native driver** with full decorator support. | Cleanest alignment with NestJS Modular Monolith patterns. |
+
+### 16.7 Approved Architecture Decision
+Based on the comprehensive technology evaluation and operational suitability analysis:
+
+> **Socket.IO is the APPROVED real-time communication technology (`[C] Approved Technical Decision`) for the application-level server-to-client real-time channel within the NestJS Modular Monolith and Next.js frontend.**
+
+### 16.8 Security & Authorization
+The real-time communication architecture enforces zero-trust security principles:
+1. **Pre-Connection Handshake Authentication:** Clients must transmit a valid JWT / Bearer token within the `auth` payload during the initial Socket.IO connection handshake. A NestJS `WsGuard` validates the token before the connection is accepted. Unauthenticated connection attempts are immediately rejected.
+2. **RBAC Room Authorization:** Upon successful authentication, the gateway inspects the user's role and departmental scope, enrolling the socket strictly into authorized rooms:
+   - Personal Room: `user:<user_id>` (private alerts, personal change requests).
+   - Departmental Room: `dept:<department_id>` (departmental change requests, HOD alerts).
+   - Institutional Role Room: `role:<role_name>` (e.g., `role:hr_officer`, `role:dean`, `role:management`).
+3. **Departmental & Data Privacy Isolation:** Sockets are forbidden from joining arbitrary rooms. Users never receive another department's confidential HR, compensation, or performance data simply because they maintain an active WebSocket connection.
+4. **Least-Privilege Event Payloads:** Event payloads contain only lightweight entity identifiers, event types, and timestamps (e.g., `{ entityId: 'cr-104', type: 'SALARY_CHANGE', status: 'PENDING_APPROVAL' }`). Payloads **never contain sensitive HR data** (salary figures, PAN/Aadhaar numbers, performance ratings). Connected clients fetch authorized detailed data via authenticated REST endpoints.
+5. **Connection Lifecycle Auditability:** Gateway connection events, authorization failures, and disconnections are logged for security compliance.
+6. **Identity Provider Baseline:** Specific enterprise SSO provider integration remains classified as `[E] TBD` (`REQ-TBD-07a`). Handshake authentication relies on the abstracted `AuthModule` JWT contract.
+
+### 16.9 Reliability, Consistency & State Synchronization
+The real-time layer is governed by the following reliability invariants:
+1. **PostgreSQL as Single Source of Truth:** Business operations always commit state to PostgreSQL first. Real-time events are post-commit notifications. A missed real-time event never causes data corruption or loss of business records.
+2. **Transactional Event Flow:**
+   ```
+   Business Operation (REST Client Command)
+           ↓
+   Transactional State Update in PostgreSQL (ACID Commit)
+           ↓
+   Persist Authoritative State & Write Audit Log
+           ↓
+   Publish Real-Time Event via Socket.IO Gateway (and Redis Pub/Sub)
+           ↓
+   Connected Clients Invalidate Local View & Fetch Authoritative Data via REST
+   ```
+3. **Reconnection State Recovery:** If a client disconnects due to network interruptions, workstation sleep, or tab switching, it executes an automated recovery sequence upon reconnect:
+   - Re-fetches current unread notification count via REST.
+   - Re-fetches pending approval queue counts via REST.
+   - Triggers SWR / React Query cache invalidation for the active view.
+4. **At-Most-Once Push Delivery:** Socket.IO operates as a best-effort server push channel. Because full authoritative state is always recoverable through REST reads, complex distributed message brokers or client-side acknowledgment queues are not required for real-time push.
+
+### 16.10 Scaling Architecture
+The real-time layer scales seamlessly from development to multi-node production:
+1. **Single Application Instance:** In development, testing, and single-container deployments, the Socket.IO gateway runs in-memory within the NestJS process, maintaining connected sockets and rooms in local memory.
+2. **Horizontally Scaled Application Instances:** In production clusters where multiple NestJS Modular Monolith containers run behind a reverse proxy (e.g., Nginx, Traefik, AWS ALB):
+   - **Sticky Sessions:** The reverse proxy is configured with cookie-based session affinity for the initial Socket.IO handshake to ensure connection upgrades terminate on the same node.
+   - **Redis Pub/Sub Adapter:** The gateway utilizes `@socket.io/redis-adapter` connected to the managed Redis cluster. When an event is emitted to a room on Node A, the adapter publishes it to Redis Pub/Sub, delivering it to Node B and Node C for broadcast to their locally connected clients.
+   - **Modular Monolith Preserved:** Scaling is achieved purely at the container level; the architecture remains strictly a Modular Monolith without microservices.
+
+### 16.11 Relationship with Redis
+- Redis acts exclusively as **supporting infrastructure**:
+  1. In-memory cache store (hierarchical org tree, user role permissions).
+  2. Persistent queue broker for BullMQ background workers.
+  3. Pub/Sub distribution backbone for `@socket.io/redis-adapter`.
+  4. Distributed coordination and atomic locks for scheduled cron jobs.
+- **Redis is NOT the System of Record.** If Redis is restarted or evicted, no employee records, change histories, or approval audits are lost.
+
+### 16.12 Relationship with Background Workers / Scheduler
+- Asynchronous tasks and time-based business rules are executed exclusively by **Background Workers (BullMQ)**:
+  - Midnight effective-date activation processing (`MOD1-DAT-01`).
+  - Monthly Group-D auto-lockout enforcement at 23:59 on the 10th (`MOD3-GD-EVAL-01`).
+  - Quarterly KRA/KPI reminder sequences (90/20/15/7 days) (`MOD3-KRA-QTR-01`).
+  - Monthly 10th faculty appraisal eligibility batch scans (`MOD3-FAC-ELG-01`).
+  - Asynchronous PDF document compilation and ERP synchronization outbox dispatch.
+- **Worker-to-Gateway Handshake:** When a background worker completes a milestone or detects an approaching SLA breach, it dispatches an event via the shared Socket.IO Gateway (or Redis Pub/Sub), delivering an immediate live alert to online users while queuing external notifications (email/SMS).
+
+### 16.13 Conceptual Event Model
+The real-time layer utilizes a domain-prefixed naming strategy.
+
+> [!IMPORTANT]
+> The event names below represent a **conceptual architecture model (`[D] Proposed Detail`)**. They do NOT constitute final API contracts. Final event payload schemas and DTOs will be defined in upcoming specification phases.
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                             CONCEPTUAL REAL-TIME EVENT TAXONOMY                                  │
+├─────────────────────┬─────────────────────────────────┬──────────────────────────────────────────┤
+│ Event Concept       │ Target Room / Audience          │ Conceptual Purpose                       │
+├─────────────────────┼─────────────────────────────────┼──────────────────────────────────────────┤
+│ `orgchart.updated`  │ `dept:<dept_id>`, `role:hr`     │ Invalidate client-side org tree branch   │
+│ `employee.updated`  │ `user:<emp_id>`, `role:hr`      │ Notify employee profile modification     │
+│ `approval.pending`  │ `role:approver`, `user:<id>`    │ Increment pending approval queue counter │
+│ `approval.completed`│ `user:<initiator_id>`           │ Notify change request final approval     │
+│ `recruitment.updated`│ `role:recruiter`, `dept:<id>`  │ Requisition stage update                 │
+│ `candidate.status`  │ `role:recruiter`, `panel:<id>`  │ Candidate stage transition in pipeline   │
+│ `appraisal.updated` │ `user:<emp_id>`, `user:<sup_id>`│ Performance appraisal workflow advance   │
+│ `sla.warning`       │ `user:<assignee_id>`, `role:mgr`│ Pre-deadline breach warning banner       │
+│ `notification.new`  │ `user:<user_id>`                │ Universal in-app notification bell toast │
+└─────────────────────┴─────────────────────────────────┴──────────────────────────────────────────┘
+```
+
+### 16.14 Future Implementation Dependencies
+Implementation of the real-time layer is deferred until subsequent documentation phases conclude:
+1. **Phase 08 (Database Architecture):** Physical database entity modeling for in-app notifications and approval queues.
+2. **Phase 09 (API Specification):** Formal REST endpoints and AsyncAPI event schema definitions.
+3. **Phase 10 (UI/UX Design System):** Toast alert visual styling, live badge counters, and real-time org-chart visual transition animations.
+4. **Phase 13 (Deployment Specification):** Reverse proxy WebSocket upgrade configuration and Redis cluster adapter parameters.
+
+### 16.15 Open / TBD Decisions
+The following real-time infrastructure parameters remain open:
+1. **Enterprise SSO Identity Provider (`REQ-TBD-07a`):** Handshake authentication leverages the abstracted JWT contract pending institutional IdP confirmation.
+2. **Outbound Notification Gateways (`REQ-TBD-10`):** External SMTP server credentials and SMS gateway providers for multi-channel notification dispatch.
+3. **Campus Network Proxy Policies:** Physical confirmation of university network proxy handling of WebSocket protocols.
+
+### 16.16 Traceability to Source Requirements
+The real-time communication architecture is directly traced to authoritative source requirements:
+- `MOD1-ORG-01` / `REQ-MOD1-04`: Dynamic Org Chart live reflection $\rightarrow$ `orgchart.updated` event.
+- `MOD1-APP-01` / `REQ-MOD1-16`: 2-Level approval queue indicators $\rightarrow$ `approval.pending` event.
+- `MOD1-DAT-01` / `REQ-MOD1-19`: Effective-date scheduled activation $\rightarrow$ `employee.activated` event.
+- `MOD2-POS-01` / `REQ-MOD2-09`: Open Positions Tracker live visibility $\rightarrow$ `recruitment.tracker.updated` event.
+- `MOD2-ONB-01` / `REQ-MOD2-20`: Yet-to-Join pre-onboarding alerts $\rightarrow$ `onboarding.accepted` event.
+- `MOD3-GD-EVAL-01` / `REQ-MOD3-04`: Group-D 10th lockout SLA warnings $\rightarrow$ `sla.lockout.warning` event.
+- `MOD3-KRA-QTR-01` / `REQ-MOD3-12`: KRA quarterly reminder notifications $\rightarrow$ `appraisal.kra.updated` event.
+- `MOD3-FAC-ECM-01` / `REQ-MOD3-17`: Faculty ECM live score display $\rightarrow$ `appraisal.ecm.score.updated` event.
+- `REQ-SLA-01` through `REQ-SLA-10`: Universal in-app alerts and escalations $\rightarrow$ `notification.new` & `sla.warning` events.
+
+---
+
+# 17. Technology Decision Records (TDRs)
 
 The following Technical Decision Records document the specific engineering justifications for each approved technology:
 
@@ -730,9 +949,19 @@ The following Technical Decision Records document the specific engineering justi
   2. *Robust Queue Backing (BullMQ):* Provides persistent, reliable queuing for background workers handling SLA countdowns, auto-locks, email dispatch, and ERP synchronization.
   3. *Distributed Synchronization:* Enables atomic distributed locks for scheduled tasks running across clustered application instances.
 
+### TDR-07: Socket.IO for Server-to-Client Real-Time Communication
+- **Decision:** Adopt **Socket.IO** (over WebSocket) as the approved real-time communication technology (`[C] Approved Technical Decision`) for server-to-client event delivery.
+- **Context:** University HR operations require timely visibility into approval queues, SLA warnings, dynamic org-chart invalidations, and candidate pipeline changes without aggressive polling.
+- **Technical Justification:**
+  1. *NestJS Native Support:* Built-in `@nestjs/platform-socket.io` module provides clean decorator-driven gateways (`@WebSocketGateway()`, `@SubscribeMessage()`) fully integrated with dependency injection and RBAC execution contexts.
+  2. *Reconnection Resilience:* Out-of-the-box automatic reconnection with backoff and jitter gracefully handles workstation sleep cycles, WiFi roaming, and temporary network drops.
+  3. *Native Room Scoping:* Built-in server-side rooms (`user:`, `dept:`, `role:`) directly enforce institutional RBAC and departmental confidentiality without custom subscription registry code.
+  4. *Turnkey Horizontal Scaling:* Official `@socket.io/redis-adapter` utilizes existing Redis infrastructure for multi-node event distribution without requiring external message brokers or microservices.
+  5. *Transport Fallback:* Gracefully degrades to HTTP long-polling if restrictive campus network firewalls terminate raw WebSocket connections.
+
 ---
 
-# 17. Requirement Traceability
+# 18. Requirement Traceability
 
 The following matrix provides comprehensive, technology-level traceability mapping every authoritative requirement identifier from [`PROJECT_REQUIREMENTS_ANALYSIS.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/PROJECT_REQUIREMENTS_ANALYSIS.md) to its corresponding architectural component and technology implementation:
 
@@ -765,10 +994,17 @@ The following matrix provides comprehensive, technology-level traceability mappi
 | `MOD3-FAC-VER-01`| Multi-department verification routing (Dean, R&D, Placement, HR) & discrepancy loop. | `PerformanceManagementModule.FacultyEcm` | NestJS Parallel Workflow Engine | Distributes self-appraisal dossier across 4 verification units. Implements return-to-faculty discrepancy resubmission loop. |
 | `MOD3-FAC-ECM-01`| Monthly ECM scheduled by Registrar; digital score sheet; TNU Protocol matrix. | `PerformanceManagementModule.FacultyEcm` | Next.js ECM Portal + Scoring Engine | Registrar scheduling portal; digital score entry during meeting; compiles Evaluation Matrix with TNU weights and increment history. |
 | `MOD3-FAC-SAL-01`| Implement compensation in next salary cycle; auto-generate letter to faculty/payroll. | `PerformanceManagementModule.FacultyEcm` + `PdfService` | Temporal Scheduler + PDF Generator | Tracks implementation in next salary cycle; auto-generates official outcome letter to Faculty and HR/Payroll; archives to Personal File. |
+| `MOD1-ORG-RT-01` | Dynamic Org Chart real-time cache invalidation on reporting changes. | `OrganizationModule` + `RealTimeGateway` | Socket.IO + Redis Pub/Sub + Next.js Tree | `orgchart.updated` push event invalidates client-side tree cache, prompting targeted REST re-fetch. |
+| `MOD1-APP-RT-01` | 2-Level approval queue live counter badges and status transitions. | `WorkflowEngineModule` + `RealTimeGateway` | Socket.IO + NestJS Gateway | `approval.pending` and `approval.completed` events update live badge counters without manual reload. |
+| `MOD2-POS-RT-01` | Open Positions Tracker live status update across recruitment milestones. | `RecruitmentModule` + `RealTimeGateway` | Socket.IO + Next.js Tracker Component | `recruitment.tracker.updated` pushes row updates as vacancies transition across sourcing and interview stages. |
+| `MOD2-ONB-RT-01` | "Yet-to-Join" pre-onboarding instant notification upon LOI acceptance. | `RecruitmentModule` + `RealTimeGateway` | Socket.IO + Next.js Toast Provider | `onboarding.accepted` broadcasts onboarding initiation to Deans, HODs, and IT Admin. |
+| `MOD3-GD-SLA-01` | Group-D 10th-of-month auto-lockout countdown & urgent visual warnings. | `PerformanceManagementModule.GroupD` + `RealTimeGateway` | Socket.IO + BullMQ Worker | `sla.lockout.warning` pushes urgent modal alert before 23:59 lockout on the 10th. |
+| `MOD3-FAC-RT-01` | Faculty ECM live score sheet compilation and matrix display to Management. | `PerformanceManagementModule.FacultyEcm` + `RealTimeGateway` | Socket.IO + Next.js ECM Portal | `appraisal.ecm.score.updated` synchronizes committee evaluation scores in real-time during meetings. |
+| `SHR-SLA-RT-01`  | Universal in-app SLA alerts, countdown reminders, and escalation banners. | `SlaTimelineModule` + `RealTimeGateway` | Socket.IO + BullMQ Scheduler | `sla.warning` renders visual amber/red alert banners for pending tasks approaching deadlines. |
 
 ---
 
-# 18. Architecture Risks and Open Decisions
+# 19. Architecture Risks and Open Decisions
 
 To maintain strict architectural discipline, already-approved decisions (Next.js, TypeScript, Vanilla CSS, NestJS, PostgreSQL, Redis, Modular Monolith) are **finalized** and are **not** open decisions.
 
@@ -807,7 +1043,7 @@ The following genuine unresolved items are formally cataloged as open decisions 
 
 ---
 
-# 19. Future Documentation Dependencies
+# 20. Future Documentation Dependencies
 
 This baseline document establishes the technical foundation for the project. In accordance with the documentation roadmap, the following technical specifications will be produced in subsequent documentation phases:
 
@@ -877,7 +1113,7 @@ This baseline document establishes the technical foundation for the project. In 
 
 ---
 
-# 20. Architecture Governance
+# 21. Architecture Governance
 
 To guarantee absolute fidelity to requirements and architectural integrity, the following governance rules are established:
 

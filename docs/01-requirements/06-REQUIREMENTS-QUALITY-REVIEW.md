@@ -21,7 +21,7 @@ The primary objective of this review is to verify the rigorous alignment of all 
 4. **Approved Technical Architecture Baseline** ([`TECHNOLOGY_ARCHITECTURE_BASELINE.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/TECHNOLOGY_ARCHITECTURE_BASELINE.md))
 
 During this review and correction cycle, an in-depth audit of the initial draft was conducted. Several documentation-level discrepancies were identified and resolved:
-- **Classification Count Mathematical Reconciliation:** Reconciled an initial reporting discrepancy where the review claimed 80 total requirements and 8 TBD items, establishing the true, mathematically verified count of **104 atomic requirements** across Sections A through J.
+- **Classification Count Mathematical Reconciliation:** Reconciled an initial reporting discrepancy where the review claimed 80 total requirements and 8 TBD items, establishing the true, mathematically verified count of **104 atomic requirements** across Sections A through J. Sections A–J contain the primary atomic requirement catalogue. Section K contains governance/TBD reconciliation mappings and is excluded from the 104 atomic requirement count.
 - **TBD Register Harmonization:** Explicitly reconciled the three (3) atomic system integration requirements classified as `[E]` in the catalogue (`REQ-EXT-03`, `REQ-EXT-04`, `REQ-EXT-05`) with the eleven (11) items in the Controlled TBD Register (`REQ-TBD-01` through `REQ-TBD-11`).
 - **Decoupling Technical Design from Business Mandates:** Removed compound classification tags (`[A/C]`, `[B/E]`, `[B/D]`) and decoupled technical implementation details (such as Transactional Outbox, background worker activation execution, and idempotency keys) from pure business requirements.
 - **Scope Boundary Reclassification:** Restructured Section 3 of `03-SCOPE-AND-BOUNDARIES.md` so that inferred boundaries (e.g., biometric hardware, SIS, LMS, travel/expense claims) are not improperly presented as explicit institutional source decisions.
@@ -55,7 +55,7 @@ During this review and correction cycle, an in-depth audit of the initial draft 
 
 ### Finding 1: Mathematical Classification Count Discrepancy
 - **Initial State:** The initial draft report listed an approximate table claiming 80 total requirements (`[A] = 56`, `[B] = 10`, `[C] = 5`, `[D] = 1`, `[E] = 8`), which failed to match the actual 103 items present in [`02-REQUIREMENT-CATALOGUE.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/02-REQUIREMENT-CATALOGUE.md).
-- **Audit Correction:** An exact section-by-section audit was conducted across Sections A through J. The compound upload security requirement (`REQ-DOC-07`) was split into `REQ-DOC-07` (`[B]`) and `REQ-DOC-08` (`[D]`), resulting in **104 distinct atomic requirements**. Every requirement was assigned a single unambiguous classification, mathematically reconciling to:
+- **Audit Correction:** An exact section-by-section audit was conducted across Sections A through J. The compound upload security requirement (`REQ-DOC-07`) was split into `REQ-DOC-07` (`[B]`) and `REQ-DOC-08` (`[D]`), resulting in **104 distinct atomic requirements**. Sections A–J contain the primary atomic requirement catalogue. Section K contains governance/TBD reconciliation mappings and is excluded from the 104 atomic requirement count. Every requirement was assigned a single unambiguous classification, mathematically reconciling to:
   $$\mathbf{[A]\ (88) + [B]\ (8) + [C]\ (4) + [D]\ (1) + [E]\ (3) = 104\ Total}$$
 
 ---
@@ -132,6 +132,9 @@ The Requirement Catalogue achieves comprehensive coverage across all operational
 │ TOTAL ATOMIC REQUIREMENTS CATALOGUED                     │ 104         │ Reconciled 100%         │
 └──────────────────────────────────────────────────────────┴─────────────┴─────────────────────────┘
 ```
+
+> [!NOTE]
+> **Catalogue Scope & Structure:** Sections A–J contain the primary atomic requirement catalogue (totaling 104 atomic requirements). Section K contains governance/TBD reconciliation mappings and is excluded from the 104 atomic requirement count.
 
 ---
 

@@ -16,6 +16,9 @@ This document provides a formal, controlled register of all unresolved requireme
 
 In strict compliance with enterprise engineering standards and the **Anti-Invention Mandate**, missing business rules, mathematical weights, or third-party platforms are **never guessed or fabricated**. Instead, they are cataloged herein under classification **`[E] TBD / Open Decision`**, with precise attribution, operational impact analysis, and assigned institutional decision owners.
 
+> [!NOTE]
+> **Catalogue Scope & Structure:** Sections A–J of [`02-REQUIREMENT-CATALOGUE.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/02-REQUIREMENT-CATALOGUE.md) contain the primary atomic requirement catalogue (totaling 104 atomic requirements). Section K of the catalogue and this register provide governance and TBD reconciliation mappings, and are excluded from the 104 atomic requirement count.
+
 ---
 
 ## 2. Summary of Open Items & Catalogue Mapping
