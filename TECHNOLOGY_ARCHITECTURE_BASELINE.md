@@ -292,7 +292,7 @@ The requirements of Module I (HR Change Management & Automation System) are mapp
 | **Central Database of all Employees** | `MOD1-CDB-01` | Master Employee Entity & Ledger | `EmployeeCoreModule` | PostgreSQL (`employees`, `employee_service_history`) | Single source of truth. ACID transactional updates. Relational foreign keys for department, designation, and reporting supervisor. |
 | **Dynamic Organization Chart** | `MOD1-ORG-01` | Org Hierarchy Builder & Visualizer API | `OrganizationModule` | PostgreSQL + Redis (Tree Cache) | Adjacency list / closure table hierarchy model. Real-time cache invalidation on reporting changes. D3-compatible hierarchical JSON output. |
 | **10 Service Change Formats** | `MOD1-CHG-01` | Polymorphic Change Request Engine | `ChangeManagementModule` | PostgreSQL (`change_requests`, `change_details_jsonb`) | Standardized base entity with type-specific validation pipes for Salary, Designation, Reportee, Supervisor, Level, School, Location, etc. |
-| **2-Level Approval Hierarchy** | `MOD1-APP-01` | Two-Stage Approval State Machine | `WorkflowEngineModule` | PostgreSQL (`workflow_instances`, `approval_actions`) | Sequential state transitions: `SUBMITTED` $\rightarrow$ `HR_REVIEW` $\rightarrow$ `MANAGEMENT_APPROVAL` $\rightarrow$ `APPROVED`. Role guards enforce authorization. |
+| **2-Level Approval Hierarchy** | `MOD1-APP-01` | Two-Stage Approval State Machine | `WorkflowEngineModule` | PostgreSQL (`workflow_instances`, `approval_actions`) | Sequential state transitions: `SUBMITTED` → `HR_REVIEW` → `MANAGEMENT_APPROVAL` → `APPROVED`. Role guards enforce authorization. |
 | **Effective-Date Processing** | `MOD1-DAT-01` | Temporal Scheduler & Activation Engine | `ChangeManagementModule` + `SlaTimelineModule` | Background Worker (BullMQ / Cron) | Requests with future `effective_date` stored in `APPROVED_PENDING_ACTIVATION`. Daily midnight worker commits active changes to master tables. |
 | **Audit Trail & Version History** | `MOD1-DAT-01` | Immutable Audit Ledger & Version Interceptor | `AuditModule` | PostgreSQL (`audit_logs`, `entity_versions`) | NestJS interceptor captures `user_id`, timestamp, IP, `pre_state`, and `post_state`. Snapshot stored on every update. |
 | **ERP Reflection / Integration** | `MOD1-CDB-01` | ERP Outbound Event Adapter | `ErpAdapterModule` | PostgreSQL (`erp_outbox`) + Worker | Transactional Outbox Pattern: committing change writes an outbox record; background worker delivers payload to ERP with retry and backoff. |
@@ -330,15 +330,15 @@ Module II (Recruitment & Selection Automation System) encompasses two distinct r
 
 | Functional Requirement | Traceability ID | Architectural Component | Backend Module | Persistence / Infrastructure | Technical Execution Pattern |
 |---|---|---|---|---|---|
-| **Academic Manpower Planning** | `MOD2-MP-FAC-01`, `MOD2-MP-FAC-02` | Semester Requisition Engine | `RecruitmentModule` | PostgreSQL (`manpower_plans`, `teaching_loads`) | Scheduled 4-month trigger. 15-day submission deadline. Associate Dean vetting $\ge 3$ months prior. 15-day consolidation to Pro-Chancellor. |
-| **Non-Academic Manpower Planning** | `MOD2-MP-NF-01` | Annual Requisition Engine | `RecruitmentModule` | PostgreSQL (`manpower_plans`, `mrfs`) | Annual 4-month trigger. Enforces strict limit of 1 planned MRF per department per year. Head HR vetting $\rightarrow$ Pro-Chancellor approval. |
+| **Academic Manpower Planning** | `MOD2-MP-FAC-01`, `MOD2-MP-FAC-02` | Semester Requisition Engine | `RecruitmentModule` | PostgreSQL (`manpower_plans`, `teaching_loads`) | Scheduled 4-month trigger. 15-day submission deadline. Associate Dean vetting >= 3 months prior. 15-day consolidation to Pro-Chancellor. |
+| **Non-Academic Manpower Planning** | `MOD2-MP-NF-01` | Annual Requisition Engine | `RecruitmentModule` | PostgreSQL (`manpower_plans`, `mrfs`) | Annual 4-month trigger. Enforces strict limit of 1 planned MRF per department per year. Head HR vetting → Pro-Chancellor approval. |
 | **Urgent Replacement Workflow** | `MOD2-RES-01` | Resignation Replacement Tracker | `RecruitmentModule` + `SlaTimelineModule` | PostgreSQL + Background Workers | Ingests `EmployeeResignedEvent` from Module I. Starts replacement countdown timer. Manages ad-hoc MRF through approval and sourcing. |
 | **Open Positions Tracker** | `MOD2-POS-01` | Requisition Ledger (Attachment 3) | `RecruitmentModule` | PostgreSQL (`open_positions_tracker`) | Auto-updated on MRF approval (within 30 days). Real-time position status (`OPEN`, `SOURCING`, `INTERVIEWING`, `OFFERED`, `FILLED`). |
 | **Central CV Database & Sourcing** | `MOD2-SRC-01` | Multi-Channel Intake Pipeline | `CandidateCvModule` | PostgreSQL (`candidates`, `applications`) + Object Storage | Parses and stores candidate profiles from email, social, website, referrals, and Internshala. Deduplication by email/phone. |
 | **Screening & UGC Norms** | `MOD2-SRC-02` | Automated Screening Engine | `CandidateCvModule` | PostgreSQL + Rules Service | Rules-based filter evaluating degree qualification, minimum years of experience, and UGC compliance flags. |
 | **Recruiter Calling Stage (RCS)** | `MOD2-RCS-01` | Recruiter Calling Sub-System | `CandidateCvModule` | PostgreSQL (`recruiter_call_records`) | Form for telephonic interview logging. Routes candidate dossier to HOD-HR for review and Management for pre-interview sign-off. |
 | **Academic Selection (SCM)** | `MOD2-SEL-FAC-01` | Statutory SCM Portal | `RecruitmentModule` + `IamModule` | PostgreSQL (`selection_committees`, `scm_scores`) | Generates secure digital invitations and time-limited tokens for external subject experts. Online interview marks entry; auto-compiles Evaluation Matrix. |
-| **Non-Academic Selection** | `MOD2-SEL-NF-01` | Three-Round Interview Engine | `RecruitmentModule` | PostgreSQL (`interview_rounds`, `round_scores`) | Sequential workflow: Round 1 (Technical) $\rightarrow$ Round 2 (HR) $\rightarrow$ Round 3 (Management). Captures scores for Job Knowledge, Communication, Attitude. |
+| **Non-Academic Selection** | `MOD2-SEL-NF-01` | Three-Round Interview Engine | `RecruitmentModule` | PostgreSQL (`interview_rounds`, `round_scores`) | Sequential workflow: Round 1 (Technical) → Round 2 (HR) → Round 3 (Management). Captures scores for Job Knowledge, Communication, Attitude. |
 | **LOI Generation & "Yet to Join"** | `MOD2-ONB-01` | Offer Generator & Pre-Onboarding Tracker | `RecruitmentModule` + `DocumentModule` | PostgreSQL + Object Storage | Auto-renders Letter of Intent PDF from template upon Management cost approval. Acceptance marks candidate as "Yet to Join"; notifies Deans, HODs, IT. |
 
 ---
@@ -377,7 +377,7 @@ Module III comprises **three distinct, non-interchangeable performance managemen
   - Automated grace period: up to the 10th.
   - Daily reminder jobs dispatch notifications to delinquent HODs.
   - **Auto-Lock Worker:** At 23:59 on the 10th, an automated background worker executes:
-    $$\text{UPDATE evaluations SET status = 'NOT_SUBMITTED', locked = TRUE WHERE status = 'PENDING' AND period = :current_month}$$
+    `UPDATE evaluations SET status = 'NOT_SUBMITTED', locked = TRUE WHERE status = 'PENDING' AND period = :current_month`
     Flags record for HR review with failure reason (`MOD3-GD-EVAL-01`).
 - **Approval Gateway:** HOD submissions enter `PENDING_VP_APPROVAL` state. Formal approval from **Vice President – Administration** is enforced via role guard before the evaluation is finalized (`MOD3-GD-APP-01`).
 - **Collation & Annual Review Engine:**
@@ -393,7 +393,7 @@ Module III comprises **three distinct, non-interchangeable performance managemen
   1. *Stage 1 (Onboarding Goal Setting):* Event hook on new employee creation in `EmployeeCoreModule`. Generates KRA/KPI setup task for employee and Reporting Authority. Strict **30-day countdown timer** from DOJ. Enforces formal verification and locking by HR and Management (`MOD3-KRA-SET-01`).
   2. *Stage 2 (Quarterly Review Cycle Q1–Q4):*
      - Scheduled trigger at **90 days from DOJ** intimates employee for Q1 review.
-     - **20-Day Reminder Worker:** Dispatches alert if submission remains pending at $90 + 20$ days.
+     - **20-Day Reminder Worker:** Dispatches alert if submission remains pending at `90 + 20` days (110 days from DOJ).
      - Employee submission window: within 15 days of 90-day mark (with document upload to Object Storage).
      - Supervisor verification window: 7-day SLA to verify and route to HR.
      - HR records observations; Management records executive comments.
@@ -409,7 +409,8 @@ Module III comprises **three distinct, non-interchangeable performance managemen
 ### 9.3 Sub-System 3: Performance Management (Faculty – ECM Route)
 - **Eligibility Scanner:** Managed by `PerformanceManagementModule.FacultyEcmService`.
   - Runs on the **10th of every month**. Queries PostgreSQL for Faculty matching:
-    $$\text{probation\_completed} = \text{TRUE} \quad \text{AND} \quad (\text{current\_date} - \text{last\_appraisal\_date}) \ge 12 \text{ months}$$
+    - `probation_completed = TRUE`
+    - `(current_date - last_appraisal_date) >= 12 months`
   - Generates the eligible Faculty list and routes it from HR to the **Office of the Registrar** with automated escalation if delayed (`MOD3-FAC-ELG-01`).
 - **Self-Appraisal & Verification Workflow:**
   - Auto-issues Self-Appraisal Form upon Registrar confirmation.
@@ -533,13 +534,13 @@ The following matrix documents the conceptual integration boundaries, distinguis
 
 | Integration Boundary | Business Event / Trigger | Data Transferred | Architectural Classification | Technical Mechanism |
 |---|---|---|---|---|
-| **Module II $\rightarrow$ Module I** | Candidate accepts LOI; completes pre-onboarding verification. | Candidate master data, role, department, salary, DOJ, level. | **Confirmed Requirement** | Internal domain service call. Creates master employee record, assigns Org Chart node, and marks open position as filled. |
-| **Module I $\rightarrow$ Module II** | Resignation accepted by School Dean. | Resigning employee ID, position, school, acceptance timestamp. | **Confirmed Requirement** | In-process domain event (`EmployeeResignedEvent`). Starts replacement countdown clock and alerts Head HR. |
-| **Module I $\rightarrow$ Module III** | Scheduled appraisal triggers (Monthly Group-D, Quarterly KRA, Monthly ECM). | Employee ID, DOJ, probation status, department, supervisor, historical salary. | **Confirmed Requirement** | In-process query service. Provides authoritative master data for eligibility identification and form routing. |
-| **Module III $\rightarrow$ Module I** | Annual appraisal finalized (KRA/KPI Stage 3, Group-D review, Faculty ECM). | Approved increment, new designation, updated grade/level, effective date. | **Confirmed Requirement** | In-process transactional API call. Automatically initializes formal Change Request in Module I without manual re-entry. |
-| **Module I $\rightarrow$ Institutional ERP** | Approved service change or new employee record committed. | Employee master delta, salary revision, designation, effective date. | **Confirmed Requirement** *(Interface Details TBD)* | Transactional Outbox Pattern. Events written to `erp_outbox` table, consumed by background worker for reliable external delivery. |
-| **Application $\rightarrow$ Notification Gateway** | SLA warning, reminder, form assignment, approval alert. | Recipient email/ID, template ID, dynamic variables, priority. | **Confirmed Requirement** *(Provider TBD)* | Asynchronous Redis queue (BullMQ). Notification worker dispatches payloads via SMTP/API gateway with retry logic. |
-| **Application $\rightarrow$ Object Storage** | CV upload, appraisal evidence upload, letter generation. | Binary byte stream, metadata, SHA-256 hash. | **Confirmed Requirement** *(Target TBD)* | `DocumentService` utilizing S3-compatible client. Stores binary, returns object key; client reads via presigned URL. |
+| **Module II → Module I** | Candidate accepts LOI; completes pre-onboarding verification. | Candidate master data, role, department, salary, DOJ, level. | **Confirmed Requirement** | Internal domain service call. Creates master employee record, assigns Org Chart node, and marks open position as filled. |
+| **Module I → Module II** | Resignation accepted by School Dean. | Resigning employee ID, position, school, acceptance timestamp. | **Confirmed Requirement** | In-process domain event (`EmployeeResignedEvent`). Starts replacement countdown clock and alerts Head HR. |
+| **Module I → Module III** | Scheduled appraisal triggers (Monthly Group-D, Quarterly KRA, Monthly ECM). | Employee ID, DOJ, probation status, department, supervisor, historical salary. | **Confirmed Requirement** | In-process query service. Provides authoritative master data for eligibility identification and form routing. |
+| **Module III → Module I** | Annual appraisal finalized (KRA/KPI Stage 3, Group-D review, Faculty ECM). | Approved increment, new designation, updated grade/level, effective date. | **Confirmed Requirement** | In-process transactional API call. Automatically initializes formal Change Request in Module I without manual re-entry. |
+| **Module I → Institutional ERP** | Approved service change or new employee record committed. | Employee master delta, salary revision, designation, effective date. | **Confirmed Requirement** *(Interface Details TBD)* | Transactional Outbox Pattern. Events written to `erp_outbox` table, consumed by background worker for reliable external delivery. |
+| **Application → Notification Gateway** | SLA warning, reminder, form assignment, approval alert. | Recipient email/ID, template ID, dynamic variables, priority. | **Confirmed Requirement** *(Provider TBD)* | Asynchronous Redis queue (BullMQ). Notification worker dispatches payloads via SMTP/API gateway with retry logic. |
+| **Application → Object Storage** | CV upload, appraisal evidence upload, letter generation. | Binary byte stream, metadata, SHA-256 hash. | **Confirmed Requirement** *(Target TBD)* | `DocumentService` utilizing S3-compatible client. Stores binary, returns object key; client reads via presigned URL. |
 
 ---
 
@@ -565,7 +566,7 @@ The security architecture implements defense-in-depth principles across authenti
 ```
 
 ### 13.1 Identity & Authentication
-- **User Authentication:** Enforces secure credential verification using industry-standard hashing (Argon2id or Bcrypt with cost factor $\ge 12$).
+- **User Authentication:** Enforces secure credential verification using industry-standard hashing (Argon2id or Bcrypt with cost factor >= 12).
 - **Session Tokens:** Stateless JSON Web Tokens (JWT) for API authorization with short lifespans (e.g., 15 minutes), paired with cryptographically secure, rotating refresh tokens stored in Redis with revocation capabilities.
 - **Institutional Single Sign-On (SSO):** The architecture is designed to integrate with institutional Identity Providers (Google Workspace, Microsoft Entra ID / 365, or LDAP/SAML). The specific SSO provider is classified as **TBD** pending University IT confirmation.
 
@@ -747,7 +748,7 @@ Every functional use case across the three modules requiring timely visibility i
 | **Module III** | Group-D 10th-of-month auto-lockout countdown & warning | `[REST]` (Submit form) | `[REAL-TIME PUSH]` (`sla.lockout.warning` pushes urgent modal alert) | `[BACKGROUND]` (Worker locks unsubmitted at 23:59)| `[COMBINATION]` |
 | **Module III** | VP-Administration Group-D monthly sign-off reflection | `[REST]` (Submit sign-off) | `[REAL-TIME PUSH]` (`appraisal.groupd.approved` updates final status) | Aggregates annual score record | `[COMBINATION]` |
 | **Module III** | KRA/KPI pending review counters (30-day setup, quarterly reviews) | `[REST]` (Fetch reviews) | `[REAL-TIME PUSH]` (`appraisal.kra.pending` increments pending badge) | SLA timer monitoring | `[COMBINATION]` |
-| **Module III** | Quarterly KRA status transitions (Employee $\rightarrow$ Supervisor) | `[REST]` (Submit verify) | `[REAL-TIME PUSH]` (`appraisal.kra.updated` notifies employee) | Quarterly milestone scheduler | `[COMBINATION]` |
+| **Module III** | Quarterly KRA status transitions (Employee → Supervisor) | `[REST]` (Submit verify) | `[REAL-TIME PUSH]` (`appraisal.kra.updated` notifies employee) | Quarterly milestone scheduler | `[COMBINATION]` |
 | **Module III** | Faculty ECM live score compilation & matrix display | `[REST]` (Submit score) | `[REAL-TIME PUSH]` (`appraisal.ecm.score.updated` updates live matrix) | Compiles TNU Protocol scores | `[COMBINATION]` |
 | **Module III** | Faculty eligibility list notification (monthly 10th batch run) | `[REST]` (View list) | `[REAL-TIME PUSH]` (`appraisal.faculty.eligible` alerts HR & Registrar) | `[BACKGROUND]` (Monthly 10th batch scanner) | `[COMBINATION]` |
 | **Shared** | Universal in-app notification delivery (bell alerts & toasts) | `[REST]` (Fetch history) | `[REAL-TIME PUSH]` (`notification.created` delivers toast & badge) | `[BACKGROUND]` (Persists notification record) | `[COMBINATION]` |
@@ -885,15 +886,15 @@ The following real-time infrastructure parameters remain open:
 
 ### 16.16 Traceability to Source Requirements
 The real-time communication architecture is directly traced to authoritative source requirements:
-- `MOD1-ORG-01` / `REQ-MOD1-04`: Dynamic Org Chart live reflection $\rightarrow$ `orgchart.updated` event.
-- `MOD1-APP-01` / `REQ-MOD1-16`: 2-Level approval queue indicators $\rightarrow$ `approval.pending` event.
-- `MOD1-DAT-01` / `REQ-MOD1-19`: Effective-date scheduled activation $\rightarrow$ `employee.activated` event.
-- `MOD2-POS-01` / `REQ-MOD2-09`: Open Positions Tracker live visibility $\rightarrow$ `recruitment.tracker.updated` event.
-- `MOD2-ONB-01` / `REQ-MOD2-20`: Yet-to-Join pre-onboarding alerts $\rightarrow$ `onboarding.accepted` event.
-- `MOD3-GD-EVAL-01` / `REQ-MOD3-04`: Group-D 10th lockout SLA warnings $\rightarrow$ `sla.lockout.warning` event.
-- `MOD3-KRA-QTR-01` / `REQ-MOD3-12`: KRA quarterly reminder notifications $\rightarrow$ `appraisal.kra.updated` event.
-- `MOD3-FAC-ECM-01` / `REQ-MOD3-17`: Faculty ECM live score display $\rightarrow$ `appraisal.ecm.score.updated` event.
-- `REQ-SLA-01` through `REQ-SLA-10`: Universal in-app alerts and escalations $\rightarrow$ `notification.new` & `sla.warning` events.
+- `MOD1-ORG-01` / `REQ-MOD1-04`: Dynamic Org Chart live reflection → `orgchart.updated` event.
+- `MOD1-APP-01` / `REQ-MOD1-16`: 2-Level approval queue indicators → `approval.pending` event.
+- `MOD1-DAT-01` / `REQ-MOD1-19`: Effective-date scheduled activation → `employee.activated` event.
+- `MOD2-POS-01` / `REQ-MOD2-09`: Open Positions Tracker live visibility → `recruitment.tracker.updated` event.
+- `MOD2-ONB-01` / `REQ-MOD2-20`: Yet-to-Join pre-onboarding alerts → `onboarding.accepted` event.
+- `MOD3-GD-EVAL-01` / `REQ-MOD3-04`: Group-D 10th lockout SLA warnings → `sla.lockout.warning` event.
+- `MOD3-KRA-QTR-01` / `REQ-MOD3-12`: KRA quarterly reminder notifications → `appraisal.kra.updated` event.
+- `MOD3-FAC-ECM-01` / `REQ-MOD3-17`: Faculty ECM live score display → `appraisal.ecm.score.updated` event.
+- `REQ-SLA-01` through `REQ-SLA-10`: Universal in-app alerts and escalations → `notification.new` & `sla.warning` events.
 
 ---
 
@@ -970,19 +971,19 @@ The following matrix provides comprehensive, technology-level traceability mappi
 | `MOD1-CDB-01` | Central Database of all Employees fully reflected in ERP. | `EmployeeCoreModule` + `ErpAdapterModule` | PostgreSQL + NestJS + BullMQ Worker | Master table in PostgreSQL; transactional outbox pattern to synchronize state to ERP asynchronously with delivery confirmation. |
 | `MOD1-ORG-01` | Organization Chart connected to database, updating on changes. | `OrganizationModule` | NestJS + PostgreSQL + Redis + Next.js Tree Component | Adjacency list/closure table in Postgres; Redis tree cache invalidated upon employee supervisor/department changes. |
 | `MOD1-CHG-01` | Standardized formats for 10 employee data change categories. | `ChangeManagementModule` | NestJS + PostgreSQL (`change_requests`) | Polymorphic change entity with type-specific validation pipes for Salary, Designation, Reportee, Supervisor, Level, School, etc. |
-| `MOD1-APP-01` | 2-Level approval hierarchy (HR Level $\rightarrow$ Senior Management). | `WorkflowEngineModule` | NestJS + PostgreSQL State Machine | Two-tier sequential state transitions: `HR_REVIEW` $\rightarrow$ `SENIOR_MANAGEMENT_APPROVAL`. Role-based guards enforce approvals. |
+| `MOD1-APP-01` | 2-Level approval hierarchy (HR Level → Senior Management). | `WorkflowEngineModule` | NestJS + PostgreSQL State Machine | Two-tier sequential state transitions: `HR_REVIEW` → `SENIOR_MANAGEMENT_APPROVAL`. Role-based guards enforce approvals. |
 | `MOD1-DAT-01` | Effective-date processing, timestamped audit trail, version history. | `ChangeManagementModule` + `AuditModule` | NestJS Interceptors + PostgreSQL + Scheduled Worker | Temporal `effective_date` scheduling worker. Append-only `audit_logs` table capturing user, timestamp, IP, and JSON diffs. |
 | `MOD1-REP-01` | Real-time and configurable HR report generation. | `ReportingModule` | PostgreSQL Views + Next.js Server Components | Parameterized SQL read-views with dynamic filtering, real-time query execution, and streaming Excel/CSV export. |
-| `MOD2-MP-FAC-01` | Academic manpower planning trigger $\ge 4$ months before semester. | `RecruitmentModule` + `SlaTimelineModule` | NestJS Scheduler + BullMQ Worker | Scheduled cron monitors semester start dates; auto-dispatches workload assessment call from Assoc. Dean to Deans. |
+| `MOD2-MP-FAC-01` | Academic manpower planning trigger >= 4 months before semester. | `RecruitmentModule` + `SlaTimelineModule` | NestJS Scheduler + BullMQ Worker | Scheduled cron monitors semester start dates; auto-dispatches workload assessment call from Assoc. Dean to Deans. |
 | `MOD2-MP-FAC-02` | Deans submit requirements + teaching load (Attachment 1) within 15 days. | `RecruitmentModule` + `DocumentModule` | NestJS + PostgreSQL + Next.js Form | 15-day SLA countdown tracker with daily reminder jobs. Teaching load capture supporting document evidence attachment. |
-| `MOD2-MP-NF-01` | Non-Faculty MRF restricted to 1 planned requisition per year. | `RecruitmentModule` | NestJS Business Logic Guard + PostgreSQL | Database constraint and domain validation rule preventing $> 1$ planned MRF submission per department per academic year. |
+| `MOD2-MP-NF-01` | Non-Faculty MRF restricted to 1 planned requisition per year. | `RecruitmentModule` | NestJS Business Logic Guard + PostgreSQL | Database constraint and domain validation rule preventing > 1 planned MRF submission per department per academic year. |
 | `MOD2-RES-01` | Resignation acceptance by Dean starts replacement clock; alerts HR. | `RecruitmentModule` + `EmployeeCoreModule` | In-Process Event Bus (`EmployeeResignedEvent`) | Event hook starts replacement timer, triggers Head HR notification, and opens fast-track ad-hoc MRF pipeline. |
 | `MOD2-POS-01` | Open Positions Tracker (Attachment 3) maintained within 30 days. | `RecruitmentModule` | PostgreSQL (`open_positions_tracker`) | Position registry automatically populated upon MRF approval; tracks lifecycle status from sourcing through onboarding. |
 | `MOD2-SRC-01` | Multi-channel CV intake into central CV Database. | `CandidateCvModule` + `DocumentModule` | NestJS Intake Gateway + Object Storage | Ingests CVs from email, website, social links, referrals, and Internshala. Deduplicates candidate profiles by email/phone. |
 | `MOD2-SRC-02` | Automated CV segregation, classification, and UGC norms screening. | `CandidateCvModule` | NestJS Rules Engine Service | Evaluates structured candidate inputs against position educational qualifications, experience criteria, and statutory UGC rules. |
 | `MOD2-RCS-01` | Recruiter Calling Sheet (RCS) captured and routed to HOD-HR & Management. | `CandidateCvModule` + `WorkflowEngineModule` | Next.js RCS Form + NestJS Service | Standardized screening questionnaire; captures recruiter ratings; routes dossier to HOD-HR and Management for pre-interview sign-off. |
 | `MOD2-SEL-FAC-01`| Statutory SCM selection with external expert, online scoring, matrix to Mgmt. | `RecruitmentModule` + `IamModule` | Next.js SCM Portal + Tokenized Auth | Digital invitations with time-limited tokens for external experts. Online scoring sheet; auto-compiles Evaluation Matrix. |
-| `MOD2-SEL-NF-01` | Non-Academic 3-round interview (Technical, HR, Management). | `RecruitmentModule` | NestJS Multi-Round Workflow | Sequential 3-stage interview scoring: Round 1 (Technical) $\rightarrow$ Round 2 (HR) $\rightarrow$ Round 3 (Management). Evaluates knowledge, communication, attitude. |
+| `MOD2-SEL-NF-01` | Non-Academic 3-round interview (Technical, HR, Management). | `RecruitmentModule` | NestJS Multi-Round Workflow | Sequential 3-stage interview scoring: Round 1 (Technical) → Round 2 (HR) → Round 3 (Management). Evaluates knowledge, communication, attitude. |
 | `MOD2-ONB-01` | Letter of Intent (LOI) auto-generation; "Yet to Join" pre-onboarding tracking. | `RecruitmentModule` + `PdfService` + `Notification` | NestJS PDF Templating + Object Storage | Auto-renders official LOI PDF upon Management approval. Acceptance transitions status to "Yet to Join"; notifies Deans, HODs, IT Admin. |
 | `MOD3-GD-EVAL-01`| Group-D monthly form to HOD; due 7th; grace to 10th; auto-lockout if missed. | `PerformanceManagementModule.GroupD` | NestJS Cron + BullMQ Worker + Postgres | Monthly form dispatch to HODs. Automated reminders. Background worker auto-locks unsubmitted evaluations at 23:59 on the 10th. |
 | `MOD3-GD-APP-01` | VP – Administration mandatory sign-off on monthly Group-D evaluation. | `WorkflowEngineModule` | NestJS RBAC Guard + State Machine | Enforces formal approval gate by Vice President – Administration before monthly evaluation is marked finalized. |
@@ -990,7 +991,7 @@ The following matrix provides comprehensive, technology-level traceability mappi
 | `MOD3-KRA-SET-01`| KRA/KPI setup within 30 days of DOJ; locked by HR & Management. | `PerformanceManagementModule.KraKpi` | NestJS Onboarding Event Hook + SLA Timer | Onboarding event starts 30-day goal-setting countdown. Form verified and locked by HR and Management. |
 | `MOD3-KRA-QTR-01`| 90-day review intimation; 20-day reminder; 15-day submit; 7-day supervisor verify. | `PerformanceManagementModule.KraKpi` + `SlaTimeline` | NestJS Recurrence Engine + BullMQ | Multi-tier SLA scheduler managing 90-day triggers, 20-day reminders, 15-day employee submission, and 7-day supervisor verification. |
 | `MOD3-KRA-INT-01`| Annual appraisal outcome feeds directly into Module I change request. | `ChangeManagementModule` + `KraKpiService` | In-Process Transactional Service Call | Direct integration handshake: approved appraisal initializes Module I Change Request (salary/level/designation) without re-entry. |
-| `MOD3-FAC-ELG-01`| Auto-identify eligible Faculty (probation + $\ge 12$ mo service); list by 10th. | `PerformanceManagementModule.FacultyEcm` | Scheduled PostgreSQL Query Worker | Monthly 10th batch scanner identifies eligible Faculty; routes list from HR to Registrar with escalation tracking. |
+| `MOD3-FAC-ELG-01`| Auto-identify eligible Faculty (probation + >= 12 mo service); list by 10th. | `PerformanceManagementModule.FacultyEcm` | Scheduled PostgreSQL Query Worker | Monthly 10th batch scanner identifies eligible Faculty; routes list from HR to Registrar with escalation tracking. |
 | `MOD3-FAC-VER-01`| Multi-department verification routing (Dean, R&D, Placement, HR) & discrepancy loop. | `PerformanceManagementModule.FacultyEcm` | NestJS Parallel Workflow Engine | Distributes self-appraisal dossier across 4 verification units. Implements return-to-faculty discrepancy resubmission loop. |
 | `MOD3-FAC-ECM-01`| Monthly ECM scheduled by Registrar; digital score sheet; TNU Protocol matrix. | `PerformanceManagementModule.FacultyEcm` | Next.js ECM Portal + Scoring Engine | Registrar scheduling portal; digital score entry during meeting; compiles Evaluation Matrix with TNU weights and increment history. |
 | `MOD3-FAC-SAL-01`| Implement compensation in next salary cycle; auto-generate letter to faculty/payroll. | `PerformanceManagementModule.FacultyEcm` + `PdfService` | Temporal Scheduler + PDF Generator | Tracks implementation in next salary cycle; auto-generates official outcome letter to Faculty and HR/Payroll; archives to Personal File. |
