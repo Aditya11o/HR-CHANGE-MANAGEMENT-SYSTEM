@@ -89,7 +89,7 @@ The following technology selections represent the official and approved architec
 | **Real-Time Communication Layer** | **Socket.IO (over WebSocket)** | Server-to-client live event push for approval queue counters, SLA warnings, dynamic org-chart invalidation, and in-app alerts. | **APPROVED BASELINE** | NestJS Gateway (@nestjs/platform-socket.io) + socket.io-client. Scales horizontally via @socket.io/redis-adapter. Ephemeral notification channel; REST remains primary. |
 | **Primary Database** | **PostgreSQL** | Relational System of Record providing ACID compliance, complex joins, foreign keys, temporal logging, and JSONB for configurable forms. | **APPROVED BASELINE** | Supports robust indexing, transactional consistency, window functions for reporting, and row-level locking. |
 | **Caching & In-Memory Store** | **Redis** | High-performance in-memory data store for caching reference data (org tree, role permissions) and backing job queues. | **APPROVED BASELINE** | Key-value caching with TTLs; distributed locking where needed; backing broker for asynchronous workers. |
-| **Background Queue / Workers** | **Background Workers / Scheduler (e.g., BullMQ / NestJS Schedule)** | Asynchronous execution of temporal SLA countdowns, auto-locks, reminder notifications, PDF generation, and ERP sync. | **APPROVED BASELINE** | Decouples long-running and periodic background jobs from synchronous HTTP request/response lifecycles. |
+| **Background Queue / Workers** | **Background Workers / Scheduler** | Asynchronous execution of temporal SLA countdowns, auto-locks, reminder notifications, PDF generation, and ERP sync. | **APPROVED BASELINE** | Capability is an `[C] Approved Technical Decision`. Specific queue implementation library (e.g., BullMQ) is classified as `[D] Proposed Detail`. |
 | **Document & Object Storage** | **Object Storage (S3-Compatible API)** | Scalable, durable binary storage for candidate resumes, research papers, evaluation evidence, and auto-generated PDF letters. | **APPROVED BASELINE** | Application manages metadata in PostgreSQL; binary files stored in object storage accessed via time-limited presigned URLs. |
 | **Notification Infrastructure** | **Notification Service** | Multi-channel dispatch engine for transactional emails, system alerts, SLA warnings, and calendar invitations. | **APPROVED BASELINE** | Queue-backed, asynchronous dispatch with templating engine and delivery audit logs. |
 | **Audit & Versioning** | **Audit & Versioning Service** | Immutable append-only audit trail capturing actor, timestamp, prior state, updated state, and temporal effective dates. | **APPROVED BASELINE** | Embedded within PostgreSQL via dedicated audit tables and entity interceptors. |
@@ -200,7 +200,7 @@ The following diagram illustrates the complete high-level system architecture, s
 │      POSTGRESQL DATABASE      │ │      REDIS CACHE & QUEUE  │ │      OBJECT STORAGE (S3-COMP)    │
 │  • System of Record           │ │  • Reference Data Cache   │ │  • Candidate Resumes / CVs       │
 │  • Master Employee Ledger     │ │  • Org Tree Cache         │ │  • Appraisal Supporting Evidence │
-│  • Transactional State Data   │ │  • BullMQ Background Jobs │ │  • Generated Letters (LOI, ECM)  │
+│  • Transactional State Data   │ │  • Background Queue Jobs  │ │  • Generated Letters (LOI, ECM)  │
 │  • Temporal Audit Logs        │ │  • Distributed Locks      │ │  • Standardized Form Templates   │
 │  • Configurable Form Schemas  │ │  • Session Revocation     │ │  • Presigned URL Secure Access   │
 └───────────────────────────────┘ └─────────────┬─────────────┘ └──────────────────────────────────┘
@@ -293,7 +293,7 @@ The requirements of Module I (HR Change Management & Automation System) are mapp
 | **Dynamic Organization Chart** | `MOD1-ORG-01` | Org Hierarchy Builder & Visualizer API | `OrganizationModule` | PostgreSQL + Redis (Tree Cache) | Adjacency list / closure table hierarchy model. Real-time cache invalidation on reporting changes. D3-compatible hierarchical JSON output. |
 | **10 Service Change Formats** | `MOD1-CHG-01` | Polymorphic Change Request Engine | `ChangeManagementModule` | PostgreSQL (`change_requests`, `change_details_jsonb`) | Standardized base entity with type-specific validation pipes for Salary, Designation, Reportee, Supervisor, Level, School, Location, etc. |
 | **2-Level Approval Hierarchy** | `MOD1-APP-01` | Two-Stage Approval State Machine | `WorkflowEngineModule` | PostgreSQL (`workflow_instances`, `approval_actions`) | Sequential state transitions: `SUBMITTED` → `HR_REVIEW` → `MANAGEMENT_APPROVAL` → `APPROVED`. Role guards enforce authorization. |
-| **Effective-Date Processing** | `MOD1-DAT-01` | Temporal Scheduler & Activation Engine | `ChangeManagementModule` + `SlaTimelineModule` | Background Worker (BullMQ / Cron) | Requests with future `effective_date` stored in `APPROVED_PENDING_ACTIVATION`. Daily midnight worker commits active changes to master tables. |
+| **Effective-Date Processing** | `MOD1-DAT-01` | Temporal Scheduler & Activation Engine | `ChangeManagementModule` + `SlaTimelineModule` | Background Worker / Scheduler | Requests with future `effective_date` stored in `APPROVED_PENDING_ACTIVATION`. Daily midnight worker commits active changes to master tables. |
 | **Audit Trail & Version History** | `MOD1-DAT-01` | Immutable Audit Ledger & Version Interceptor | `AuditModule` | PostgreSQL (`audit_logs`, `entity_versions`) | NestJS interceptor captures `user_id`, timestamp, IP, `pre_state`, and `post_state`. Snapshot stored on every update. |
 | **ERP Reflection / Integration** | `MOD1-CDB-01` | ERP Outbound Event Adapter | `ErpAdapterModule` | PostgreSQL (`erp_outbox`) + Worker | Transactional Outbox Pattern: committing change writes an outbox record; background worker delivers payload to ERP with retry and backoff. |
 | **Real-Time Reporting** | `MOD1-REP-01` | Dynamic Query Builder & View Engine | `ReportingModule` | PostgreSQL Views + Read Queries | Direct indexed queries against master and history tables. Dynamic filtering, column selection, and CSV/Excel streaming. |
@@ -441,7 +441,7 @@ Core shared services provide reusable, cross-cutting infrastructure across all d
 │ • External expert magic links │   scoping (Dean/HOD/Mgmt)      │   history tracking              │
 ├───────────────────────────────┼────────────────────────────────┼─────────────────────────────────┤
 │ 4. SLA & Timeline Engine      │ 5. Asynchronous Scheduler      │ 6. Notification Service         │
-│ • Target date calculations    │ • BullMQ job queues            │ • Multi-channel templated alert │
+│ • Target date calculations    │ • Background job queues        │ • Multi-channel templated alert │
 │ • Warning alerts & reminders  │ • Cron triggers (7th/10th)     │   dispatch (Email, In-App)      │
 │ • Hard cutoffs & auto-locks   │ • Effective-date job executor  │ • Delivery tracking & retries   │
 ├───────────────────────────────┼────────────────────────────────┼─────────────────────────────────┤
@@ -539,7 +539,7 @@ The following matrix documents the conceptual integration boundaries, distinguis
 | **Module I → Module III** | Scheduled appraisal triggers (Monthly Group-D, Quarterly KRA, Monthly ECM). | Employee ID, DOJ, probation status, department, supervisor, historical salary. | **Confirmed Requirement** | In-process query service. Provides authoritative master data for eligibility identification and form routing. |
 | **Module III → Module I** | Annual appraisal finalized (KRA/KPI Stage 3, Group-D review, Faculty ECM). | Approved increment, new designation, updated grade/level, effective date. | **Confirmed Requirement** | In-process transactional API call. Automatically initializes formal Change Request in Module I without manual re-entry. |
 | **Module I → Institutional ERP** | Approved service change or new employee record committed. | Employee master delta, salary revision, designation, effective date. | **Confirmed Requirement** *(Interface Details TBD)* | Transactional Outbox Pattern. Events written to `erp_outbox` table, consumed by background worker for reliable external delivery. |
-| **Application → Notification Gateway** | SLA warning, reminder, form assignment, approval alert. | Recipient email/ID, template ID, dynamic variables, priority. | **Confirmed Requirement** *(Provider TBD)* | Asynchronous Redis queue (BullMQ). Notification worker dispatches payloads via SMTP/API gateway with retry logic. |
+| **Application → Notification Gateway** | SLA warning, reminder, form assignment, approval alert. | Recipient email/ID, template ID, dynamic variables, priority. | **Confirmed Requirement** *(Provider TBD)* | Asynchronous queue via Background Worker (`[C] Approved Technical Decision`; proposed: BullMQ `[D]`). Notification worker dispatches payloads via SMTP/API gateway with retry logic. |
 | **Application → Object Storage** | CV upload, appraisal evidence upload, letter generation. | Binary byte stream, metadata, SHA-256 hash. | **Confirmed Requirement** *(Target TBD)* | `DocumentService` utilizing S3-compatible client. Stores binary, returns object key; client reads via presigned URL. |
 
 ---
@@ -606,7 +606,7 @@ The system achieves enterprise-grade scalability and high availability within th
 │ 1. Stateless App Instances    │ 2. Database Performance        │ 3. Asynchronous Task Offloading │
 │ • Next.js and NestJS run as   │ • PostgreSQL connection pool   │ • Heavy I/O tasks (PDF compile, │
 │   stateless containers        │ • Composite indexes on search  │   email blasts, SLA evaluations)│
-│ • Horizontal scaling behind   │   and temporal date columns    │   processed by BullMQ workers   │
+│ • Horizontal scaling behind   │   and temporal date columns    │   processed by background jobs  │
 │   reverse proxy load balancer │ • Read replicas for reporting  │ • Zero web thread blocking      │
 ├───────────────────────────────┼────────────────────────────────┼─────────────────────────────────┤
 │ 4. Distributed Redis Caching  │ 5. Graceful Degradation        │ 6. Fault-Tolerant File Storage  │
@@ -622,7 +622,7 @@ The system achieves enterprise-grade scalability and high availability within th
    - Dedicated connection pooling (via PgBouncer or native NestJS connection pools).
    - Strategic composite indexing on high-frequency query paths (`employee_id`, `department_id`, `status`, `effective_date`, `created_at`).
    - Ability to attach read replicas for read-heavy reporting queries if analytics volume expands.
-3. **Asynchronous Background Offloading:** Time-intensive operations—such as multi-channel CV ingestion, bulk PDF letter generation, SLA escalation checks, and ERP synchronization—are offloaded to Redis-backed background workers (BullMQ), preventing HTTP thread starvation.
+3. **Asynchronous Background Offloading:** Time-intensive operations—such as multi-channel CV ingestion, bulk PDF letter generation, SLA escalation checks, and ERP synchronization—are offloaded to Redis-backed background workers (`[C] Approved Technical Decision`; specific queue engine such as BullMQ is `[D] Proposed Detail`), preventing HTTP thread starvation.
 4. **Caching Strategy:** Frequently read, rarely changed structures (such as the dynamic Organization Chart tree, departmental lists, and active form templates) are cached in Redis with strict event-driven invalidation hooks.
 5. **Resilience & Fault Tolerance:** Background tasks implement exponential backoff retry policies with Dead Letter Queues (DLQ) for failed jobs (e.g., external email server timeouts or ERP downtime), ensuring zero transaction loss.
 
@@ -659,7 +659,7 @@ The deployment architecture is vendor-neutral, containerized, and deployable on 
                          ┌───────────────────────────────┐ ┌──────────────────────────────┐ ┌──────────────────────────┐
                          │      MANAGED POSTGRESQL       │ │        MANAGED REDIS         │ │    BACKGROUND WORKERS    │
                          │   • Primary (Read/Write)      │ │   • In-Memory Cache Store    │ │   • SLA & Auto-Lock Pods │
-                         │   • Read Replica (Reporting)  │ │   • BullMQ Queue Broker      │ │   • PDF Generation Pods  │
+                         │   • Read Replica (Reporting)  │ │   • Background Queue Broker  │ │   • PDF Generation Pods  │
                          │   • Automated Daily Snapshots │ │   • Distributed Locks        │ │   • ERP Outbox Workers   │
                          └───────────────────────────────┘ └──────────────────────────────┘ └──────────────────────────┘
                                                                                                           │
@@ -713,7 +713,7 @@ To avoid architectural ambiguity, a strict separation of concerns is maintained 
                     │                    │                    │
                PostgreSQL              Redis               Workers
             System of Record        Cache/Queue           Scheduler
-              (ACID State)          & Pub/Sub             (BullMQ)
+              (ACID State)          & Pub/Sub         (Background Queue)
 ```
 
 1. **REST API (Primary Interaction Channel):**
@@ -735,7 +735,7 @@ Every functional use case across the three modules requiring timely visibility i
 |---|---|:---:|:---:|:---:|:---:|
 | **Module I** | Dynamic Org Chart realignments & reporting tree updates | `[REST]` (Fetch tree) | `[REAL-TIME PUSH]` (`orgchart.updated` triggers branch re-fetch) | Invalidate Redis cache | `[COMBINATION]` |
 | **Module I** | Employee service-change approval status transitions | `[REST]` (Submit approval) | `[REAL-TIME PUSH]` (`approval.completed` updates status badge) | Write audit log; effective date check | `[COMBINATION]` |
-| **Module I** | Midnight effective-date scheduled activation | `[REST]` (Fetch profile) | `[REAL-TIME PUSH]` (`employee.activated` pushes notification to HR) | `[BACKGROUND]` (BullMQ cron commits at 00:00) | `[COMBINATION]` |
+| **Module I** | Midnight effective-date scheduled activation | `[REST]` (Fetch profile) | `[REAL-TIME PUSH]` (`employee.activated` pushes notification to HR) | `[BACKGROUND]` (Background Scheduler commits at 00:00) | `[COMBINATION]` |
 | **Module I** | Pending approval counter indicators (HR & Management) | `[REST]` (Fetch approvals) | `[REAL-TIME PUSH]` (`approval.pending` increments counter badge) | None | `[COMBINATION]` |
 | **Module I** | Digital employee file updates & document archiving | `[REST]` (Upload file) | `[REAL-TIME PUSH]` (`employee.file.updated` alerts viewing HR staff) | Checksum & virus validation | `[COMBINATION]` |
 | **Module II** | Recruitment requisition (MRF) workflow transitions | `[REST]` (Submit MRF) | `[REAL-TIME PUSH]` (`recruitment.updated` updates pipeline view) | SLA timer initialization | `[COMBINATION]` |
@@ -743,7 +743,7 @@ Every functional use case across the three modules requiring timely visibility i
 | **Module II** | Candidate pipeline status movement (Screening, RCS, Interview)| `[REST]` (Move stage) | `[REAL-TIME PUSH]` (`candidate.status.changed` updates stage view) | Automated screening engine | `[COMBINATION]` |
 | **Module II** | Interview scheduling, panelist assignments, and SCM updates | `[REST]` (Save schedule) | `[REAL-TIME PUSH]` (`interview.scheduled` sends toast to panelists) | `[BACKGROUND]` (Email invitation dispatch) | `[COMBINATION]` |
 | **Module II** | "Yet-to-Join" pre-onboarding tracking upon LOI acceptance | `[REST]` (Accept LOI) | `[REAL-TIME PUSH]` (`onboarding.accepted` alerts Deans, HODs, IT) | `[BACKGROUND]` (Creates Master DB record) | `[COMBINATION]` |
-| **Module II** | Recruitment SLA warning alerts (15-day MRF, 7-day Pro-Chancellor) | `[REST]` (View dashboard) | `[REAL-TIME PUSH]` (`sla.warning` renders amber/red visual banner) | `[BACKGROUND]` (BullMQ evaluates breach threshold) | `[COMBINATION]` |
+| **Module II** | Recruitment SLA warning alerts (15-day MRF, 7-day Pro-Chancellor) | `[REST]` (View dashboard) | `[REAL-TIME PUSH]` (`sla.warning` renders amber/red visual banner) | `[BACKGROUND]` (Background Worker evaluates breach threshold) | `[COMBINATION]` |
 | **Module III** | Group-D monthly evaluation pending indicators for HODs | `[REST]` (Fetch forms) | `[REAL-TIME PUSH]` (`appraisal.groupd.pending` increments pending badge)| Monthly form generation on 1st | `[COMBINATION]` |
 | **Module III** | Group-D 10th-of-month auto-lockout countdown & warning | `[REST]` (Submit form) | `[REAL-TIME PUSH]` (`sla.lockout.warning` pushes urgent modal alert) | `[BACKGROUND]` (Worker locks unsubmitted at 23:59)| `[COMBINATION]` |
 | **Module III** | VP-Administration Group-D monthly sign-off reflection | `[REST]` (Submit sign-off) | `[REAL-TIME PUSH]` (`appraisal.groupd.approved` updates final status) | Aggregates annual score record | `[COMBINATION]` |
@@ -753,7 +753,7 @@ Every functional use case across the three modules requiring timely visibility i
 | **Module III** | Faculty eligibility list notification (monthly 10th batch run) | `[REST]` (View list) | `[REAL-TIME PUSH]` (`appraisal.faculty.eligible` alerts HR & Registrar) | `[BACKGROUND]` (Monthly 10th batch scanner) | `[COMBINATION]` |
 | **Shared** | Universal in-app notification delivery (bell alerts & toasts) | `[REST]` (Fetch history) | `[REAL-TIME PUSH]` (`notification.created` delivers toast & badge) | `[BACKGROUND]` (Persists notification record) | `[COMBINATION]` |
 | **Shared** | Universal approval queue counter badges across all modules | `[REST]` (Fetch queue) | `[REAL-TIME PUSH]` (`queue.counter.updated` pushes delta counter) | None | `[COMBINATION]` |
-| **Shared** | Universal SLA reminders, countdowns, and escalation warnings | `[REST]` (View alerts) | `[REAL-TIME PUSH]` (`sla.warning` displays banner alert to supervisor) | `[BACKGROUND]` (BullMQ timer evaluates escalation)| `[COMBINATION]` |
+| **Shared** | Universal SLA reminders, countdowns, and escalation warnings | `[REST]` (View alerts) | `[REAL-TIME PUSH]` (`sla.warning` displays banner alert to supervisor) | `[BACKGROUND]` (Background Worker evaluates escalation)| `[COMBINATION]` |
 | **Shared** | Workflow state transitions across all entities | `[REST]` (Execute command) | `[REAL-TIME PUSH]` (`workflow.state.changed` broadcasts to room) | Audit log record written | `[COMBINATION]` |
 | **Shared** | Audit trail & security event monitoring | `[REST]` (Query audit) | `[REAL-TIME PUSH]` (Reserved strictly for critical security alerts) | `[BACKGROUND]` (Interceptors record audit log) | `[REST]` / `[PUSH]` |
 
@@ -833,13 +833,13 @@ The real-time layer scales seamlessly from development to multi-node production:
 ### 16.11 Relationship with Redis
 - Redis acts exclusively as **supporting infrastructure**:
   1. In-memory cache store (hierarchical org tree, user role permissions).
-  2. Persistent queue broker for BullMQ background workers.
+  2. Persistent queue broker for background workers (proposed: BullMQ `[D]`).
   3. Pub/Sub distribution backbone for `@socket.io/redis-adapter`.
   4. Distributed coordination and atomic locks for scheduled cron jobs.
 - **Redis is NOT the System of Record.** If Redis is restarted or evicted, no employee records, change histories, or approval audits are lost.
 
 ### 16.12 Relationship with Background Workers / Scheduler
-- Asynchronous tasks and time-based business rules are executed exclusively by **Background Workers (BullMQ)**:
+- Asynchronous tasks and time-based business rules are executed exclusively by **Background Workers / Scheduler** (`[C] Approved Technical Decision`; BullMQ is `[D] Proposed Detail`):
   - Midnight effective-date activation processing (`MOD1-DAT-01`).
   - Monthly Group-D auto-lockout enforcement at 23:59 on the 10th (`MOD3-GD-EVAL-01`).
   - Quarterly KRA/KPI reminder sequences (90/20/15/7 days) (`MOD3-KRA-QTR-01`).
@@ -931,7 +931,7 @@ The following Technical Decision Records document the specific engineering justi
 - **Context:** Enterprise academic operations require structured, maintainable backend code capable of enforcing strict business rules, complex validation, and modular encapsulation.
 - **Technical Justification:**
   1. *Native Modular Architecture:* NestJS provides an enterprise architecture out of the box (Modules, Providers, Controllers, Dependency Injection) perfectly matching the Modular Monolith pattern.
-  2. *Robust Ecosystem:* First-class support for validation pipes (class-validator), Guards for RBAC, Interceptors for audit logging, and background task queues (BullMQ).
+  2. *Robust Ecosystem:* First-class support for validation pipes (class-validator), Guards for RBAC, Interceptors for audit logging, and background task queues / schedulers (e.g., BullMQ `[D] Proposed Detail` / NestJS Schedule).
   3. *OpenAPI Compliance:* Native Swagger integration ensures API documentation is automatically generated from code annotations.
 
 ### TDR-05: PostgreSQL as Primary Database
@@ -947,7 +947,7 @@ The following Technical Decision Records document the specific engineering justi
 - **Context:** The platform requires real-time SLA tracking, periodic reminder cron jobs, asynchronous PDF compilation, and fast reads for hierarchical org charts.
 - **Technical Justification:**
   1. *Sub-Millisecond Read Latency:* Caches dynamic org chart hierarchies and user role permissions, dramatically offloading repetitive queries from PostgreSQL.
-  2. *Robust Queue Backing (BullMQ):* Provides persistent, reliable queuing for background workers handling SLA countdowns, auto-locks, email dispatch, and ERP synchronization.
+  2. *Robust Queue Backing:* Provides persistent, reliable queuing for background workers (proposed: BullMQ `[D]`) handling SLA countdowns, auto-locks, email dispatch, and ERP synchronization.
   3. *Distributed Synchronization:* Enables atomic distributed locks for scheduled tasks running across clustered application instances.
 
 ### TDR-07: Socket.IO for Server-to-Client Real-Time Communication
@@ -968,13 +968,13 @@ The following matrix provides comprehensive, technology-level traceability mappi
 
 | Requirement ID | Authoritative Requirement Summary | Architecture Component | Technology Stack Piece | Architectural & Implementation Notes |
 |---|---|---|---|---|
-| `MOD1-CDB-01` | Central Database of all Employees fully reflected in ERP. | `EmployeeCoreModule` + `ErpAdapterModule` | PostgreSQL + NestJS + BullMQ Worker | Master table in PostgreSQL; transactional outbox pattern to synchronize state to ERP asynchronously with delivery confirmation. |
+| `MOD1-CDB-01` | Central Database of all Employees fully reflected in ERP. | `EmployeeCoreModule` + `ErpAdapterModule` | PostgreSQL + NestJS + Background Worker | Master table in PostgreSQL; transactional outbox pattern to synchronize state to ERP asynchronously with delivery confirmation. |
 | `MOD1-ORG-01` | Organization Chart connected to database, updating on changes. | `OrganizationModule` | NestJS + PostgreSQL + Redis + Next.js Tree Component | Adjacency list/closure table in Postgres; Redis tree cache invalidated upon employee supervisor/department changes. |
 | `MOD1-CHG-01` | Standardized formats for 10 employee data change categories. | `ChangeManagementModule` | NestJS + PostgreSQL (`change_requests`) | Polymorphic change entity with type-specific validation pipes for Salary, Designation, Reportee, Supervisor, Level, School, etc. |
 | `MOD1-APP-01` | 2-Level approval hierarchy (HR Level → Senior Management). | `WorkflowEngineModule` | NestJS + PostgreSQL State Machine | Two-tier sequential state transitions: `HR_REVIEW` → `SENIOR_MANAGEMENT_APPROVAL`. Role-based guards enforce approvals. |
 | `MOD1-DAT-01` | Effective-date processing, timestamped audit trail, version history. | `ChangeManagementModule` + `AuditModule` | NestJS Interceptors + PostgreSQL + Scheduled Worker | Temporal `effective_date` scheduling worker. Append-only `audit_logs` table capturing user, timestamp, IP, and JSON diffs. |
 | `MOD1-REP-01` | Real-time and configurable HR report generation. | `ReportingModule` | PostgreSQL Views + Next.js Server Components | Parameterized SQL read-views with dynamic filtering, real-time query execution, and streaming Excel/CSV export. |
-| `MOD2-MP-FAC-01` | Academic manpower planning trigger >= 4 months before semester. | `RecruitmentModule` + `SlaTimelineModule` | NestJS Scheduler + BullMQ Worker | Scheduled cron monitors semester start dates; auto-dispatches workload assessment call from Assoc. Dean to Deans. |
+| `MOD2-MP-FAC-01` | Academic manpower planning trigger >= 4 months before semester. | `RecruitmentModule` + `SlaTimelineModule` | NestJS Scheduler + Background Worker | Scheduled cron monitors semester start dates; auto-dispatches workload assessment call from Assoc. Dean to Deans. |
 | `MOD2-MP-FAC-02` | Deans submit requirements + teaching load (Attachment 1) within 15 days. | `RecruitmentModule` + `DocumentModule` | NestJS + PostgreSQL + Next.js Form | 15-day SLA countdown tracker with daily reminder jobs. Teaching load capture supporting document evidence attachment. |
 | `MOD2-MP-NF-01` | Non-Faculty MRF restricted to 1 planned requisition per year. | `RecruitmentModule` | NestJS Business Logic Guard + PostgreSQL | Database constraint and domain validation rule preventing > 1 planned MRF submission per department per academic year. |
 | `MOD2-RES-01` | Resignation acceptance by Dean starts replacement clock; alerts HR. | `RecruitmentModule` + `EmployeeCoreModule` | In-Process Event Bus (`EmployeeResignedEvent`) | Event hook starts replacement timer, triggers Head HR notification, and opens fast-track ad-hoc MRF pipeline. |
@@ -985,11 +985,11 @@ The following matrix provides comprehensive, technology-level traceability mappi
 | `MOD2-SEL-FAC-01`| Statutory SCM selection with external expert, online scoring, matrix to Mgmt. | `RecruitmentModule` + `IamModule` | Next.js SCM Portal + Tokenized Auth | Digital invitations with time-limited tokens for external experts. Online scoring sheet; auto-compiles Evaluation Matrix. |
 | `MOD2-SEL-NF-01` | Non-Academic 3-round interview (Technical, HR, Management). | `RecruitmentModule` | NestJS Multi-Round Workflow | Sequential 3-stage interview scoring: Round 1 (Technical) → Round 2 (HR) → Round 3 (Management). Evaluates knowledge, communication, attitude. |
 | `MOD2-ONB-01` | Letter of Intent (LOI) auto-generation; "Yet to Join" pre-onboarding tracking. | `RecruitmentModule` + `PdfService` + `Notification` | NestJS PDF Templating + Object Storage | Auto-renders official LOI PDF upon Management approval. Acceptance transitions status to "Yet to Join"; notifies Deans, HODs, IT Admin. |
-| `MOD3-GD-EVAL-01`| Group-D monthly form to HOD; due 7th; grace to 10th; auto-lockout if missed. | `PerformanceManagementModule.GroupD` | NestJS Cron + BullMQ Worker + Postgres | Monthly form dispatch to HODs. Automated reminders. Background worker auto-locks unsubmitted evaluations at 23:59 on the 10th. |
+| `MOD3-GD-EVAL-01`| Group-D monthly form to HOD; due 7th; grace to 10th; auto-lockout if missed. | `PerformanceManagementModule.GroupD` | NestJS Cron + Background Worker + Postgres | Monthly form dispatch to HODs. Automated reminders. Background worker auto-locks unsubmitted evaluations at 23:59 on the 10th. |
 | `MOD3-GD-APP-01` | VP – Administration mandatory sign-off on monthly Group-D evaluation. | `WorkflowEngineModule` | NestJS RBAC Guard + State Machine | Enforces formal approval gate by Vice President – Administration before monthly evaluation is marked finalized. |
 | `MOD3-GD-ANN-01` | Group-D annual report at 1 yr from DOJ; weighted scores; probation check. | `PerformanceManagementModule.GroupD` | NestJS Analytics Service + PostgreSQL | Worker detects 1-year DOJ anniversary; aggregates 12 monthly reports; computes weighted average; validates probation completion. |
 | `MOD3-KRA-SET-01`| KRA/KPI setup within 30 days of DOJ; locked by HR & Management. | `PerformanceManagementModule.KraKpi` | NestJS Onboarding Event Hook + SLA Timer | Onboarding event starts 30-day goal-setting countdown. Form verified and locked by HR and Management. |
-| `MOD3-KRA-QTR-01`| 90-day review intimation; 20-day reminder; 15-day submit; 7-day supervisor verify. | `PerformanceManagementModule.KraKpi` + `SlaTimeline` | NestJS Recurrence Engine + BullMQ | Multi-tier SLA scheduler managing 90-day triggers, 20-day reminders, 15-day employee submission, and 7-day supervisor verification. |
+| `MOD3-KRA-QTR-01`| 90-day review intimation; 20-day reminder; 15-day submit; 7-day supervisor verify. | `PerformanceManagementModule.KraKpi` + `SlaTimeline` | NestJS Recurrence Engine + Background Worker | Multi-tier SLA scheduler managing 90-day triggers, 20-day reminders, 15-day employee submission, and 7-day supervisor verification. |
 | `MOD3-KRA-INT-01`| Annual appraisal outcome feeds directly into Module I change request. | `ChangeManagementModule` + `KraKpiService` | In-Process Transactional Service Call | Direct integration handshake: approved appraisal initializes Module I Change Request (salary/level/designation) without re-entry. |
 | `MOD3-FAC-ELG-01`| Auto-identify eligible Faculty (probation + >= 12 mo service); list by 10th. | `PerformanceManagementModule.FacultyEcm` | Scheduled PostgreSQL Query Worker | Monthly 10th batch scanner identifies eligible Faculty; routes list from HR to Registrar with escalation tracking. |
 | `MOD3-FAC-VER-01`| Multi-department verification routing (Dean, R&D, Placement, HR) & discrepancy loop. | `PerformanceManagementModule.FacultyEcm` | NestJS Parallel Workflow Engine | Distributes self-appraisal dossier across 4 verification units. Implements return-to-faculty discrepancy resubmission loop. |
@@ -999,9 +999,9 @@ The following matrix provides comprehensive, technology-level traceability mappi
 | `MOD1-APP-RT-01` | 2-Level approval queue live counter badges and status transitions. | `WorkflowEngineModule` + `RealTimeGateway` | Socket.IO + NestJS Gateway | `approval.pending` and `approval.completed` events update live badge counters without manual reload. |
 | `MOD2-POS-RT-01` | Open Positions Tracker live status update across recruitment milestones. | `RecruitmentModule` + `RealTimeGateway` | Socket.IO + Next.js Tracker Component | `recruitment.tracker.updated` pushes row updates as vacancies transition across sourcing and interview stages. |
 | `MOD2-ONB-RT-01` | "Yet-to-Join" pre-onboarding instant notification upon LOI acceptance. | `RecruitmentModule` + `RealTimeGateway` | Socket.IO + Next.js Toast Provider | `onboarding.accepted` broadcasts onboarding initiation to Deans, HODs, and IT Admin. |
-| `MOD3-GD-SLA-01` | Group-D 10th-of-month auto-lockout countdown & urgent visual warnings. | `PerformanceManagementModule.GroupD` + `RealTimeGateway` | Socket.IO + BullMQ Worker | `sla.lockout.warning` pushes urgent modal alert before 23:59 lockout on the 10th. |
+| `MOD3-GD-SLA-01` | Group-D 10th-of-month auto-lockout countdown & urgent visual warnings. | `PerformanceManagementModule.GroupD` + `RealTimeGateway` | Socket.IO + Background Worker | `sla.lockout.warning` pushes urgent modal alert before 23:59 lockout on the 10th. |
 | `MOD3-FAC-RT-01` | Faculty ECM live score sheet compilation and matrix display to Management. | `PerformanceManagementModule.FacultyEcm` + `RealTimeGateway` | Socket.IO + Next.js ECM Portal | `appraisal.ecm.score.updated` synchronizes committee evaluation scores in real-time during meetings. |
-| `SHR-SLA-RT-01`  | Universal in-app SLA alerts, countdown reminders, and escalation banners. | `SlaTimelineModule` + `RealTimeGateway` | Socket.IO + BullMQ Scheduler | `sla.warning` renders visual amber/red alert banners for pending tasks approaching deadlines. |
+| `SHR-SLA-RT-01`  | Universal in-app SLA alerts, countdown reminders, and escalation banners. | `SlaTimelineModule` + `RealTimeGateway` | Socket.IO + Background Scheduler | `sla.warning` renders visual amber/red alert banners for pending tasks approaching deadlines. |
 
 ---
 

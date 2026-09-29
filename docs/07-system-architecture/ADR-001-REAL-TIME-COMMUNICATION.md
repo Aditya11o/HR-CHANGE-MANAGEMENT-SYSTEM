@@ -28,7 +28,7 @@ This Architecture Decision Record (ADR) formally establishes the server-to-clien
 ## 3. Context
 
 The University HR Change Management & Automation System encompasses three core operational modules and cross-cutting shared capabilities:
-- **Module I — HR Change Management:** Central Employee Database, Dynamic Organization Chart realignments, 10 standardized service-change categories, two-level approval hierarchies (HR Level $\rightarrow$ Senior Management), and temporal effective-date tracking.
+- **Module I — HR Change Management:** Central Employee Database, Dynamic Organization Chart realignments, 10 standardized service-change categories, two-level approval hierarchies (HR Level → Senior Management), and temporal effective-date tracking.
 - **Module II — Recruitment & Selection Automation:** Academic (Faculty & Lab Technicians) and Non-Academic (Staff) manpower planning, urgent replacement pipelines, Open Positions Tracker, multi-channel sourcing, UGC-norms screening, Recruiter Calling Sheet (RCS), Statutory Selection Committee Meetings (SCM), 3-round interviews, Letter of Intent (LOI) generation, and "Yet to Join" onboarding integration.
 - **Module III — Performance Management Automation:** Three independent appraisal subsystems: Group-D Monthly/Annual review with 10th-of-month lockout, Staff KRA/KPI quarterly cycles, and Faculty Annual Evaluation Committee Meetings (ECM Route) with the TNU Protocol scoring matrix.
 - **Shared Platform Capabilities:** Role-Based Access Control (RBAC), SLA & Timeline Engine, Asynchronous Job Schedulers, Notification Management, Document Storage, and Real-Time Reporting.
@@ -38,7 +38,7 @@ The approved technical baseline ([`TECHNOLOGY_ARCHITECTURE_BASELINE.md`](file://
 - **Frontend:** Next.js, TypeScript, Vanilla CSS, CSS Modules, CSS Variables.
 - **Backend:** NestJS, TypeScript, REST API.
 - **Primary Database (System of Record):** PostgreSQL.
-- **Supporting Infrastructure:** Redis (Cache, BullMQ Queue Broker, Distributed Locks), Object Storage (S3-compatible), Background Workers / Schedulers.
+- **Supporting Infrastructure:** Redis (Cache, Queue Broker, Distributed Locks), Object Storage (S3-compatible), Background Workers / Schedulers (`[C] Approved Technical Decision`; specific queue engine such as BullMQ is `[D] Proposed Detail`).
 
 While the primary communication paradigm for user commands, transactional updates, approvals, and report requests is synchronous **REST over HTTP/HTTPS**, the system requirements repeatedly demand immediate operational visibility, live queue updates, real-time dashboard refresh, SLA warnings, and dynamic organizational structure reflections.
 
@@ -62,9 +62,9 @@ The decision is driven by both explicit source requirements (`[A]`) and logicall
 | Requirement ID | Source Document | Mandate / Functional Need | Classification | Real-Time Driver |
 |---|---|---|:---:|---|
 | `MOD1-ORG-01` / `REQ-MOD1-04` | Module I Brief, Structure (2) | Organization Chart must dynamically update when employee department, designation, or supervisor changes are approved. | `[A]` Explicit | Active viewers of the org-chart must receive immediate notification to invalidate their tree cache and reflect realigned reporting structures. |
-| `MOD1-APP-01` / `REQ-MOD1-16` | Module I Brief, Process (4) | Two-level approval hierarchy (HR Level $\rightarrow$ Senior Management) with tracking of pending submissions. | `[A]` Explicit | Approvers require live indicator badges and real-time queue counters without manual page reloads. |
+| `MOD1-APP-01` / `REQ-MOD1-16` | Module I Brief, Process (4) | Two-level approval hierarchy (HR Level → Senior Management) with tracking of pending submissions. | `[A]` Explicit | Approvers require live indicator badges and real-time queue counters without manual page reloads. |
 | `MOD1-DAT-01` / `REQ-MOD1-19` | Module I Brief, Process (5) | Effective-date processing activates changes at midnight of the target date. | `[C]` Approved Tech | Background activation worker must notify online HR dashboards that scheduled updates have transitioned to active status. |
-| `MOD2-POS-01` / `REQ-MOD2-09` | Module II Brief, Trackers (1) | Open Positions Tracker (Attachment 3) maintained within 30 days and updated weekly for Executive Management. | `[A]` Explicit | Recruitment team and executive leadership require immediate visibility into vacancy status transitions (Sourced $\rightarrow$ Interviewing $\rightarrow$ Offered $\rightarrow$ Joined). |
+| `MOD2-POS-01` / `REQ-MOD2-09` | Module II Brief, Trackers (1) | Open Positions Tracker (Attachment 3) maintained within 30 days and updated weekly for Executive Management. | `[A]` Explicit | Recruitment team and executive leadership require immediate visibility into vacancy status transitions (Sourced → Interviewing → Offered → Joined). |
 | `MOD2-ONB-01` / `REQ-MOD2-20` | Module II Brief, Onboarding | "Yet to Join" tracker updates upon LOI acceptance, alerting Deans, HODs, and IT Admin. | `[A]` Explicit | Multi-department onboarding stakeholders require live notifications when an offer is formally accepted. |
 | `MOD3-GD-EVAL-01` / `REQ-MOD3-04` | Module III Brief, Group-D | Evaluation form due by 7th, 3-day grace to 10th; automated system lockout at 23:59 on the 10th. | `[A]` Explicit | HODs with pending evaluations must receive urgent visual SLA warning banners and real-time countdown reminders before lockout. |
 | `MOD3-KRA-QTR-01` / `REQ-MOD3-12` | Module III Brief, KRA/KPI | Quarterly review cycle: 90-day intimation, 20-day reminder, 15-day submission, 7-day supervisor verification. | `[A]` Explicit | Time-sensitive quarterly appraisal milestones require live in-app notification alerts for employees and reviewing supervisors. |
@@ -157,7 +157,7 @@ The architecture working group evaluated four potential technical strategies:
                     │                    │                    │
                PostgreSQL              Redis               Workers
             System of Record        Cache/Queue           Scheduler
-              (ACID State)          & Pub/Sub             (BullMQ)
+              (ACID State)          & Pub/Sub         (Background Queue)
 ```
 
 ### Protocol & Architectural Responsibility Separation:
@@ -183,7 +183,7 @@ The architecture working group evaluated four potential technical strategies:
 │                                 │ • Collaborative evaluation score sync (ECM session).            │
 ├─────────────────────────────────┼─────────────────────────────────────────────────────────────────┤
 │ Background Workers / Scheduler  │ • SLA timeline calculations and countdown tracking.             │
-│ (NestJS + BullMQ + Redis)       │ • Scheduled cron jobs (midnight effective-date activations).     │
+│ (NestJS + Background Worker)    │ • Scheduled cron jobs (midnight effective-date activations).     │
 │                                 │ • Automated 10th-of-month Group-D evaluation lockout at 23:59.  │
 │                                 │ • Asynchronous PDF generation (LOIs, letters, reports).         │
 │                                 │ • External ERP outbox synchronization dispatch.                 │
@@ -195,7 +195,7 @@ The architecture working group evaluated four potential technical strategies:
 │                                 │ • Temporal tracking (`effective_date`, `valid_from`, `valid_to`).│
 ├─────────────────────────────────┼─────────────────────────────────────────────────────────────────┤
 │ Managed Redis                   │ • In-memory fast cache (org chart hierarchy, permissions).      │
-│                                 │ • Persistent queue backing for BullMQ background workers.       │
+│                                 │ • Persistent queue backing for background workers (BullMQ [D]). │
 │                                 │ • Cross-instance event distribution via `@socket.io/redis-adapter`│
 │                                 │ • Atomic distributed locks for scheduled crons.                 │
 │                                 │ • NOT the System of Record; loss of Redis does not lose data.  │
@@ -207,8 +207,8 @@ The architecture working group evaluated four potential technical strategies:
 | Use Case ID | Functional Domain & Use Case | Primary Protocol | Real-Time Push Mechanism | Background Processing | Classification |
 |---|---|:---:|:---:|:---:|:---:|
 | **UC-RT-01** | **Org Chart Dynamic Updates:** Hierarchy realignments, supervisor changes, or department transfers. | `[REST]` (Fetch tree data) | `[REAL-TIME PUSH]` (`orgchart.updated` notifies active viewers to re-fetch branch) | Cache invalidation in Redis | `[COMBINATION]` |
-| **UC-RT-02** | **Employee Service-Change Approval:** 2-level approval transition (HR $\rightarrow$ Senior Management). | `[REST]` (Submit approval command) | `[REAL-TIME PUSH]` (`approval.completed` updates request status badge) | Write audit log; check effective date | `[COMBINATION]` |
-| **UC-RT-03** | **Effective-Date Activation:** Midnight activation of scheduled salary, designation, or role changes. | `[REST]` (Fetch active profile) | `[REAL-TIME PUSH]` (`employee.activated` pushes notification to HR & employee) | `[BACKGROUND]` (BullMQ cron executes commit at 00:00) | `[COMBINATION]` |
+| **UC-RT-02** | **Employee Service-Change Approval:** 2-level approval transition (HR → Senior Management). | `[REST]` (Submit approval command) | `[REAL-TIME PUSH]` (`approval.completed` updates request status badge) | Write audit log; check effective date | `[COMBINATION]` |
+| **UC-RT-03** | **Effective-Date Activation:** Midnight activation of scheduled salary, designation, or role changes. | `[REST]` (Fetch active profile) | `[REAL-TIME PUSH]` (`employee.activated` pushes notification to HR & employee) | `[BACKGROUND]` (Background Scheduler executes commit at 00:00) | `[COMBINATION]` |
 | **UC-RT-04** | **Pending Approval Indicators:** Live counter badges for pending HR and Senior Management approvals. | `[REST]` (Fetch approval list) | `[REAL-TIME PUSH]` (`approval.pending` increments pending badge counter) | None | `[COMBINATION]` |
 | **UC-RT-05** | **Digital Employee File Updates:** Attachment additions, service records, or document archiving. | `[REST]` (Upload file & metadata) | `[REAL-TIME PUSH]` (`employee.file.updated` notifies viewing HR officer) | Virus scan & checksum verification | `[COMBINATION]` |
 | **UC-RT-06** | **Recruitment Workflow Transitions:** MRF submission, Dean vetting, Pro-Chancellor sign-off. | `[REST]` (Submit requisition/approval) | `[REAL-TIME PUSH]` (`recruitment.updated` updates pipeline view) | SLA timer initialization | `[COMBINATION]` |
@@ -216,16 +216,16 @@ The architecture working group evaluated four potential technical strategies:
 | **UC-RT-08** | **Candidate Pipeline Stage Movement:** CV screened, RCS completed, interview scheduled. | `[REST]` (Update candidate status) | `[REAL-TIME PUSH]` (`candidate.status.changed` updates Kanban/stage column) | Automated screening engine | `[COMBINATION]` |
 | **UC-RT-09** | **Interview Scheduling & Panel Updates:** SCM panel finalized, 3-round interview slot assigned. | `[REST]` (Save schedule) | `[REAL-TIME PUSH]` (`interview.scheduled` delivers toast to panelists) | `[BACKGROUND]` (Email invitation & calendar dispatch) | `[COMBINATION]` |
 | **UC-RT-10** | **"Yet-to-Join" Pre-Onboarding Updates:** Candidate accepts LOI; onboarding countdown starts. | `[REST]` (Record LOI acceptance) | `[REAL-TIME PUSH]` (`onboarding.accepted` alerts Deans, HODs, IT Admin) | `[BACKGROUND]` (Creates Master DB record & org node) | `[COMBINATION]` |
-| **UC-RT-11** | **Recruitment SLA Warning Alerts:** 15-day MRF window, 7-day Pro-Chancellor review countdown. | `[REST]` (View SLA dashboard) | `[REAL-TIME PUSH]` (`sla.warning` renders visual amber/red alert banner) | `[BACKGROUND]` (BullMQ timer evaluates breach threshold) | `[COMBINATION]` |
+| **UC-RT-11** | **Recruitment SLA Warning Alerts:** 15-day MRF window, 7-day Pro-Chancellor review countdown. | `[REST]` (View SLA dashboard) | `[REAL-TIME PUSH]` (`sla.warning` renders visual amber/red alert banner) | `[BACKGROUND]` (Background Worker evaluates breach threshold) | `[COMBINATION]` |
 | **UC-RT-12** | **Group-D Evaluation Pending Counters:** Monthly evaluation pending indicators for HODs. | `[REST]` (Fetch monthly forms) | `[REAL-TIME PUSH]` (`appraisal.groupd.pending` increments HOD pending badge) | Monthly form generation on 1st | `[COMBINATION]` |
 | **UC-RT-13** | **Group-D 10th-of-Month Lockout Alert:** Urgent warning banner as 23:59 lockout approaches. | `[REST]` (Submit completed form) | `[REAL-TIME PUSH]` (`sla.lockout.warning` pushes urgent modal alert) | `[BACKGROUND]` (Worker enforces auto-lock at 23:59) | `[COMBINATION]` |
 | **UC-RT-14** | **VP-Administration Group-D Approval:** Formal sign-off on monthly collated evaluation. | `[REST]` (Submit VP sign-off) | `[REAL-TIME PUSH]` (`appraisal.groupd.approved` updates status to finalized) | Triggers probation/annual score worker | `[COMBINATION]` |
 | **UC-RT-15** | **KRA/KPI Pending Review Counters:** 30-day goal-setting, quarterly review submission indicators. | `[REST]` (Fetch KRA review list) | `[REAL-TIME PUSH]` (`appraisal.kra.pending` increments pending badge) | SLA timer monitoring | `[COMBINATION]` |
-| **UC-RT-16** | **KRA Quarterly Status Transitions:** Employee submits $\rightarrow$ Supervisor verifies $\rightarrow$ HR locks. | `[REST]` (Submit KRA verification) | `[REAL-TIME PUSH]` (`appraisal.kra.updated` notifies employee of verification) | Quarterly milestone scheduler | `[COMBINATION]` |
+| **UC-RT-16** | **KRA Quarterly Status Transitions:** Employee submits → Supervisor verifies → HR locks. | `[REST]` (Submit KRA verification) | `[REAL-TIME PUSH]` (`appraisal.kra.updated` notifies employee of verification) | Quarterly milestone scheduler | `[COMBINATION]` |
 | **UC-RT-17** | **Faculty ECM Live Score Compilation:** Digital scoring during meeting; matrix update to Mgmt. | `[REST]` (Submit committee score) | `[REAL-TIME PUSH]` (`appraisal.ecm.score.updated` pushes score to matrix) | Compiles TNU Protocol scores | `[COMBINATION]` |
 | **UC-RT-18** | **Faculty Eligibility List Notification:** Monthly 10th batch scan completes eligible faculty list. | `[REST]` (View eligibility list) | `[REAL-TIME PUSH]` (`appraisal.faculty.eligible` alerts HR & Registrar) | `[BACKGROUND]` (Monthly 10th batch scanner query) | `[COMBINATION]` |
 | **UC-RT-19** | **Shared In-App Notification Delivery:** Universal notification bell alerts across all modules. | `[REST]` (Fetch notification history) | `[REAL-TIME PUSH]` (`notification.created` delivers toast & increments bell) | `[BACKGROUND]` (Persists notification record in Postgres)| `[COMBINATION]` |
-| **UC-RT-20** | **Shared SLA Reminders & Escalations:** Pre-deadline reminders and escalation indicators. | `[REST]` (View escalation log) | `[REAL-TIME PUSH]` (`sla.warning` renders banner alert to supervisor) | `[BACKGROUND]` (BullMQ timer evaluates escalation level) | `[COMBINATION]` |
+| **UC-RT-20** | **Shared SLA Reminders & Escalations:** Pre-deadline reminders and escalation indicators. | `[REST]` (View escalation log) | `[REAL-TIME PUSH]` (`sla.warning` renders banner alert to supervisor) | `[BACKGROUND]` (Background Worker evaluates escalation level) | `[COMBINATION]` |
 | **UC-RT-21** | **Audit Trail & System Event Visibility:** Security anomaly alerts or real-time admin monitoring. | `[REST]` (Query audit logs) | `[REAL-TIME PUSH]` (Reserved strictly for critical security alerts) | `[BACKGROUND]` (Interceptors write audit logs to DB) | `[REST]` / `[PUSH]` |
 
 ---
@@ -406,7 +406,7 @@ The fundamental reliability invariant of the real-time layer is:
 
 - Redis acts strictly as an **ephemeral accelerator and distributed coordinator**:
   - Provides in-memory caching for hierarchical org trees.
-  - Backs BullMQ queues for asynchronous job execution.
+  - Backs job queues for asynchronous background workers (proposed: BullMQ `[D]`).
   - Serves as the Pub/Sub transport for `@socket.io/redis-adapter` in multi-node clusters.
 - **Redis is NEVER the System of Record.** If Redis restarts or flushes its cache, zero business data, audit logs, or approval records are lost.
 
@@ -414,7 +414,7 @@ The fundamental reliability invariant of the real-time layer is:
 
 ## 14. Background Worker Relationship
 
-- Asynchronous tasks and time-based business rules are executed exclusively by **Background Workers (BullMQ)**:
+- Asynchronous tasks and time-based business rules are executed exclusively by **Background Workers / Schedulers** (`[C] Approved Technical Decision`; proposed: BullMQ `[D]`):
   - SLA timers and pre-deadline reminder sequences.
   - Midnight effective-date activation processing.
   - Automated 10th-of-month Group-D evaluation lockout at 23:59.
@@ -481,13 +481,13 @@ This architecture decision is stable and approved. It may be formally reopened o
 |---|---|:---:|:---:|:---:|
 | `MOD1-ORG-01` / `REQ-MOD1-04` | Dynamic Org Chart realignments | REST API | Socket.IO Push (`orgchart.updated`) | `[C] Approved Technical Decision` |
 | `MOD1-APP-01` / `REQ-MOD1-16` | 2-Level approval workflow indicators | REST API | Socket.IO Push (`approval.pending`) | `[C] Approved Technical Decision` |
-| `MOD1-DAT-01` / `REQ-MOD1-19` | Midnight effective-date activation | BullMQ Scheduler | Socket.IO Push (`employee.activated`) | `[C] Approved Technical Decision` |
+| `MOD1-DAT-01` / `REQ-MOD1-19` | Midnight effective-date activation | Background Scheduler | Socket.IO Push (`employee.activated`) | `[C] Approved Technical Decision` |
 | `MOD2-POS-01` / `REQ-MOD2-09` | Open Positions Tracker live status | REST API | Socket.IO Push (`recruitment.tracker.updated`) | `[C] Approved Technical Decision` |
 | `MOD2-ONB-01` / `REQ-MOD2-20` | Yet-to-Join pre-onboarding updates | REST API | Socket.IO Push (`onboarding.accepted`) | `[C] Approved Technical Decision` |
-| `MOD3-GD-EVAL-01` / `REQ-MOD3-04` | Group-D 10th lockout SLA warnings | BullMQ Scheduler | Socket.IO Push (`sla.lockout.warning`) | `[C] Approved Technical Decision` |
-| `MOD3-KRA-QTR-01` / `REQ-MOD3-12` | KRA/KPI quarterly cycle notifications | BullMQ Scheduler | Socket.IO Push (`appraisal.kra.updated`) | `[C] Approved Technical Decision` |
+| `MOD3-GD-EVAL-01` / `REQ-MOD3-04` | Group-D 10th lockout SLA warnings | Background Scheduler | Socket.IO Push (`sla.lockout.warning`) | `[C] Approved Technical Decision` |
+| `MOD3-KRA-QTR-01` / `REQ-MOD3-12` | KRA/KPI quarterly cycle notifications | Background Scheduler | Socket.IO Push (`appraisal.kra.updated`) | `[C] Approved Technical Decision` |
 | `MOD3-FAC-ECM-01` / `REQ-MOD3-17` | Faculty ECM live score compilation | REST API | Socket.IO Push (`appraisal.ecm.score.updated`) | `[C] Approved Technical Decision` |
-| `REQ-SLA-01` to `REQ-SLA-10` | Universal in-app SLA alerts & toasts | BullMQ Scheduler | Socket.IO Push (`sla.warning`, `notification.new`) | `[C] Approved Technical Decision` |
+| `REQ-SLA-01` to `REQ-SLA-10` | Universal in-app SLA alerts & toasts | Background Scheduler | Socket.IO Push (`sla.warning`, `notification.new`) | `[C] Approved Technical Decision` |
 
 ---
 *End of Architecture Decision Record — ADR-001 Real-Time Communication Strategy.*
