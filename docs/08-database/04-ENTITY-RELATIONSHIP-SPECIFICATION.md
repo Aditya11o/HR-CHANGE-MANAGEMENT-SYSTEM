@@ -90,7 +90,7 @@ The conceptual relationship model is constructed under the following core princi
 6. **Cross-Module Interaction Encapsulation:**  
    Cross-module relationships respect modular boundaries. In alignment with the approved Modular Monolith architecture, cross-domain coordination occurs via public service contracts and domain events.
 7. **TBD Preservation:**  
-   Where relationship multiplicity, contractual scope, or policy boundaries remain unresolved in the source material, the relationship is explicitly classified as `Cardinality: TBD / Not explicitly specified` and mapped to the official project TBD register (`REQ-TBD-01` to `REQ-TBD-11`).
+   Where relationship multiplicity, contractual scope, or policy boundaries remain unresolved in the source material, the relationship is explicitly classified as `Cardinality: TBD / Not explicitly specified` and mapped to the official project TBD register (`REQ-TBD-01` to `REQ-TBD-11`) where an official TBD governs it, or explicitly noted as unspecified in the approved baseline where no governing official TBD exists.
 8. **Physical Implementation Neutrality:**  
    This document does not specify foreign key constraints, table column names, indexing, normalization levels, cascade rules, or ORM annotations.
 
@@ -297,26 +297,26 @@ Module II governs Academic and Non-Academic Manpower Planning, Requisitions (MRF
 - **To Entity:** `ENT-MOD2-03: Manpower Requisition Form (MRF)`
 - **Relationship Type:** Requisition Generation / Lifecycle Trigger
 - **Conceptual Cardinality:** `1:N`
-- **Relationship Description:** An approved semester academic faculty plan generates one or more individual planned MRF requisitions for authorized teaching positions.
-- **Lifecycle / Business Meaning:** Triggered upon Hon'ble Pro-Chancellor approval of the Dean's teaching load distribution (**Attachment 1**) following HR vetting.
-- **Requirement Traceability:** `REQ-MOD2-02`, `REQ-MOD2-06`.
+- **Relationship Description:** An approved semester academic plan generates one or more individual planned MRF requisitions for authorized academic teaching and technical positions (Faculty & Lab Technicians, including Teaching Associates and Technical Assistants).
+- **Lifecycle / Business Meaning:** Triggered upon Hon'ble Pro-Chancellor approval of the Dean's teaching/technical load distribution (**Attachment 1**) following Associate Dean / HR vetting.
+- **Requirement Traceability:** `REQ-MOD2-01`, `REQ-MOD2-02`, `REQ-MOD2-04`, `REQ-MOD2-05`, `REQ-MOD2-06`.
 - **Business Process Traceability:** `BP-M2-ACAD-005`, `BP-M2-ACAD-006`.
 - **Functional Requirement Traceability:** `MOD2-MP-FAC-REQ-06`.
 - **Source Classification:** `[A] Explicit Requirement`.
-- **Notes / TBD:** Each generated MRF inherits departmental allocations and target completion milestones from the parent plan.
+- **Notes / TBD:** Explicitly covers Faculty & Lab Technician positions (as well as Teaching Associates and Technical Assistants) under the Academic hiring umbrella (`REQ-MOD2-01`, `REQ-MOD2-02`, and Module II Brief Section 1). Each generated MRF inherits departmental allocations and target completion milestones from the parent plan.
 
 ### REL-M2-002: Non-Academic Manpower Plan ↔ Manpower Requisition Form (MRF)
 - **From Entity:** `ENT-MOD2-02: Non-Academic Manpower Plan`
 - **To Entity:** `ENT-MOD2-03: Manpower Requisition Form (MRF)`
 - **Relationship Type:** Requisition Generation / Lifecycle Trigger
 - **Conceptual Cardinality:** `1:N`
-- **Relationship Description:** An approved annual non-academic plan generates one or more planned MRFs for approved administrative, technical, and operational staff positions.
+- **Relationship Description:** An approved annual non-academic plan generates one or more planned MRFs for approved administrative, clerical, and operational staff positions.
 - **Lifecycle / Business Meaning:** Enforces the institutional constraint of maximum 1 planned requisition per department per year, triggered upon Pro-Chancellor sign-off.
-- **Requirement Traceability:** `REQ-MOD2-07`, `REQ-MOD2-10`.
+- **Requirement Traceability:** `REQ-MOD2-01`, `REQ-MOD2-07`, `REQ-MOD2-10`.
 - **Business Process Traceability:** `BP-M2-NACAD-004`, `BP-M2-NACAD-005`.
 - **Functional Requirement Traceability:** `MOD2-MP-NF-REQ-05`.
 - **Source Classification:** `[A] Explicit Requirement`.
-- **Notes / TBD:** Includes Lab Technicians under baseline `REQ-MOD2-01`.
+- **Notes / TBD:** Governs strictly Non-Academic / Non-Faculty staff positions (administrative and operational personnel per `REQ-MOD2-01`, `REQ-MOD2-07`, and Module II Brief Section 1(b)). Lab Technicians are explicitly excluded from this workflow as they are governed under the Academic workflow (`REQ-MOD2-01`).
 
 ### REL-M2-003: Urgent Replacement Tracker ↔ Manpower Requisition Form (MRF)
 - **From Entity:** `ENT-MOD2-10: Urgent Replacement Tracker`
@@ -375,26 +375,26 @@ Module II governs Academic and Non-Academic Manpower Planning, Requisitions (MRF
 - **To Entity:** `ENT-MOD2-07: Academic Selection Committee (SCM) Session & Score Record`
 - **Relationship Type:** Statutory Academic Selection Evaluation Association
 - **Conceptual Cardinality:** `1:1`
-- **Relationship Description:** A shortlisted academic faculty candidate appears before a statutory Selection Committee Meeting (SCM), generating one composite evaluation record.
+- **Relationship Description:** A shortlisted academic candidate (Faculty or Lab Technician / Technical cadre) appears before a statutory Selection Committee Meeting (SCM), generating one composite evaluation record.
 - **Lifecycle / Business Meaning:** Aggregates individual panelist marks across subject knowledge, pedagogy, research, and communication into the Evaluation Matrix for Senior Management cost approval.
-- **Requirement Traceability:** `REQ-MOD2-14`.
+- **Requirement Traceability:** `REQ-MOD2-01`, `REQ-MOD2-14`, `REQ-MOD2-15`, `REQ-MOD2-16`.
 - **Business Process Traceability:** `BP-M2-ACAD-009`, `BP-M2-ACAD-010`.
 - **Functional Requirement Traceability:** `MOD2-SCM-REQ-01` to `06`.
 - **Source Classification:** `[A] Explicit Requirement`.
-- **Notes / TBD:** Pertains exclusively to the Academic Recruitment track. Panelist marks are locked once submitted.
+- **Notes / TBD:** Pertains exclusively to the Academic Recruitment track (Faculty & Lab Technician positions per `REQ-MOD2-01`, `REQ-MOD2-15`, and Module II Brief Selection Workflow A). Panelist marks are locked once submitted.
 
 ### REL-M2-008: Candidate Application ↔ Non-Academic Interview Round Record
 - **From Entity:** `ENT-MOD2-05: Candidate Profile & Application Record`
 - **To Entity:** `ENT-MOD2-08: Non-Academic Interview Round & Score Record`
 - **Relationship Type:** Sequential Multi-Round Evaluation Association
 - **Conceptual Cardinality:** `1:N`
-- **Relationship Description:** A shortlisted non-academic candidate progresses through up to three sequential interview round evaluation records.
+- **Relationship Description:** A shortlisted non-academic candidate (Non-Faculty staff) progresses through up to three sequential interview round evaluation records.
 - **Lifecycle / Business Meaning:** Enforces strict sequential evaluation: Round 1 (Technical Interview — HOD/Technical Panel) → Round 2 (HR Interview — Head HR) → Round 3 (Management Interview — Senior Leadership).
-- **Requirement Traceability:** `REQ-MOD2-15`.
+- **Requirement Traceability:** `REQ-MOD2-01`, `REQ-MOD2-17`, `REQ-MOD2-18`.
 - **Business Process Traceability:** `BP-M2-NACAD-006`, `BP-M2-NACAD-007`.
 - **Functional Requirement Traceability:** `MOD2-INT-REQ-01` to `06`.
 - **Source Classification:** `[A] Explicit Requirement`.
-- **Notes / TBD:** Pertains exclusively to the Non-Academic Recruitment track. Candidate must pass a round to progress to the next.
+- **Notes / TBD:** Pertains exclusively to the Non-Academic (Non-Faculty) Recruitment track (administrative and operational personnel per `REQ-MOD2-01`, `REQ-MOD2-17`, and Module II Brief Selection Workflow B). Candidate must pass a round to progress to the next.
 
 ### REL-M2-009: Candidate Application ↔ Letter of Intent (LOI) & Pre-Onboarding
 - **From Entity:** `ENT-MOD2-05: Candidate Profile & Application Record`
@@ -403,11 +403,11 @@ Module II governs Academic and Non-Academic Manpower Planning, Requisitions (MRF
 - **Conceptual Cardinality:** `1:1`
 - **Relationship Description:** A candidate recommended by the selection panel and approved by Management receives one formal Letter of Intent (LOI) and pre-onboarding tracking record.
 - **Lifecycle / Business Meaning:** Captures candidate offer acceptance or decline, monitors "Yet to Join" milestones, and orchestrates Day-1 onboarding triggers.
-- **Requirement Traceability:** `REQ-MOD2-16`, `REQ-MOD2-17`, `REQ-MOD2-18`.
+- **Requirement Traceability:** `REQ-MOD2-19`, `REQ-MOD2-20`.
 - **Business Process Traceability:** `BP-M2-ACAD-011`/`012`, `BP-M2-NACAD-008`.
 - **Functional Requirement Traceability:** `MOD2-YTJ-REQ-01` to `07`.
 - **Source Classification:** `[A] Explicit Requirement`.
-- **Notes / TBD:** Contractual boundary regarding whether LOI is the sole pre-joining instrument or if a distinct formal Appointment Letter is issued is an open policy item under `REQ-TBD-08`.
+- **Notes / TBD:** No governing official TBD identified; the boundary remains unspecified in the approved baseline (whether the Letter of Intent is the sole pre-joining instrument or if a distinct formal Appointment Letter is issued post-joining).
 
 ---
 
@@ -447,7 +447,7 @@ Module III preserves **three completely independent performance management subsy
 - **Business Process Traceability:** `BP-M3-GD-001`, `BP-M3-GD-002`.
 - **Functional Requirement Traceability:** `MOD3-GD-REQ-01`, `MOD3-GD-REQ-04`.
 - **Source Classification:** `[A] Explicit Requirement`.
-- **Notes / TBD:** Semi-structured template configuration allows HR to adjust role competencies without altering core data models.
+- **Notes / TBD:** Semi-structured template configuration allows HR to adjust role competencies without altering core data models. Technical-cadre appraisal allocation remains unspecified in the approved baseline with no governing official TBD identified.
 
 #### REL-M3-002: Group-D Monthly Instance ↔ Group-D Annual Collation Report
 - **From Entity:** `ENT-MOD3-02: Group-D Monthly Evaluation Instance`
@@ -496,7 +496,7 @@ Module III preserves **three completely independent performance management subsy
 - **Business Process Traceability:** `BP-M3-KRA-001`, `BP-M3-KRA-002`.
 - **Functional Requirement Traceability:** `MOD3-KRA-REQ-05`.
 - **Source Classification:** `[A] Explicit Requirement`.
-- **Notes / TBD:** Fixed business cardinality: exactly 4 quarterly review cycles per annual performance cycle.
+- **Notes / TBD:** Fixed business cardinality: exactly 4 quarterly review cycles per annual performance cycle. Technical-cadre appraisal allocation remains unspecified in the approved baseline with no governing official TBD identified.
 
 #### REL-M3-004: Staff Quarterly Review Record ↔ Staff Annual Appraisal Outcome
 - **From Entity:** `ENT-MOD3-05: General Staff Quarterly Review Record (Q1–Q4)`
@@ -575,7 +575,7 @@ Shared platform entities provide cross-cutting capabilities across Module I, Mod
 - **Lifecycle / Business Meaning:** Instantiated upon Day-1 employee onboarding; deactivated or restricted upon employee resignation or retirement.
 - **Requirement Traceability:** `REQ-SEC-01`, `SHR-AUT-REQ-01`.
 - **Source Classification:** `[B] Logical Implication`.
-- **Notes / TBD:** External statutory SCM experts receive time-limited, single-use access tokens without full employee master records (`REQ-MOD2-14`). Enterprise SSO integration is governed by `REQ-TBD-07`.
+- **Notes / TBD:** External statutory SCM experts receive time-limited, single-use access tokens without full employee master records (`REQ-MOD2-14`). Enterprise SSO integration and external expert access mechanisms are governed by `REQ-TBD-07` (`REQ-EXT-04`, `REQ-EXT-05`). Verification confirmed that `REQ-TBD-11` concerns Document Retention & Archival Lifecycle and does not govern external expert authentication or access.
 
 ### REL-SHR-002: User Account ↔ Role & Permission Assignment
 - **From Entity:** `ENT-SHR-01: User Account & Authentication Credential Profile`
@@ -659,7 +659,7 @@ Shared platform entities provide cross-cutting capabilities across Module I, Mod
 - **Requirement Traceability:** `REQ-MOD1-04`, `REQ-INT-01`.
 - **Functional Traceability:** `MOD1-CDB-REQ-03`, `SHR-INT-REQ-01`.
 - **Source Classification:** `[C] Approved Technical Decision`.
-- **Notes / TBD:** Transport protocol (staging table vs. REST webhook vs. SFTP batch) is governed by `REQ-TBD-01`.
+- **Notes / TBD:** Outbound synchronization batching mechanism is an implementation detail; staging frequency and transport protocol remain unspecified in the baseline without assigning an official TBD.
 
 ---
 
@@ -953,15 +953,15 @@ The following catalogue indexes all **forty-one (41) conceptual relationships** 
 | **`REL-M1-005`** | `ENT-MOD1-04` | accumulates 2-level sign-offs in | `ENT-MOD1-05` | `1:N` | Module I | `REQ-MOD1-06` | `BP-M1-005`, `006` | `MOD1-APP-REQ-01` to `06` | `[A]` |
 | **`REL-M1-006`** | `ENT-MOD1-01` | maintains historical tenure in | `ENT-MOD1-06` | `1:N` | Module I | `REQ-MOD1-08` | `BP-M1-007`, `008` | `MOD1-AUD-REQ-04` | `[A]` |
 | **`REL-M1-007`** | `ENT-MOD1-04` | generates activated slice in | `ENT-MOD1-06` | `1:1` | Module I | `REQ-MOD1-07`, `08` | `BP-M1-007` | `MOD1-CHG-REQ-10` | `[A]` |
-| **`REL-M2-001`** | `ENT-MOD2-01` | generates planned requisitions in | `ENT-MOD2-03` | `1:N` | Module II | `REQ-MOD2-02`, `06` | `BP-M2-ACAD-005`, `006` | `MOD2-MP-FAC-REQ-06` | `[A]` |
-| **`REL-M2-002`** | `ENT-MOD2-02` | generates annual requisitions in | `ENT-MOD2-03` | `1:N` | Module II | `REQ-MOD2-07`, `10` | `BP-M2-NACAD-004`, `005` | `MOD2-MP-NF-REQ-05` | `[A]` |
+| **`REL-M2-001`** | `ENT-MOD2-01` | generates planned requisitions in | `ENT-MOD2-03` | `1:N` | Module II | `REQ-MOD2-01`, `02`, `06` | `BP-M2-ACAD-005`, `006` | `MOD2-MP-FAC-REQ-06` | `[A]` |
+| **`REL-M2-002`** | `ENT-MOD2-02` | generates annual requisitions in | `ENT-MOD2-03` | `1:N` | Module II | `REQ-MOD2-01`, `07`, `10` | `BP-M2-NACAD-004`, `005` | `MOD2-MP-NF-REQ-05` | `[A]` |
 | **`REL-M2-003`** | `ENT-MOD2-10` | auto-spawns replacement MRF in | `ENT-MOD2-03` | `1:1` | Module II | `REQ-MOD2-03` | `BP-M2-URG-001` | `MOD2-URG-REQ-02` | `[A]` |
 | **`REL-M2-004`** | `ENT-MOD2-03` | synchronizes with vacancy entry in | `ENT-MOD2-04` | `1:1` | Module II | `REQ-MOD2-11` | `BP-M2-ACAD-006` | `MOD2-POS-REQ-01` | `[A]` |
 | **`REL-M2-005`** | `ENT-MOD2-04` | receives candidate applications in | `ENT-MOD2-05` | `1:N` | Module II | `REQ-MOD2-12`, `19` | `BP-M2-TRK-001` | `MOD2-SRC-REQ-01` to `06` | `[A]` |
 | **`REL-M2-006`** | `ENT-MOD2-05` | evaluated telephonically via | `ENT-MOD2-06` | `1:1` | Module II | `REQ-MOD2-12` | `BP-M2-ACAD-007`, `008` | `MOD2-RCS-REQ-01` to `06` | `[A]` |
-| **`REL-M2-007`** | `ENT-MOD2-05` | evaluated by SCM committee via | `ENT-MOD2-07` | `1:1` | Module II | `REQ-MOD2-14` | `BP-M2-ACAD-009`, `010` | `MOD2-SCM-REQ-01` to `06` | `[A]` |
-| **`REL-M2-008`** | `ENT-MOD2-05` | evaluated sequentially across rounds | `ENT-MOD2-08` | `1:N` | Module II | `REQ-MOD2-15` | `BP-M2-NACAD-006`, `007` | `MOD2-INT-REQ-01` to `06` | `[A]` |
-| **`REL-M2-009`** | `ENT-MOD2-05` | offered appointment terms via | `ENT-MOD2-09` | `1:1` | Module II | `REQ-MOD2-16`, `17`, `18` | `BP-M2-ACAD-011`, `012` | `MOD2-YTJ-REQ-01` to `07` | `[A]` |
+| **`REL-M2-007`** | `ENT-MOD2-05` | evaluated by SCM committee via | `ENT-MOD2-07` | `1:1` | Module II | `REQ-MOD2-01`, `14`, `15` | `BP-M2-ACAD-009`, `010` | `MOD2-SCM-REQ-01` to `06` | `[A]` |
+| **`REL-M2-008`** | `ENT-MOD2-05` | evaluated sequentially across rounds | `ENT-MOD2-08` | `1:N` | Module II | `REQ-MOD2-01`, `17`, `18` | `BP-M2-NACAD-006`, `007` | `MOD2-INT-REQ-01` to `06` | `[A]` |
+| **`REL-M2-009`** | `ENT-MOD2-05` | offered appointment terms via | `ENT-MOD2-09` | `1:1` | Module II | `REQ-MOD2-19`, `20` | `BP-M2-ACAD-011`, `012` | `MOD2-YTJ-REQ-01` to `07` | `[A]` |
 | **`REL-M3-001`** | `ENT-MOD3-01` | instantiates monthly rubric for | `ENT-MOD3-02` | `1:N` | Module III | `REQ-MOD3-01` | `BP-M3-GD-001`, `002` | `MOD3-GD-REQ-01`, `04` | `[A]` |
 | **`REL-M3-002`** | `ENT-MOD3-02` | aggregates 12 months into | `ENT-MOD3-03` | `N:1` | Module III | `REQ-MOD3-06`, `07` | `BP-M3-GD-006`, `007` | `MOD3-GD-REQ-14` to `18` | `[A]` |
 | **`REL-M3-003`** | `ENT-MOD3-04` | baseline evaluated across Q1-Q4 in | `ENT-MOD3-05` | `1:N` | Module III | `REQ-MOD3-09`, `10` | `BP-M3-KRA-001`, `002` | `MOD3-KRA-REQ-05` | `[A]` |
@@ -992,14 +992,14 @@ The following catalogue indexes all **forty-one (41) conceptual relationships** 
 
 ## 12. Cardinality Exception Register
 
-The following register identifies relationships where multiplicity cannot be fixed without resolving upstream policy decisions:
+The following register identifies relationships where multiplicity cannot be fixed without resolving upstream policy decisions or where implementation details remain unspecified:
 
 | Rel. ID | Participating Entities | Specified Multiplicity | Governance Uncertainty / Policy Basis | Governing TBD |
 |---|---|---|---|---|
-| **`REL-SHR-001`** | `ENT-SHR-01` ↔ `ENT-MOD1-01` | `1:1` (Staff) / `TBD` (Guests) | External SCM experts receive time-limited guest access without an Employee Master Record. The exact account mapping and lifecycle for non-employee experts depends on identity provider integration. | `REQ-TBD-07` |
-| **`REL-M2-009`** | `ENT-MOD2-05` ↔ `ENT-MOD2-09` | `1:1` | Whether the Letter of Intent (LOI) is the sole pre-joining instrument or if a distinct formal Appointment Letter is issued post-joining remains an unresolved legal/HR decision. | `REQ-TBD-08` |
-| **`REL-SHR-008`** | `ENT-SHR-08` ↔ `ENT-MOD1-01` | `1:N` | Outbound synchronization transport (single-record webhook vs. batch export) affects the frequency and cardinality of queued staging records. | `REQ-TBD-01` |
-| **`REL-M3-001` / `003`** | `ENT-MOD3-01` / `04` ↔ Technical Staff | `TBD` | Whether mid-level technical staff (Lab Technicians, Technical Assistants) are evaluated under Subsystem 1 (Group-D) or Subsystem 2 (KRA/KPI) remains an open policy item. | `REQ-TBD-03` |
+| **`REL-SHR-001`** | `ENT-SHR-01` ↔ `ENT-MOD1-01` | `1:1` (Staff) / `0:0` (External Guests) | External SCM experts receive time-limited guest access tokens without an Employee Master Record (0:0 association). Enterprise SSO and external expert access protocols are governed by `REQ-TBD-07` (`REQ-EXT-04`, `REQ-EXT-05`). Verified: `REQ-TBD-11` concerns document retention and archival lifecycle and does not govern authentication or expert access. | `REQ-TBD-07` |
+| **`REL-M2-009`** | `ENT-MOD2-05` ↔ `ENT-MOD2-09` | `1:1` | Whether the Letter of Intent (LOI) is the sole pre-joining instrument or if a distinct formal Appointment Letter is issued post-joining remains an unresolved institutional boundary. | No governing official TBD identified; the boundary remains unspecified in the approved baseline. |
+| **`REL-SHR-008`** | `ENT-SHR-08` ↔ `ENT-MOD1-01` | `1:N` | Outbound synchronization batching mechanism (single-record webhook vs. batch export) is an implementation detail affecting staging frequency. | No governing official TBD identified; batching frequency and staging mechanisms are implementation details unspecified in the approved baseline. |
+| **`REL-M3-001` / `003`** | `ENT-MOD3-01` / `04` ↔ Technical Staff | `TBD` | Appraisal workflow routing and track allocation for mid-level technical staff (Lab Technicians, Technical Assistants) across Module III subsystems. | No governing official TBD identified; the allocation remains unspecified in the approved baseline. |
 
 ---
 
@@ -1024,17 +1024,17 @@ The following register documents how the **eleven (11) official baseline TBD ite
 
 | TBD ID | Topic / Scope | Affected Relationship(s) | Conceptual Relationship Impact |
 |---|---|---|---|
-| **`REQ-TBD-01`** | ERP Synchronization Protocol | `REL-SHR-008` | Influences outbox staging frequency and payload granularity (record-level vs. batch staging). |
-| **`REQ-TBD-02`** | Attachment Schemas | `REL-M2-001`, `REL-M3-001`, `REL-M3-005` | Influences parameter payload attributes transferred between plans, templates, and dossiers. |
-| **`REQ-TBD-03`** | Staff Appraisal Track Boundaries | `REL-M3-001`, `REL-M3-003` | Governs whether technical cadre personnel link to Subsystem 1 or Subsystem 2 evaluation lifecycles. |
-| **`REQ-TBD-04`** | TNU Protocol Weights | `REL-M3-006` | Governs score aggregation formulas feeding the composite Evaluation Matrix. |
-| **`REQ-TBD-05`** | Compensation Slabs | `REL-XMOD-009`, `REL-XMOD-011` | Governs monetary bracket attributes passed into Module I Change Requests upon appraisal approval. |
-| **`REQ-TBD-06`** | Resignation Intake Interface | `REL-XMOD-005` | Governs whether resignation events originate from employee self-service or administrative data entry. |
-| **`REQ-TBD-07`** | Enterprise SSO & Expert Access | `REL-SHR-001`, `REL-SHR-002` | Governs identity provider mapping and time-limited token generation for external SCM experts. |
-| **`REQ-TBD-08`** | LOI vs. Appointment Letter | `REL-M2-009`, `REL-XMOD-001` | Governs whether a second contractual document is generated post-onboarding. |
-| **`REQ-TBD-09`** | Administrative Allowances | `REL-M1-001`, `REL-M1-006` | Governs financial allowance tracking attributes associated with secondary organizational roles. |
-| **`REQ-TBD-10`** | Outbound Communication Gateways | `REL-SHR-006` | Governs transmission channel routing attributes for queued notifications. |
-| **`REQ-TBD-11`** | Document Retention Schedules | `REL-SHR-005`, `REL-SHR-007` | Governs archival duration and statutory retention policies across document metadata and audit entries. |
+| **`REQ-TBD-01`** | ERP Synchronization Protocol | None (`REQ-EXT-03`) | Governs ERP technical transport architecture (`REQ-EXT-03`); outbox batching mechanics are implementation details without an assigned relationship TBD. |
+| **`REQ-TBD-02`** | Attachment Schemas | `REL-M2-001`, `REL-M3-001`, `REL-M3-005` | Influences field-level parameter payloads transferred between plans, templates, and dossiers (`REQ-DOC-02`, `03`). |
+| **`REQ-TBD-03`** | Staff Appraisal Track Boundaries | None (`REQ-MOD3-10`, `14`) | Qualifies staff appraisal workflow routing; technical-cadre appraisal allocation remains unspecified in the approved baseline with no governing relationship TBD. |
+| **`REQ-TBD-04`** | TNU Protocol Weights | `REL-M3-006` | Governs score aggregation formulas feeding the composite Evaluation Matrix (`REQ-MOD2-15`, `REQ-MOD3-18`). |
+| **`REQ-TBD-05`** | Compensation Slabs | `REL-XMOD-009`, `REL-XMOD-011` | Governs monetary bracket attributes passed into Module I Change Requests upon appraisal approval (`REQ-MOD3-09`, `19`). |
+| **`REQ-TBD-06`** | Resignation Intake Interface | `REL-XMOD-005` | Governs whether resignation events originate from employee self-service or administrative data entry (`REQ-MOD2-08`, `REQ-INT-02`). |
+| **`REQ-TBD-07`** | Enterprise SSO & Expert Access | `REL-SHR-001`, `REL-SHR-002` | Governs identity provider mapping and time-limited token generation for external SCM experts (`REQ-EXT-04`, `REQ-EXT-05`). |
+| **`REQ-TBD-08`** | LOI vs. Appointment Letter | None (`REQ-MOD2-19`, `REQ-DOC-04`) | Qualifies pre-onboarding document issuance; boundary between LOI and Appointment Letter remains unspecified in the approved baseline with no governing relationship TBD. |
+| **`REQ-TBD-09`** | Administrative Allowances | `REL-M1-001`, `REL-M1-006` | Governs financial allowance tracking attributes associated with secondary organizational roles (`REQ-MOD1-13`, `14`). |
+| **`REQ-TBD-10`** | Outbound Communication Gateways | `REL-SHR-006` | Governs transmission channel routing attributes and gateway credentials for queued notifications (`REQ-SLA-10`). |
+| **`REQ-TBD-11`** | Document Retention Schedules | `REL-SHR-005`, `REL-SHR-007` | Governs archival duration and statutory retention policies across document metadata and audit entries (`REQ-AUD-01`, `REQ-DOC-06`). |
 
 ---
 
@@ -1051,15 +1051,15 @@ The following matrix provides comprehensive backward traceability for every conc
 | **`REL-M1-005`** | `ENT-MOD1-04` | `ENT-MOD1-05` | `REQ-MOD1-06` | `BP-M1-005`, `006` | `MOD1-APP-REQ-01` to `06` | `BR-M1-007` | `[A]` |
 | **`REL-M1-006`** | `ENT-MOD1-01` | `ENT-MOD1-06` | `REQ-MOD1-08` | `BP-M1-007`, `008` | `MOD1-AUD-REQ-04` | `BR-M1-009` | `[A]` |
 | **`REL-M1-007`** | `ENT-MOD1-04` | `ENT-MOD1-06` | `REQ-MOD1-07`, `08` | `BP-M1-007` | `MOD1-CHG-REQ-10` | `BR-M1-008` | `[A]` |
-| **`REL-M2-001`** | `ENT-MOD2-01` | `ENT-MOD2-03` | `REQ-MOD2-02`, `06` | `BP-M2-ACAD-005`, `006` | `MOD2-MP-FAC-REQ-06` | `BR-M2-002` | `[A]` |
-| **`REL-M2-002`** | `ENT-MOD2-02` | `ENT-MOD2-03` | `REQ-MOD2-07`, `10` | `BP-M2-NACAD-004`, `005` | `MOD2-MP-NF-REQ-05` | `BR-M2-006` | `[A]` |
+| **`REL-M2-001`** | `ENT-MOD2-01` | `ENT-MOD2-03` | `REQ-MOD2-01`, `02`, `06` | `BP-M2-ACAD-005`, `006` | `MOD2-MP-FAC-REQ-06` | `BR-M2-002` | `[A]` |
+| **`REL-M2-002`** | `ENT-MOD2-02` | `ENT-MOD2-03` | `REQ-MOD2-01`, `07`, `10` | `BP-M2-NACAD-004`, `005` | `MOD2-MP-NF-REQ-05` | `BR-M2-006` | `[A]` |
 | **`REL-M2-003`** | `ENT-MOD2-10` | `ENT-MOD2-03` | `REQ-MOD2-03` | `BP-M2-URG-001` | `MOD2-URG-REQ-02` | `BR-M2-004` | `[A]` |
 | **`REL-M2-004`** | `ENT-MOD2-03` | `ENT-MOD2-04` | `REQ-MOD2-11` | `BP-M2-ACAD-006` | `MOD2-POS-REQ-01` | `BR-M2-007` | `[A]` |
 | **`REL-M2-005`** | `ENT-MOD2-04` | `ENT-MOD2-05` | `REQ-MOD2-12`, `19` | `BP-M2-TRK-001` | `MOD2-SRC-REQ-01` to `06` | `BR-M2-008` | `[A]` |
 | **`REL-M2-006`** | `ENT-MOD2-05` | `ENT-MOD2-06` | `REQ-MOD2-12` | `BP-M2-ACAD-007`, `008` | `MOD2-RCS-REQ-01` to `06` | `BR-M2-009` | `[A]` |
-| **`REL-M2-007`** | `ENT-MOD2-05` | `ENT-MOD2-07` | `REQ-MOD2-14` | `BP-M2-ACAD-009`, `010` | `MOD2-SCM-REQ-01` to `06` | `BR-M2-010` | `[A]` |
-| **`REL-M2-008`** | `ENT-MOD2-05` | `ENT-MOD2-08` | `REQ-MOD2-15` | `BP-M2-NACAD-006`, `007` | `MOD2-INT-REQ-01` to `06` | `BR-M2-011` | `[A]` |
-| **`REL-M2-009`** | `ENT-MOD2-05` | `ENT-MOD2-09` | `REQ-MOD2-16`, `17`, `18` | `BP-M2-ACAD-011`, `012` | `MOD2-YTJ-REQ-01` to `07` | `BR-M2-012` | `[A]` |
+| **`REL-M2-007`** | `ENT-MOD2-05` | `ENT-MOD2-07` | `REQ-MOD2-01`, `14`, `15` | `BP-M2-ACAD-009`, `010` | `MOD2-SCM-REQ-01` to `06` | `BR-M2-010` | `[A]` |
+| **`REL-M2-008`** | `ENT-MOD2-05` | `ENT-MOD2-08` | `REQ-MOD2-01`, `17`, `18` | `BP-M2-NACAD-006`, `007` | `MOD2-INT-REQ-01` to `06` | `BR-M2-011` | `[A]` |
+| **`REL-M2-009`** | `ENT-MOD2-05` | `ENT-MOD2-09` | `REQ-MOD2-19`, `20` | `BP-M2-ACAD-011`, `012` | `MOD2-YTJ-REQ-01` to `07` | `BR-M2-012` | `[A]` |
 | **`REL-M3-001`** | `ENT-MOD3-01` | `ENT-MOD3-02` | `REQ-MOD3-01` | `BP-M3-GD-001`, `002` | `MOD3-GD-REQ-01`, `04` | `BR-M3-001` | `[A]` |
 | **`REL-M3-002`** | `ENT-MOD3-02` | `ENT-MOD3-03` | `REQ-MOD3-06`, `07` | `BP-M3-GD-006`, `007` | `MOD3-GD-REQ-14` to `18` | `BR-M3-004` | `[A]` |
 | **`REL-M3-003`** | `ENT-MOD3-04` | `ENT-MOD3-05` | `REQ-MOD3-09`, `10` | `BP-M3-KRA-001`, `002` | `MOD3-KRA-REQ-05` | `BR-M3-006` | `[A]` |
