@@ -447,7 +447,7 @@ Module III preserves **three completely independent performance management subsy
 - **Business Process Traceability:** `BP-M3-GD-001`, `BP-M3-GD-002`.
 - **Functional Requirement Traceability:** `MOD3-GD-REQ-01`, `MOD3-GD-REQ-04`.
 - **Source Classification:** `[A] Explicit Requirement`.
-- **Notes / TBD:** Semi-structured template configuration allows HR to adjust role competencies without altering core data models. Technical-cadre appraisal allocation remains unspecified in the approved baseline with no governing official TBD identified.
+- **Notes / TBD:** Semi-structured template configuration allows HR to adjust role competencies without altering core data models. The staff appraisal track boundary uncertainty (whether mid-level technical staff participate in Subsystem 1 Group-D evaluation or Subsystem 2 KRA/KPI review) is governed by official open item `REQ-TBD-03` (`REQ-MOD3-10`, `REQ-MOD3-14`). The final allocation is not assumed.
 
 #### REL-M3-002: Group-D Monthly Instance ↔ Group-D Annual Collation Report
 - **From Entity:** `ENT-MOD3-02: Group-D Monthly Evaluation Instance`
@@ -496,7 +496,7 @@ Module III preserves **three completely independent performance management subsy
 - **Business Process Traceability:** `BP-M3-KRA-001`, `BP-M3-KRA-002`.
 - **Functional Requirement Traceability:** `MOD3-KRA-REQ-05`.
 - **Source Classification:** `[A] Explicit Requirement`.
-- **Notes / TBD:** Fixed business cardinality: exactly 4 quarterly review cycles per annual performance cycle. Technical-cadre appraisal allocation remains unspecified in the approved baseline with no governing official TBD identified.
+- **Notes / TBD:** Fixed business cardinality: exactly 4 quarterly review cycles per annual performance cycle. The staff appraisal track boundary uncertainty (whether technical cadre personnel participate in Subsystem 2 KRA/KPI reviews or Subsystem 1 Group-D evaluations) is governed by official open item `REQ-TBD-03` (`REQ-MOD3-10`, `REQ-MOD3-14`). The final allocation is not assumed.
 
 #### REL-M3-004: Staff Quarterly Review Record ↔ Staff Annual Appraisal Outcome
 - **From Entity:** `ENT-MOD3-05: General Staff Quarterly Review Record (Q1–Q4)`
@@ -659,7 +659,7 @@ Shared platform entities provide cross-cutting capabilities across Module I, Mod
 - **Requirement Traceability:** `REQ-MOD1-04`, `REQ-INT-01`.
 - **Functional Traceability:** `MOD1-CDB-REQ-03`, `SHR-INT-REQ-01`.
 - **Source Classification:** `[C] Approved Technical Decision`.
-- **Notes / TBD:** Outbound synchronization batching mechanism is an implementation detail; staging frequency and transport protocol remain unspecified in the baseline without assigning an official TBD.
+- **Notes / TBD:** Outbound ERP synchronization physical protocol and transport architecture are governed by official open item `REQ-TBD-01` (`REQ-EXT-03`). Payload batching frequency and staging mechanics remain implementation details unspecified in the approved baseline.
 
 ---
 
@@ -998,8 +998,8 @@ The following register identifies relationships where multiplicity cannot be fix
 |---|---|---|---|---|
 | **`REL-SHR-001`** | `ENT-SHR-01` ↔ `ENT-MOD1-01` | `1:1` (Staff) / `0:0` (External Guests) | External SCM experts receive time-limited guest access tokens without an Employee Master Record (0:0 association). Enterprise SSO and external expert access protocols are governed by `REQ-TBD-07` (`REQ-EXT-04`, `REQ-EXT-05`). Verified: `REQ-TBD-11` concerns document retention and archival lifecycle and does not govern authentication or expert access. | `REQ-TBD-07` |
 | **`REL-M2-009`** | `ENT-MOD2-05` ↔ `ENT-MOD2-09` | `1:1` | Whether the Letter of Intent (LOI) is the sole pre-joining instrument or if a distinct formal Appointment Letter is issued post-joining remains an unresolved institutional boundary. | No governing official TBD identified; the boundary remains unspecified in the approved baseline. |
-| **`REL-SHR-008`** | `ENT-SHR-08` ↔ `ENT-MOD1-01` | `1:N` | Outbound synchronization batching mechanism (single-record webhook vs. batch export) is an implementation detail affecting staging frequency. | No governing official TBD identified; batching frequency and staging mechanisms are implementation details unspecified in the approved baseline. |
-| **`REL-M3-001` / `003`** | `ENT-MOD3-01` / `04` ↔ Technical Staff | `TBD` | Appraisal workflow routing and track allocation for mid-level technical staff (Lab Technicians, Technical Assistants) across Module III subsystems. | No governing official TBD identified; the allocation remains unspecified in the approved baseline. |
+| **`REL-SHR-008`** | `ENT-SHR-08` ↔ `ENT-MOD1-01` | `1:N` | External ERP synchronization technical transport protocol and architecture remain unresolved under `REQ-TBD-01` (`REQ-EXT-03`). Specific payload batching frequency and staging mechanics remain implementation details unspecified in the approved baseline. | `REQ-TBD-01` |
+| **`REL-M3-001` / `003`** | `ENT-MOD3-01` / `04` ↔ Technical Staff | `TBD` | Workflow routing and track boundary uncertainty for mid-level technical staff (Lab Technicians, Technical Assistants) between Subsystem 1 (Group-D) and Subsystem 2 (KRA/KPI) is directly governed by `REQ-TBD-03` (`REQ-MOD3-10`, `REQ-MOD3-14`). The final allocation remains unresolved without promoting stakeholder delta items. | `REQ-TBD-03` |
 
 ---
 
@@ -1024,9 +1024,9 @@ The following register documents how the **eleven (11) official baseline TBD ite
 
 | TBD ID | Topic / Scope | Affected Relationship(s) | Conceptual Relationship Impact |
 |---|---|---|---|
-| **`REQ-TBD-01`** | ERP Synchronization Protocol | None (`REQ-EXT-03`) | Governs ERP technical transport architecture (`REQ-EXT-03`); outbox batching mechanics are implementation details without an assigned relationship TBD. |
+| **`REQ-TBD-01`** | ERP Synchronization Protocol | `REL-SHR-008` | Governs external ERP technical transport protocol and sync architecture (`REQ-EXT-03`); payload batching frequency and staging mechanics remain implementation details unspecified in the baseline. |
 | **`REQ-TBD-02`** | Attachment Schemas | `REL-M2-001`, `REL-M3-001`, `REL-M3-005` | Influences field-level parameter payloads transferred between plans, templates, and dossiers (`REQ-DOC-02`, `03`). |
-| **`REQ-TBD-03`** | Staff Appraisal Track Boundaries | None (`REQ-MOD3-10`, `14`) | Qualifies staff appraisal workflow routing; technical-cadre appraisal allocation remains unspecified in the approved baseline with no governing relationship TBD. |
+| **`REQ-TBD-03`** | Staff Appraisal Track Boundaries | `REL-M3-001`, `REL-M3-003` | Governs workflow routing and track allocation boundaries for technical cadre personnel between Subsystem 1 and Subsystem 2 appraisal lifecycles (`REQ-MOD3-10`, `REQ-MOD3-14`). |
 | **`REQ-TBD-04`** | TNU Protocol Weights | `REL-M3-006` | Governs score aggregation formulas feeding the composite Evaluation Matrix (`REQ-MOD2-15`, `REQ-MOD3-18`). |
 | **`REQ-TBD-05`** | Compensation Slabs | `REL-XMOD-009`, `REL-XMOD-011` | Governs monetary bracket attributes passed into Module I Change Requests upon appraisal approval (`REQ-MOD3-09`, `19`). |
 | **`REQ-TBD-06`** | Resignation Intake Interface | `REL-XMOD-005` | Governs whether resignation events originate from employee self-service or administrative data entry (`REQ-MOD2-08`, `REQ-INT-02`). |
