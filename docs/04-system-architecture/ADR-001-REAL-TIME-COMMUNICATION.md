@@ -79,14 +79,12 @@ The decision is driven by both explicit source requirements (`[A]`) and logicall
 
 The architecture working group evaluated four potential technical strategies:
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                   COMMUNICATION STRATEGY OPTIONS                                 │
-├─────────────────────┬───────────────────────┬────────────────────────────┬───────────────────────┤
-│ Option 1: REST Only │ Option 2: HTTP Polling│ Option 3: Native WebSocket │ Option 4: Socket.IO   │
-│ (Pull on Nav/Action)│ (Short / Long Polling)│ (Raw ws Protocol)          │ (Engine.IO + Rooms)   │
-└─────────────────────┴───────────────────────┴────────────────────────────┴───────────────────────┘
-```
+| Strategy | Protocol / Paradigm | In-Flight Latency | Infrastructure Overhead | Architectural Decision |
+|---|---|---|---|---|
+| **Option 1: REST Only** | HTTP/HTTPS Pull | Stale until user navigation | Zero additional persistent state | **REJECTED** (Fails real-time SLA alerting) |
+| **Option 2: Periodic Polling** | Automated HTTP `setInterval` | Interval-bounded (10–30s) | High database read churn | **REJECTED** (Wasteful database load) |
+| **Option 3: Native WebSocket** | Raw RFC 6455 (`ws`) | Sub-second (<100ms) | Custom heartbeats, reconnects, channels | **REJECTED** (Excessive bespoke logic) |
+| **Option 4: Socket.IO** | Engine.IO over WSS + Polling Fallback | Sub-second (<50ms) | Low; reuses existing Redis cluster | **APPROVED** (Native rooms, resilience, NestJS support) |
 
 ### Option 1: REST Only (No Server-Push)
 - **Mechanism:** Client requests data strictly on page navigation, explicit user refresh, or form submission.
@@ -140,67 +138,48 @@ The architecture working group evaluated four potential technical strategies:
 
 ### Proposed Conceptual Communication Topology:
 
-```
-                                  Next.js Frontend
-                                         │
-                    ┌────────────────────┴────────────────────┐
-                    │                                         │
-                 REST API                              Real-Time Layer
-            (HTTP/HTTPS Requests)                   (Socket.IO WebSocket)
-                    │                                         │
-                    └────────────────────┬────────────────────┘
-                                         │
-                                  NestJS Modular
-                                     Monolith
-                                         │
-                    ┌────────────────────┼────────────────────┐
-                    │                    │                    │
-               PostgreSQL              Redis               Workers
-            System of Record        Cache/Queue           Scheduler
-              (ACID State)          & Pub/Sub         (Background Queue)
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1e293b', 'primaryTextColor': '#f8fafc', 'primaryBorderColor': '#38bdf8', 'lineColor': '#64748b'}}}%%
+flowchart TD
+    classDef feNode fill:#0c4a6e,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef beNode fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef dbNode fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+    classDef redisNode fill:#450a0a,stroke:#f87171,stroke-width:2px,color:#fecaca;
+    classDef workerNode fill:#312e81,stroke:#c084fc,stroke-width:2px,color:#f8fafc;
+
+    FE["🌐 <b>Next.js Frontend Application</b><br/><i>(Client Browser / PWA)</i>"]:::feNode
+
+    subgraph PROTOCOLS ["Dual Communication Layer"]
+        direction LR
+        P_REST["⚡ <b>REST API (HTTP/HTTPS)</b><br/>Commands, CRUD & Document I/O"]
+        P_WS["📡 <b>Real-Time Layer (Socket.IO WSS)</b><br/>Badges, Invalidation & SLA Toasts"]
+    end
+
+    BE["🏛️ <b>NestJS Modular Monolith</b><br/><i>(Domain Services + Embedded WsGateway)</i>"]:::beNode
+
+    subgraph INFRA ["Infrastructure Tier"]
+        direction LR
+        DB[("🐘 <b>PostgreSQL 16</b><br/>ACID System of Record")]:::dbNode
+        REDIS[("⚡ <b>Redis 7</b><br/>Cache & Socket.IO Adapter")]:::redisNode
+        WORKER["🔄 <b>BullMQ Workers</b><br/>SLA Cron & Outbox Scheduler"]:::workerNode
+    end
+
+    FE ==> P_REST ==> BE
+    FE ==> P_WS ==> BE
+    BE ==> DB
+    BE ==> REDIS
+    BE ==> WORKER
 ```
 
 ### Protocol & Architectural Responsibility Separation:
 
-```
-┌─────────────────────────────────┬─────────────────────────────────────────────────────────────────┐
-│ Layer / Component               │ Architectural Responsibilities & Allowed Operations             │
-├─────────────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ REST API                        │ • Primary mechanism for all client-to-server operations.        │
-│ (HTTP/HTTPS)                    │ • User authentication and session issuance.                     │
-│                                 │ • Business commands: form submissions, change requests.         │
-│                                 │ • Workflow actions: approvals, rejections, returns.             │
-│                                 │ • Master data retrieval: employee records, org trees, CV lists. │
-│                                 │ • Report requests: dynamic query execution, XLSX/CSV streaming. │
-│                                 │ • Document operations: uploads, downloads, presigned URLs.      │
-├─────────────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ Real-Time Layer                 │ • Server-to-client live event push only.                        │
-│ (Socket.IO over WebSocket)      │ • Live approval queue counter badges.                           │
-│                                 │ • In-app notification toast alerts.                             │
-│                                 │ • SLA countdown warnings and lockout notifications.             │
-│                                 │ • Org chart cache invalidation triggers.                        │
-│                                 │ • Live workflow state update notifications.                     │
-│                                 │ • Collaborative evaluation score sync (ECM session).            │
-├─────────────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ Background Workers / Scheduler  │ • SLA timeline calculations and countdown tracking.             │
-│ (NestJS + Background Worker)    │ • Scheduled cron jobs (midnight effective-date activations).     │
-│                                 │ • Automated 10th-of-month Group-D evaluation lockout at 23:59.  │
-│                                 │ • Asynchronous PDF generation (LOIs, letters, reports).         │
-│                                 │ • External ERP outbox synchronization dispatch.                 │
-│                                 │ • Outbound multi-channel notification dispatch (SMTP/SMS).      │
-├─────────────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ Managed PostgreSQL              │ • Sole authoritative System of Record (SoR).                    │
-│                                 │ • ACID transactional integrity for all master and change data.  │
-│                                 │ • Append-only immutable audit ledger (`audit_logs`).            │
-│                                 │ • Temporal tracking (`effective_date`, `valid_from`, `valid_to`).│
-├─────────────────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ Managed Redis                   │ • In-memory fast cache (org chart hierarchy, permissions).      │
-│                                 │ • Persistent queue backing for background workers (BullMQ [D]). │
-│                                 │ • Cross-instance event distribution via `@socket.io/redis-adapter`│
-│                                 │ • Atomic distributed locks for scheduled crons.                 │
-│                                 │ • NOT the System of Record; loss of Redis does not lose data.  │
-└─────────────────────────────────┴─────────────────────────────────────────────────────────────────┘
-```
+| Layer / Component | Architectural Responsibilities & Allowed Operations |
+|---|---|
+| **REST API (HTTP/HTTPS)** | • Primary mechanism for all client-to-server operations.<br>• User authentication and session issuance.<br>• Business commands: form submissions, change requests.<br>• Workflow actions: approvals, rejections, returns.<br>• Master data retrieval: employee records, org trees, CV lists.<br>• Report requests: dynamic query execution, XLSX/CSV streaming.<br>• Document operations: uploads, downloads, presigned URLs. |
+| **Real-Time Layer (Socket.IO over WebSocket)** | • Server-to-client live event push only.<br>• Live approval queue counter badges.<br>• In-app notification toast alerts.<br>• SLA countdown warnings and lockout notifications.<br>• Org chart cache invalidation triggers.<br>• Live workflow state update notifications.<br>• Collaborative evaluation score sync (ECM session). |
+| **Background Workers / Scheduler (NestJS + BullMQ)** | • SLA timeline calculations and countdown tracking.<br>• Scheduled cron jobs (midnight effective-date activations).<br>• Automated 10th-of-month Group-D evaluation lockout at 23:59.<br>• Asynchronous PDF generation (LOIs, letters, reports).<br>• External ERP outbox synchronization dispatch.<br>• Outbound multi-channel notification dispatch (SMTP/SMS). |
+| **Managed PostgreSQL 16** | • Sole authoritative System of Record (SoR).<br>• ACID transactional integrity for all master and change data.<br>• Append-only immutable audit ledger (`audit_logs`).<br>• Temporal tracking (`effective_date`, `valid_from`, `valid_to`). |
+| **Managed Redis 7** | • In-memory fast cache (org chart hierarchy, permissions).<br>• Persistent queue backing for background workers (BullMQ).<br>• Cross-instance event distribution via `@socket.io/redis-adapter`.<br>• Atomic distributed locks for scheduled crons.<br>• NOT the System of Record; loss of Redis does not lose data. |
 
 ### Real-Time Use Case Classification Catalogue:
 
@@ -247,23 +226,10 @@ The architecture working group evaluated four potential technical strategies:
 
 ## 9. Consequences
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                   ARCHITECTURAL CONSEQUENCES                                     │
-├───────────────────────────────────┬──────────────────────────────────────────────────────────────┤
-│ Positive Consequences             │ • Sub-second visual responsiveness for approvals and queues. │
-│                                   │ • Dramatic reduction in database read load vs HTTP polling.  │
-│                                   │ • Native room scoping provides robust RBAC data isolation.   │
-│                                   │ • Transparent reconnection and fallback mechanics.          │
-│                                   │ • Seamless horizontal scaling via existing Redis cluster.    │
-│                                   │ • Zero architectural drift away from the Modular Monolith.   │
-├───────────────────────────────────┼──────────────────────────────────────────────────────────────┤
-│ Negative / Trade-Off Consequences │ • Reverse proxy requires WebSocket upgrade & sticky sessions.│
-│                                   │ • Maintaining persistent TCP connections has memory cost.    │
-│                                   │ • Dual communication paradigm (REST + Socket.IO) to document.│
-│                                   │ • Clients must implement post-reconnect REST resync logic.   │
-└───────────────────────────────────┴──────────────────────────────────────────────────────────────┘
-```
+| Consequence Dimension | Architectural Realities & Governance Mandates |
+|---|---|
+| **Positive Consequences** | • Sub-second visual responsiveness for approvals, live counter badges, and workflow transitions.<br>• Dramatic reduction in database read load compared to continuous HTTP polling.<br>• Native room scoping (`user:<id>`, `dept:<id>`, `role:<role>`) provides robust RBAC data isolation.<br>• Built-in heartbeat detection, exponential retry reconnection, and long-polling fallback.<br>• Seamless horizontal scaling via existing Redis cluster using official `@socket.io/redis-adapter`.<br>• Zero architectural drift away from the approved Modular Monolith paradigm. |
+| **Trade-Offs & Mitigations** | • Reverse proxy (Nginx) requires explicit WebSocket upgrade header forwarding and sticky sessions for handshake.<br>• Maintaining persistent TCP connections has memory footprint; mitigated by stateless event broadcasting.<br>• Dual communication paradigm (REST + Socket.IO) documented with strict separation of concerns.<br>• Clients must implement post-reconnect REST resync logic upon transient disconnection. |
 
 ---
 
@@ -271,45 +237,23 @@ The architecture working group evaluated four potential technical strategies:
 
 Real-time connections must adhere to the same zero-trust security standards as the REST API:
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                               REAL-TIME SECURITY LIFECYCLE                                       │
-└──────────────────────────────────────────────────────────────────────────────────────────────────┘
-                                                 │
-                                                 ▼
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ 1. PRE-CONNECTION HANDSHAKE AUTHENTICATION                                                       │
-│    • Client transmits Bearer token in Socket.IO handshake auth object (`auth: { token }`)        │
-│    • NestJS WsGuard validates JWT signature, expiration, and user account status                 │
-│    • Unauthenticated or expired connections are rejected during handshake (HTTP 401 equivalent) │
-└─────────────────────────────────┬────────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ 2. AUTHORIZATION & SCOPED ROOM ENROLLMENT                                                        │
-│    • Upon successful authentication, gateway inspects user identity and assigned RBAC roles     │
-│    • Socket automatically joins strictly authorized rooms:                                       │
-│      - Individual User Room: `user:<user_id>`                                                    │
-│      - Departmental Room:    `dept:<department_id>`                                              │
-│      - Role-Based Room:      `role:<role_name>` (e.g., `role:hod`, `role:dean`, `role:mgmt`)     │
-│    • Sockets are strictly forbidden from joining rooms outside their institutional boundary     │
-└─────────────────────────────────┬────────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ 3. DEPARTMENTAL & DATA PRIVACY ISOLATION                                                         │
-│    • Faculty evaluation records are pushed ONLY to `user:<faculty_id>` and `role:ecm_committee`  │
-│    • Group-D evaluations are pushed ONLY to the specific department HOD and VP-Admin             │
-│    • Cross-departmental broadcasting of confidential HR change requests is strictly blocked    │
-└─────────────────────────────────┬────────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ 4. LEAST-PRIVILEGE EVENT PAYLOAD POLICY                                                          │
-│    • Event payloads NEVER broadcast raw confidential data (salaries, Aadhaar, appraisals).       │
-│    • Payloads contain only entity IDs and status flags; client fetches full data via REST.       │
-│    • Connection establishment, authorization failures, and disconnections are auditable.         │
-└──────────────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1e293b', 'primaryTextColor': '#f8fafc', 'primaryBorderColor': '#38bdf8', 'lineColor': '#64748b'}}}%%
+flowchart TD
+    classDef step1 fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef step2 fill:#312e81,stroke:#c084fc,stroke-width:2px,color:#f8fafc;
+    classDef step3 fill:#0c4a6e,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef step4 fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+
+    S1["🔐 <b>1. PRE-CONNECTION HANDSHAKE AUTHENTICATION</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Client transmits Bearer token in Socket.IO handshake auth object (<code>auth: { token }</code>)<br/>• NestJS <code>WsGuard</code> validates JWT signature, expiration, and user account status<br/>• Unauthenticated or expired connections are rejected during handshake (HTTP 401 equivalent)"]:::step1
+
+    S2["🏷️ <b>2. AUTHORIZATION & SCOPED ROOM ENROLLMENT</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Gateway inspects validated user identity and assigned RBAC roles<br/>• Socket automatically enrolls in strictly authorized channels:<br/>  - <b>Individual User Room:</b> <code>user:&lt;user_id&gt;</code><br/>  - <b>Departmental Room:</b> <code>dept:&lt;department_id&gt;</code><br/>  - <b>Role-Based Room:</b> <code>role:&lt;role_name&gt;</code> (e.g., <code>role:hod</code>, <code>role:dean</code>)<br/>• Sockets are strictly forbidden from joining rooms outside their institutional boundary"]:::step2
+
+    S3["🛡️ <b>3. DEPARTMENTAL & DATA PRIVACY ISOLATION</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Faculty evaluation records are pushed ONLY to <code>user:&lt;faculty_id&gt;</code> and <code>role:ecm_committee</code><br/>• Group-D evaluations are pushed ONLY to the specific department HOD and VP-Admin<br/>• Cross-departmental broadcasting of confidential HR change requests is strictly blocked"]:::step3
+
+    S4["📦 <b>4. LEAST-PRIVILEGE EVENT PAYLOAD POLICY</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Event payloads NEVER broadcast raw confidential data (salaries, Aadhaar, appraisals)<br/>• Payloads contain only entity IDs and status flags; client fetches full data via REST<br/>• Connection establishment, authorization failures, and disconnections are auditable"]:::step4
+
+    S1 ==> S2 ==> S3 ==> S4
 ```
 
 *Note: Enterprise Single Sign-On (SSO) identity provider integration remains classified as `[E] TBD` (`REQ-TBD-07a`). Handshake authentication utilizes the abstracted AuthModule JWT contract.*
@@ -320,30 +264,31 @@ Real-time connections must adhere to the same zero-trust security standards as t
 
 The real-time layer is designed to operate seamlessly across both single-node development environments and horizontally scaled enterprise production clusters:
 
-```
-                                  Client Workstations
-                               (Next.js Web Application)
-                                           │
-                                           ▼
-                                 HTTPS / WSS Load Balancer
-                             (Sticky Sessions for Handshake)
-                                           │
-                    ┌──────────────────────┴──────────────────────┐
-                    │                                             │
-                    ▼                                             ▼
-        ┌───────────────────────┐                     ┌───────────────────────┐
-        │  NestJS App Node 1    │                     │  NestJS App Node 2    │
-        │  • Modular Monolith   │                     │  • Modular Monolith   │
-        │  • Socket.IO Gateway  │                     │  • Socket.IO Gateway  │
-        └───────────┬───────────┘                     └───────────┬───────────┘
-                    │                                             │
-                    └──────────────────────┬──────────────────────┘
-                                           │
-                                           ▼
-                                 Managed Redis Cluster
-                             (Socket.IO Redis Pub/Sub)
-                         • Cross-Instance Event Propagation
-                         • Shared Room Distribution
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1e293b', 'primaryTextColor': '#f8fafc', 'primaryBorderColor': '#38bdf8', 'lineColor': '#64748b'}}}%%
+flowchart TD
+    classDef clientNode fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef lbNode fill:#0c4a6e,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef appNode fill:#312e81,stroke:#c084fc,stroke-width:2px,color:#f8fafc;
+    classDef redisNode fill:#450a0a,stroke:#f87171,stroke-width:2px,color:#fecaca;
+
+    CLIENTS["💻 <b>Client Workstations</b><br/><i>(Next.js Web Application / PWA)</i>"]:::clientNode
+    
+    LB["⚖️ <b>HTTPS / WSS Load Balancer (Nginx)</b><br/><i>Sticky Sessions for WebSocket Handshake</i>"]:::lbNode
+
+    subgraph CLUSTER ["Horizontally Scaled NestJS Cluster"]
+        direction LR
+        APP1["⚡ <b>NestJS App Node 1</b><br/>• Modular Monolith<br/>• Socket.IO Gateway"]:::appNode
+        APP2["⚡ <b>NestJS App Node 2</b><br/>• Modular Monolith<br/>• Socket.IO Gateway"]:::appNode
+    end
+
+    REDIS[("⚡ <b>Managed Redis Cluster</b><br/><i>(Socket.IO Redis Pub/Sub Adapter)</i><br/>• Cross-Instance Event Propagation<br/>• Shared Room Distribution")]:::redisNode
+
+    CLIENTS ==> LB
+    LB ==> APP1
+    LB ==> APP2
+    APP1 <===>|"Pub/Sub Redis Adapter"| REDIS
+    APP2 <===>|"Pub/Sub Redis Adapter"| REDIS
 ```
 
 ### 11.1 Single Instance Deployment (Baseline / Staging)
@@ -444,23 +389,17 @@ In the Next.js presentation layer:
 > [!IMPORTANT]
 > The event names listed below represent a **conceptual architecture model (`[D] Proposed Detail`)**. They do NOT constitute final API contracts. Final event schemas and DTOs will be defined in upcoming specification phases.
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                             CONCEPTUAL REAL-TIME EVENT TAXONOMY                                  │
-├─────────────────────┬─────────────────────────────────┬──────────────────────────────────────────┤
-│ Event Concept       │ Target Audience / Room          │ Payload Concept (Least Privilege)        │
-├─────────────────────┼─────────────────────────────────┼──────────────────────────────────────────┤
-│ `orgchart.updated`  │ `dept:<dept_id>`, `role:hr`     │ `{ deptId, modifiedNodeId, timestamp }`  │
-│ `employee.updated`  │ `user:<emp_id>`, `role:hr`      │ `{ employeeId, changeType, timestamp }`  │
-│ `approval.pending`  │ `role:approver`, `user:<auth_id>`│ `{ requestId, module, type, count }`     │
-│ `approval.completed`│ `user:<initiator_id>`           │ `{ requestId, module, status, outcome }` │
-│ `recruitment.updated`│ `role:recruiter`, `dept:<dept>` │ `{ mrfId, currentStage, timestamp }`     │
-│ `candidate.status`  │ `role:recruiter`, `panel:<id>`  │ `{ candidateId, mrfId, newStatus }`      │
-│ `appraisal.updated` │ `user:<emp_id>`, `user:<sup_id>`│ `{ appraisalId, subsystem, status }`     │
-│ `sla.warning`       │ `user:<assignee_id>`, `role:mgr`│ `{ entityId, entityType, hoursLeft }`    │
-│ `notification.new`  │ `user:<user_id>`                │ `{ notificationId, title, severity }`    │
-└─────────────────────┴─────────────────────────────────┴──────────────────────────────────────────┘
-```
+| Event Concept | Target Audience / Scoped Room | Payload Concept (Least Privilege) |
+|---|---|---|
+| `orgchart.updated` | `dept:<dept_id>`, `role:hr` | `{ deptId, modifiedNodeId, timestamp }` |
+| `employee.updated` | `user:<emp_id>`, `role:hr` | `{ employeeId, changeType, timestamp }` |
+| `approval.pending` | `role:approver`, `user:<auth_id>` | `{ requestId, module, type, count }` |
+| `approval.completed`| `user:<initiator_id>` | `{ requestId, module, status, outcome }` |
+| `recruitment.updated`| `role:recruiter`, `dept:<dept>` | `{ mrfId, currentStage, timestamp }` |
+| `candidate.status` | `role:recruiter`, `panel:<id>` | `{ candidateId, mrfId, newStatus }` |
+| `appraisal.updated` | `user:<emp_id>`, `user:<sup_id>` | `{ appraisalId, subsystem, status }` |
+| `sla.warning` | `user:<assignee_id>`, `role:mgr` | `{ entityId, entityType, hoursLeft }` |
+| `notification.new` | `user:<user_id>` | `{ notificationId, title, severity }` |
 
 *Note: Application coding, gateway scaffolding, and package installation remain strictly prohibited during documentation phases.*
 

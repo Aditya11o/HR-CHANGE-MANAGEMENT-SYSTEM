@@ -52,20 +52,13 @@ This specification formalizes the informational anatomy of the University HR Cha
 
 This specification provides comprehensive, entity-wise attribute definitions for all **thirty-three (33) approved primary conceptual entities**:
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                             APPROVED CONCEPTUAL ENTITY COVERAGE                                  │
-├───────────────────────────────┬───────────────────────────────┬──────────────────────────────────┤
-│ DOMAIN MODULE                 │ ENTITY IDENTIFIER RANGE       │ TOTAL PRIMARY ENTITIES           │
-├───────────────────────────────┼───────────────────────────────┼──────────────────────────────────┤
-│ Module I: Change Management   │ ENT-MOD1-01 to ENT-MOD1-06    │ 6 Conceptual Entities            │
-│ Module II: Recruitment        │ ENT-MOD2-01 to ENT-MOD2-10    │ 10 Conceptual Entities           │
-│ Module III: Performance Mgmt  │ ENT-MOD3-01 to ENT-MOD3-09    │ 9 Conceptual Entities            │
-│ Shared Enterprise Platform    │ ENT-SHR-01  to ENT-SHR-08     │ 8 Conceptual Entities            │
-├───────────────────────────────┴───────────────────────────────┼──────────────────────────────────┤
-│ TOTAL PRIMARY CONCEPTUAL ENTITIES FULLY ACCOUNTED FOR:        │ 33 Conceptual Entities           │
-└───────────────────────────────────────────────────────────────┴──────────────────────────────────┘
-```
+| Domain Module | Primary Entity Identifier Range | Total Primary Conceptual Entities |
+|---|---|:---:|
+| **Module I: Change Management Engine** | `ENT-MOD1-01` to `ENT-MOD1-06` | **6 Conceptual Entities** |
+| **Module II: Recruitment & Talent Acquisition** | `ENT-MOD2-01` to `ENT-MOD2-10` | **10 Conceptual Entities** |
+| **Module III: Performance Management Engine** | `ENT-MOD3-01` to `ENT-MOD3-09` | **9 Conceptual Entities** |
+| **Shared Enterprise Platform Services** | `ENT-SHR-01` to `ENT-SHR-08` | **8 Conceptual Entities** |
+| **Authoritative System Total** | **Full 100% Scope Coverage** | **33 Conceptual Entities** |
 
 ### 2.3 Strict Physical Design Exclusions
 
@@ -122,23 +115,13 @@ In strict compliance with project governance:
 
 The identification and specification of attributes across all 33 entities adhere to five core modelling principles:
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                 LOGICAL MODELLING PRINCIPLES                                     │
-├──────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ 1. SOURCE GROUNDING FIRST: Every attribute must trace directly to an approved requirement,       │
-│    business rule, process step, or approved architectural decision. No invented attributes.      │
-│ 2. CONCEPTUAL RELATIONSHIP ALIGNMENT: Logical attributes align perfectly with the 41 approved    │
-│    conceptual relationships in 04-ENTITY-RELATIONSHIP-SPECIFICATION.md without introducing       │
-│    synthetic relations or physical foreign key assumptions.                                      │
-│ 3. TEMPORAL AND LIFECYCLE CLARITY: Attributes distinguish between proposed values, approved      │
-│    staged states, currently active values, and immutable historical slices.                      │
-│ 4. STRICT BINARY STORAGE SEPARATION: Binary files (CVs, evidence, PDF orders) reside in external │
-│    object storage; entities store exclusively metadata, URI keys, and cryptographic hashes.      │
-│ 5. UNCERTAINTY ISOLATION: When a business detail is required for real-world execution but lacks │
-│    an approved source specification, it is tagged [E] and anchored to an official baseline TBD.  │
-└──────────────────────────────────────────────────────────────────────────────────────────────────┘
-```
+> [!IMPORTANT]
+> **Core Logical Data Modelling Invariants:**
+> 1. **Source Grounding First:** Every attribute must trace directly to an approved requirement, business rule, process step, or approved architectural decision. No invented attributes.
+> 2. **Conceptual Relationship Alignment:** Logical attributes align perfectly with the 41 approved conceptual relationships without introducing synthetic relations or physical foreign key assumptions.
+> 3. **Temporal and Lifecycle Clarity:** Attributes strictly distinguish between proposed values, approved staged states, currently active values, and immutable historical slices (`effective_date`).
+> 4. **Strict Binary Storage Separation:** Binary files (CVs, evidence, PDF orders) reside exclusively in external object storage; entities store metadata, URI keys, and cryptographic SHA-256 hashes.
+> 5. **Uncertainty Isolation:** When a business detail is required for real-world execution but lacks an approved source specification, it is tagged `[E]` and anchored to an official baseline TBD (`REQ-TBD-01` to `11`).
 
 ---
 
@@ -862,52 +845,47 @@ Shared platform entities provide cross-cutting capabilities supporting all funct
 
 The logical attributes identified across the 33 entities participate in critical cross-module data dependencies that enforce institutional business rules and eliminate duplicate data entry:
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                            CROSS-MODULE LOGICAL DATA DEPENDENCIES                                │
-└──────────────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1e293b', 'primaryTextColor': '#f8fafc', 'primaryBorderColor': '#38bdf8', 'lineColor': '#64748b'}}}%%
+flowchart TD
+    classDef mod2Node fill:#2e1065,stroke:#c084fc,stroke-width:2px,color:#f8fafc;
+    classDef mod1Node fill:#0c4a6e,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef mod3Node fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+    classDef erpNode fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
 
-   [Module II: Onboarding]
-   ENT-MOD2-09 (Letter of Intent)
-   • ATTR-LOI-08 (yet_to_join_flag = TRUE)
-   • ATTR-LOI-09 (agreed_date_of_joining)
-                 │
-                 │ Day-1 Joining Handshake (BP-XMOD-001)
-                 ▼
-   [Module I: Central Employee Master]
-   ENT-MOD1-01 (Employee Master Record)
-   • Instantiates ATTR-EMP-01 (employee_id)
-   • ATTR-EMP-08 (date_of_joining)
-   • ATTR-EMP-09 (probation_completed = FALSE)
-   • ATTR-EMP-10 (operational_status = ON_PROBATION)
-                 │
-                 ├───────────────────────────────────────┐
-                 │                                       │
-                 ▼                                       ▼
-   [Module III: Performance Management]    [Module II: Resignation Event]
-   Subsystem 2: Goal Setting (BP-M3-KRA-001)  ENT-MOD2-10 (Urgent Replacement)
-   • ATTR-KRG-04 (DOJ + 30 Days SLA)       • ATTR-URG-02 (resigning_employee_id)
-                                           • ATTR-URG-03 (resignation_accepted_date)
-   Subsystem 3: Faculty ECM Batch                    │
-   • ATTR-FEB-04 (probation_completed = TRUE         │ Triggers Replacement Clock (BP-XMOD-002)
-     AND tenure >= 12 Months)                        ▼
-                                           ENT-MOD2-03 (Ad-Hoc Replacement MRF)
-                 │
-                 ▼
-   [Module III: Annual Appraisal Outcome]
-   ENT-MOD3-06 (Staff Outcome) / ENT-MOD3-09 (ECM Outcome)
-   • ATTR-KRA-06 / ATTR-ECM-08 (Management Decision)
-                 │
-                 │ Direct Change Handshake (BP-XMOD-004)
-                 ▼
-   [Module I: Change Management]
-   ENT-MOD1-04 (Service Condition Change Request)
-   • ATTR-CHG-03 (Category: Salary / Designation / Level)
-   • ATTR-CHG-06 (Proposed Payload from Appraisal)
-                 │
-                 │ Approved & Scheduled Activation (BP-M1-007)
-                 ▼
-   ENT-MOD1-01 Master DB Updated ──► ENT-SHR-08 ERP Outbox Staged (BP-M1-011)
+    subgraph M2_ONB ["📦 MODULE II: CANDIDATE ONBOARDING"]
+        LOI["📜 <b>ENT-MOD2-09: Letter of Intent (LOI)</b><br/>• <code>yet_to_join_flag = TRUE</code><br/>• <code>agreed_date_of_joining</code>"]:::mod2Node
+    end
+
+    subgraph M1_EMP ["🏛️ MODULE I: CENTRAL EMPLOYEE MASTER"]
+        EMP["🗄️ <b>ENT-MOD1-01: Employee Master Record</b><br/>• <code>employee_id</code> (Globally Unique)<br/>• <code>date_of_joining</code><br/>• <code>probation_completed = FALSE</code><br/>• <code>operational_status = ON_PROBATION</code>"]:::mod1Node
+        CHG["📝 <b>ENT-MOD1-04: Service Change Request</b><br/>• <code>Category: Salary / Designation / Level</code><br/>• <code>proposed_state_payload</code><br/>• <code>effective_date</code>"]:::mod1Node
+    end
+
+    subgraph M3_PERF ["🎯 MODULE III: PERFORMANCE CYCLES"]
+        KRA["📈 <b>Staff Goal Setting (BP-M3-KRA-001)</b><br/>• <code>DOJ + 30 Days SLA</code>"]:::mod3Node
+        ECM["🎓 <b>Faculty ECM Eligibility Scan</b><br/>• <code>probation_completed = TRUE</code><br/>• <code>tenure >= 12 Months</code>"]:::mod3Node
+        OUTCOME["🏆 <b>ENT-MOD3-06 / ENT-MOD3-09: Appraisal Outcome</b><br/>• Management Approved Increments & Promotions"]:::mod3Node
+    end
+
+    subgraph M2_URGENT ["⚠️ MODULE II: RESIGNATION REPLACEMENT"]
+        URG["⚡ <b>ENT-MOD2-10: Urgent Replacement MRF</b><br/>• <code>resigning_employee_id</code><br/>• <code>resignation_accepted_date</code>"]:::mod2Node
+        MRF["📋 <b>ENT-MOD2-03: Ad-Hoc Replacement MRF</b><br/>• Bypasses Annual Planning Quota"]:::mod2Node
+    end
+
+    ERP_OUT[("🏢 <b>ENT-SHR-08: ERP Transactional Outbox</b><br/>• Guaranteed Outbound Master Sync (BP-M1-011)")]:::erpNode
+
+    %% Dependencies
+    LOI ==>|"🤝 BP-XMOD-001: Day-1 Joining Handshake"| EMP
+    EMP ==>|"📅 Master Employment Baseline"| KRA
+    EMP ==>|"🔍 Monthly 10th Service Filter"| ECM
+    EMP -.->|"⚠️ Resignation Event (BP-XMOD-002)"| URG
+    URG ==> MRF
+    KRA --> OUTCOME
+    ECM --> OUTCOME
+    OUTCOME ==>|"🚀 BP-XMOD-004: Outcome Handshake"| CHG
+    CHG ==>|"⚡ Approved Midnight Activation"| EMP
+    EMP ==>|"📤 Transactional Outbox Dispatch"| ERP_OUT
 ```
 
 ### 10.1 Key Cross-Module Dependency Rules
@@ -922,19 +900,12 @@ The logical attributes identified across the 33 entities participate in critical
 
 ### 11.1 Sensitivity Distribution Across Identified Attributes
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                            DATA SENSITIVITY CLASSIFICATION SUMMARY                               │
-├───────────────────────────────────┬───────────────────────────────┬──────────────────────────────┤
-│ SENSITIVITY CLASSIFICATION        │ TOTAL ATTRIBUTES ASSIGNED     │ GOVERNANCE REQUIREMENTS      │
-├───────────────────────────────────┼───────────────────────────────┼──────────────────────────────┤
-│ Internal                          │ 232 Attributes (67.4%)        │ Authenticated RBAC.          │
-│ Confidential                      │ 97 Attributes (28.2%)         │ Row-level scoped RBAC.       │
-│ Highly Sensitive (PII/Financial)  │ 15 Attributes (4.4%)          │ Encryption at rest & audit.  │
-├───────────────────────────────────┼───────────────────────────────┼──────────────────────────────┤
-│ TOTAL LOGICAL ATTRIBUTES:         │ 344 Logical Attributes        │ Zero unclassified attributes │
-└───────────────────────────────────┴───────────────────────────────┴──────────────────────────────┘
-```
+| Sensitivity Classification | Total Attributes Assigned | Percentage of Schema | Governance & Security Mandates |
+|---|:---:|:---:|---|
+| **Internal** | 232 Attributes | 67.4% | Authenticated RBAC access; visible within organizational roles. |
+| **Confidential** | 97 Attributes | 28.2% | Row-level scoped RBAC; strictly department-isolated evaluations. |
+| **Highly Sensitive (PII / Financial)** | 15 Attributes | 4.4% | Cryptographic encryption at rest, field masking, immutable audit logging. |
+| **Complete System Total** | **344 Logical Attributes** | **100.0%** | **Zero unclassified or unprotected attributes in schema.** |
 
 ### 11.2 Governance Principles for Highly Sensitive Data
 - **Field-Level Encryption:** Attributes classified as `Highly Sensitive (PII / Financial)`—including `ATTR-EMP-06` (current salary), `ATTR-CHG-06` (proposed salary), `ATTR-HST-09` (historical salary), `ATTR-RCS-06`/`07` (current/expected CTC), `ATTR-LOI-04` (offered CTC), `ATTR-ECM-06` (past increments), and `ATTR-USR-04` (credential secrets)—must be protected with cryptographic encryption at rest in downstream physical designs.
@@ -1016,23 +987,17 @@ The following matrix verifies that all functional requirement clusters across th
 
 The logical attribute specification has been audited against the rigorous quality criteria established for Phase 4:
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                            QUALITY AUDIT & GOVERNANCE COMPLIANCE                                 │
-├──────────────────────────────────────────────────────────────────┬───────────┬───────────────────┤
-│ AUDIT DIMENSION                                                  │ RESULT    │ VERIFICATION NOTE │
-├──────────────────────────────────────────────────────────────────┼───────────┼───────────────────┤
-│ 1. All 33 primary conceptual entities fully accounted for?       │ PASSED    │ 6+10+9+8 = 33     │
-│ 2. Conceptual entity IDs and names match 03-ENTITY-ID exactly?   │ PASSED    │ 100% matched      │
-│ 3. All 41 conceptual relationships in 04-ENTITY-REL preserved?   │ PASSED    │ 100% aligned      │
-│ 4. Every attribute grounded in approved baseline or tagged [B/C]? │ PASSED    │ Zero fabrications │
-│ 5. 5-tier classification framework strictly applied?             │ PASSED    │ [A]-[E] explicit  │
-│ 6. Official baseline TBD references verified (REQ-TBD-01 to 11)?  │ PASSED    │ Zero invented TBD │
-│ 7. Stakeholder delta items (CONF-*) isolated from approved base? │ PASSED    │ Reference-only    │
-│ 8. Zero physical database DDL, tables, PKs, FKs, or SQL created? │ PASSED    │ Logical-only      │
-│ 9. Upstream requirements, rules, processes, and FRDs untouched?  │ PASSED    │ Baselines frozen  │
-└──────────────────────────────────────────────────────────────────┴───────────┴───────────────────┘
-```
+| Audit Dimension | Result | Verification & Compliance Note |
+|---|:---:|---|
+| **1. All 33 primary conceptual entities accounted for?** | **PASSED** | 6 (Mod I) + 10 (Mod II) + 9 (Mod III) + 8 (Shared) = 33 entities. |
+| **2. Conceptual entity IDs match 03-ENTITY-ID exactly?** | **PASSED** | 100% matched with frozen identification catalogue. |
+| **3. All 41 conceptual relationships preserved?** | **PASSED** | 100% aligned with relationship architecture (`REL-01` to `REL-41`). |
+| **4. Every attribute grounded in approved baseline?** | **PASSED** | Zero fabricated attributes; explicit traceability throughout. |
+| **5. 5-tier classification framework strictly applied?** | **PASSED** | Explicit `[A]` through `[E]` governance tagging on all attributes. |
+| **6. Official baseline TBD references verified?** | **PASSED** | Verified against official frozen baseline (`REQ-TBD-01` to `11`). |
+| **7. Stakeholder delta items isolated from approved base?** | **PASSED** | Isolated into informative reference sections (`CONF-01` to `10`). |
+| **8. Zero physical database DDL, tables, PKs, or SQL?** | **PASSED** | Pure logical data model preserving physical design phase freedom. |
+| **9. Upstream requirements, rules, processes untouched?** | **PASSED** | Canonical requirements baseline frozen and respected. |
 
 ### 14.2 Classification Distribution Analysis
 

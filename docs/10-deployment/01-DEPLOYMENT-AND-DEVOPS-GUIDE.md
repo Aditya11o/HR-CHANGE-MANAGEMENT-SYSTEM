@@ -16,26 +16,40 @@
 
 ## 1. Container Topology & Infrastructure Architecture
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                PRODUCTION CONTAINER TOPOLOGY                                     │
-└──────────────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1e293b', 'primaryTextColor': '#f8fafc', 'primaryBorderColor': '#38bdf8', 'lineColor': '#64748b'}}}%%
+flowchart TD
+    classDef proxyNode fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef feNode fill:#0c4a6e,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef beNode fill:#312e81,stroke:#c084fc,stroke-width:2px,color:#f8fafc;
+    classDef dataNode fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+    classDef redisNode fill:#450a0a,stroke:#f87171,stroke-width:2px,color:#fecaca;
+    classDef s3Node fill:#451a03,stroke:#fb923c,stroke-width:2px,color:#fff7ed;
 
-                       [ University Ingress / Reverse Proxy (Nginx) ]
-                                    │ TLS 1.3 Termination & WSS Proxy
-                                    ▼
-       ┌────────────────────────────┴────────────────────────────┐
-       │                                                         │
-       ▼                                                         ▼
- [ frontend-app ]                                          [ backend-api ]
- Next.js App Router (Port 3000)                           NestJS Modular Monolith (Port 4000)
- • Server-Side Rendering                                  • REST Controllers & Services
- • Vanilla CSS Design Tokens                              • Socket.IO WebSocket Gateway
- • Static Asset Caching                                   • BullMQ Worker Producers
-                                                                 │
-                                                                 ├──► [ database ] (PostgreSQL 16, Port 5432)
-                                                                 ├──► [ cache-queue ] (Redis 7, Port 6379)
-                                                                 └──► [ object-store ] (MinIO / S3, Port 9000)
+    NGINX["🛡️ <b>University Ingress / Reverse Proxy (Nginx)</b><br/><i>• TLS 1.3 Termination (Ports 80/443)<br/>• WSS Upgrade Header Forwarding<br/>• Static Asset Caching & Rate Limiting</i>"]:::proxyNode
+
+    subgraph APPLICATION_NETWORK ["🌐 APPLICATION CONTAINER NETWORK (hrms-app-net)"]
+        direction LR
+        FE["🌐 <b>frontend-app: Next.js App Router</b><br/><i>Internal Port: 3000</i><br/>• React Server Components (RSC)<br/>• Vanilla CSS Design Tokens<br/>• Socket.IO Client Bridge"]:::feNode
+
+        BE["⚡ <b>backend-api: NestJS Monolith</b><br/><i>Internal Port: 4000</i><br/>• REST Controllers & Services<br/>• Socket.IO WebSocket Gateway<br/>• BullMQ Job Producers & Consumers"]:::beNode
+    end
+
+    subgraph DATA_ISOLATION_NETWORK ["🔒 SECURE DATA NETWORK (hrms-data-net)"]
+        direction LR
+        PG[("🐘 <b>database: PostgreSQL 16</b><br/><i>Port: 5432</i><br/>• Persistent Volume: <code>postgres_data</code><br/>• ACID Transactions & Audit Logs")]:::dataNode
+
+        REDIS[("⚡ <b>cache-queue: Redis 7 Alpine</b><br/><i>Port: 6379</i><br/>• Persistent Volume: <code>redis_data</code><br/>• Org Chart Cache & BullMQ Queues")]:::redisNode
+
+        MINIO[("🪣 <b>object-store: MinIO / S3</b><br/><i>Ports: 9000 (API) / 9001 (Console)</i><br/>• Persistent Volume: <code>minio_data</code><br/>• CVs, PDF LOIs, Dossier Records")]:::s3Node
+    end
+
+    NGINX ==>|"Reverse Proxy /"| FE
+    NGINX ==>|"Reverse Proxy /api & /socket.io"| BE
+    FE -.->|"Client Fetch & Live Events"| BE
+    BE ==>|"Internal TCP SQL"| PG
+    BE ==>|"RESP Protocol"| REDIS
+    BE ==>|"S3 Presigned REST API"| MINIO
 ```
 
 ---

@@ -9,29 +9,68 @@ Welcome to the authoritative documentation portal for the **University HR Change
 
 The platform serves as the unified **digital backbone** for the employee lifecycle, connecting three core functional modules and shared platform services:
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                   INSTITUTIONAL SYSTEM ARCHITECTURE                              │
-├──────────────────────────────────────────────────────────────────────────────────────────────────┤
-│                               MODULE II: TALENT ACQUISITION                                      │
-│  Academic & Non-Academic Manpower Requisitions ──► Sourcing ──► Screening ──► Selection ──► LOI │
-└──────────────────────────────────────────┬───────────────────────────────────────────────────────┘
-                                           │ Onboarding Handshake (BP-XMOD-001)
-                                           ▼
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                     MODULE I: CORE REPOSITORY & CHANGE MANAGEMENT ENGINE                         │
-│  Central Employee DB (ERP Synced) ◄──► Dynamic Org Chart ◄──► Digital Employee Files (Dossiers) │
-│  10 Change Formats ──► 2-Level Approvals (HR ➔ Senior Mgmt) ──► Effective Date Versioning       │
-└──────────────────────────────────────────┬───────────────────────────────────────────────────────┘
-                     ▲                     │ Master Data Feed (BP-XMOD-003)
-                     │                     ▼
-┌────────────────────┴─────────────────────────────────────────────────────────────────────────────┐
-│                           MODULE III: PERFORMANCE MANAGEMENT ENGINE                              │
-│  • Subsystem 1: Group-D Monthly Ratings (7th/10th auto-lock) & Annual Weighted Averages          │
-│  • Subsystem 2: Staff KRA/KPI Onboarding (30-day lock) & Quarterly Reviews (Q1-Q4)               │
-│  • Subsystem 3: Faculty Annual Appraisal via Statutory ECM Route (Monthly Eligibility 10th)      │
-│  Approved Outcomes Auto-Feed into Module I Service Change Requests (BP-XMOD-004)                 │
-└──────────────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1e293b', 'primaryTextColor': '#f8fafc', 'primaryBorderColor': '#38bdf8', 'lineColor': '#64748b', 'secondaryColor': '#0f172a', 'tertiaryColor': '#1e293b'}}}%%
+flowchart TD
+    %% -------------------------------------------------------------
+    %% STYLING DEFINITIONS
+    %% -------------------------------------------------------------
+    classDef modPurple fill:#2e1065,stroke:#a855f7,stroke-width:2px,color:#f8fafc;
+    classDef modBlue fill:#0c4a6e,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef modGreen fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+    classDef databaseNode fill:#1e1b4b,stroke:#818cf8,stroke-width:3px,color:#ffffff;
+    classDef decisionNode fill:#701a75,stroke:#f472b6,stroke-width:2px,color:#ffffff;
+    classDef actionNode fill:#1e293b,stroke:#94a3b8,stroke-width:1.5px,color:#ffffff;
+
+    %% -------------------------------------------------------------
+    %% MODULE II: TALENT ACQUISITION
+    %% -------------------------------------------------------------
+    subgraph MOD2 ["📦 MODULE II: TALENT ACQUISITION & WORKFORCE PLANNING"]
+        direction TB
+        M2_REQ["📋 <b>Manpower Planning & Requisitions</b><br/><i>• Academic: 4-Month Pre-Semester Lead<br/>• Non-Academic: Annual Headcount Quota</i>"]:::modPurple
+        M2_SRC["🔍 <b>Omnichannel Ingestion & UGC Vetting</b><br/><i>• Portal, Job Boards & Campus Drives<br/>• UGC 2018 Minimum Eligibility Filter</i>"]:::modPurple
+        M2_SEL["👥 <b>Statutory Selection & Evaluation</b><br/><i>• Academic: Selection Committee Meeting (SCM)<br/>• Non-Academic: 3-Round Assessment Matrix</i>"]:::modPurple
+        M2_LOI["📜 <b>Offer & LOI Issuance</b><br/><i>• Automated Formal Letter of Intent<br/>• Pipeline & Notice Period Tracking</i>"]:::modPurple
+
+        M2_REQ --> M2_SRC --> M2_SEL --> M2_LOI
+    end
+
+    %% -------------------------------------------------------------
+    %% MODULE I: CORE REPOSITORY & CHANGE MANAGEMENT ENGINE
+    %% -------------------------------------------------------------
+    subgraph MOD1 ["🏛️ MODULE I: CORE REPOSITORY & SERVICE CHANGE ENGINE"]
+        direction TB
+        M1_CDB[("🗄️ <b>Central Employee Master Database</b><br/><i>Authoritative Single Source of Truth<br/>(Bidirectional University ERP Sync)</i>")]:::databaseNode
+        M1_ORG["🌳 <b>Dynamic Org Chart</b><br/><i>Interactive Hierarchy Canvas<br/>Instant Structural Realignment</i>"]:::modBlue
+        M1_DOS["📁 <b>Digital Employee Dossier</b><br/><i>Longitudinal Career History<br/>Immutable Statutory Records</i>"]:::modBlue
+        M1_CHG["📝 <b>10 Standardized Change Formats</b><br/><i>Salary, Designation, Supervisor,<br/>Dept, Level, Additional Duty</i>"]:::modBlue
+        M1_APP{"⚖️ <b>2-Level Sequential Approval</b><br/>• Level 1: HR Operations<br/>• Level 2: Senior Management"}:::decisionNode
+        M1_EFF["📅 <b>Effective Date Scheduler</b><br/><i>Automated Midnight Activation<br/>& Retrospective Journaling</i>"]:::actionNode
+
+        M1_CDB <===> M1_ORG
+        M1_CDB <===> M1_DOS
+        M1_CHG --> M1_APP
+        M1_APP -- " Approved " --> M1_EFF
+        M1_EFF ==> M1_CDB
+    end
+
+    %% -------------------------------------------------------------
+    %% MODULE III: PERFORMANCE MANAGEMENT ENGINE
+    %% -------------------------------------------------------------
+    subgraph MOD3 ["🎯 MODULE III: 3-TRACK PERFORMANCE MANAGEMENT ENGINE"]
+        direction TB
+        M3_GPD["🧹 <b>Track 1: Group-D / Band-I Staff</b><br/><i>• Monthly HOD Rating (1st–7th)<br/>• 8th–10th Grace ➔ 23:59 Auto-Lock<br/>• VP-Administration Final Approval</i>"]:::modGreen
+        M3_KRA["📈 <b>Track 2: General Administrative Staff</b><br/><i>• 30-Day Joint KRA/KPI Goal-Lock<br/>• Q1–Q4 Quarterly Review Cadence<br/>• Annual Consolidated Score Formulation</i>"]:::modGreen
+        M3_ECM["🎓 <b>Track 3: University Faculty</b><br/><i>• Monthly 10th Eligibility Scan (≥12m)<br/>• 4-Unit Verification (Dean, R&D, Place, HR)<br/>• Statutory ECM Panel & TNU Matrix</i>"]:::modGreen
+    end
+
+    %% -------------------------------------------------------------
+    %% INTER-MODULE LIFECYCLE HANDSHAKES
+    %% -------------------------------------------------------------
+    M2_LOI ==>|"🤝 <b>BP-XMOD-001: Day-1 Onboarding</b><br/><i>Converts Candidate ➔ Active Employee</i>"| M1_CDB
+    M1_CDB ==>|"⚡ <b>BP-XMOD-003: Master Employment Baseline</b><br/><i>Syncs Eligibility, Grades & Hierarchy</i>"| MOD3
+    MOD3 ==>|"🚀 <b>BP-XMOD-004: Appraisal Outcome Handshake</b><br/><i>Injects Verified Increments / Promotions</i>"| M1_CHG
+    M1_CDB -.->|"⚠️ <b>BP-XMOD-002: Resignation Bypass</b><br/><i>Auto-Generates Urgent Replacement MRF</i>"| M2_REQ
 ```
 
 ---

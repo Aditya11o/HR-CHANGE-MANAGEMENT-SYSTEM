@@ -25,20 +25,13 @@ The University HR Change Management & Automation System utilizes a **single, hig
   3. `mod3_performance`: Group-D monthly scorecards, Staff KRA goal sheets, Faculty self-appraisals, and ECM evaluation matrices.
   4. `shared_platform`: RBAC users, roles, permissions, immutable audit logs, notification queues, and the transactional outbox.
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                             DATABASE DOMAIN SCHEMA TOPOLOGY                                      │
-├───────────────────────────────┬───────────────────────────────┬──────────────────────────────────┤
-│ SCHEMA / DOMAIN               │ PRIMARY ENTITY INVENTORY      │ TOTAL ENTITIES                   │
-├───────────────────────────────┼───────────────────────────────┼──────────────────────────────────┤
-│ `mod1_core`                   │ ENT-MOD1-01 to ENT-MOD1-06    │ 6 Primary Conceptual Entities    │
-│ `mod2_recruitment`            │ ENT-MOD2-01 to ENT-MOD2-10    │ 10 Primary Conceptual Entities   │
-│ `mod3_performance`            │ ENT-MOD3-01 to ENT-MOD3-09    │ 9 Primary Conceptual Entities    │
-│ `shared_platform`             │ ENT-SHR-01  to ENT-SHR-08     │ 8 Primary Conceptual Entities    │
-├───────────────────────────────┴───────────────────────────────┼──────────────────────────────────┤
-│ TOTAL PRIMARY CONCEPTUAL ENTITIES:                            │ 33 Conceptual Entities           │
-└───────────────────────────────────────────────────────────────┴──────────────────────────────────┘
-```
+| Schema / Domain | Primary Conceptual Entity Inventory | Entity Identifier Range | Total Entities |
+|---|---|---|:---:|
+| `mod1_core` | `EmployeeMaster`, `OrgHierarchyNode`, `DigitalDossierItem`, `ServiceChangeRequest`, `ChangeApprovalStep`, `AdditionalResponsibility` | `ENT-MOD1-01` to `ENT-MOD1-06` | **6** |
+| `mod2_recruitment` | `ManpowerRequisition`, `TeachingLoadModel`, `OpenPosition`, `CandidateProfile`, `CandidateDocument`, `RecruiterScreening`, `SelectionPanel`, `InterviewScorecard`, `OfferLetter`, `YetToJoinTracking` | `ENT-MOD2-01` to `ENT-MOD2-10` | **10** |
+| `mod3_performance` | `GroupDMonthlyEvaluation`, `GroupDAnnualScorecard`, `StaffKraGoalSheet`, `StaffQuarterlyReview`, `StaffAnnualSynthesis`, `FacultyEligibilityDocket`, `FacultySelfAppraisal`, `MultiUnitVerification`, `EcmEvaluationMatrix` | `ENT-MOD3-01` to `ENT-MOD3-09` | **9** |
+| `shared_platform` | `UserAccount`, `AuditLog`, `RoleDefinition`, `UserRoleAssignment`, `NotificationMessage`, `OutboundEmailDispatch`, `TemplateRegistry`, `TransactionalOutboxEvent` | `ENT-SHR-01` to `ENT-SHR-08` | **8** |
+| **Institutional Total** | **Authoritative Complete Schema Coverage** | **ENT-01 to ENT-33** | **33 Entities** |
 
 ### 1.2 Core Invariant Database Principles
 1. **Source Grounding & Baseline Traceability:** Every entity, relationship, and constraint is directly traceable to the 104 atomic requirements and 60 business rules.
@@ -106,21 +99,14 @@ The University HR Change Management & Automation System utilizes a **single, hig
 
 The 41 primary entity relationships across the database are categorized below:
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                               RELATIONSHIP ARCHITECTURE OVERVIEW                                 │
-├───────────────────────────────────────────────┬──────────────────────────┬───────────────────────┤
-│ RELATIONSHIP DOMAIN                           │ IDENTIFIER RANGE         │ TOTAL RELATIONSHIPS   │
-├───────────────────────────────────────────────┼──────────────────────────┼───────────────────────┤
-│ Module I Core & Hierarchy Relationships       │ REL-01 to REL-08         │ 8 Relationships       │
-│ Module II Recruitment & Sourcing Relationships│ REL-09 to REL-20         │ 12 Relationships      │
-│ Module III Performance Appraisal Relationships│ REL-21 to REL-32         │ 12 Relationships      │
-│ Cross-Module Lifecycle Handshake Relationships│ REL-33 to REL-36         │ 4 Relationships       │
-│ Shared Platform Security & Outbox Mappings    │ REL-37 to REL-41         │ 5 Relationships       │
-├───────────────────────────────────────────────┴──────────────────────────┼───────────────────────┤
-│ TOTAL VERIFIED ENTITY RELATIONSHIPS:                                     │ 41 Relationships      │
-└──────────────────────────────────────────────────────────────────────────────────────────────────┘
-```
+| Relationship Domain | Coverage Scope | Identifier Range | Total Invariant Relationships |
+|---|---|---|:---:|
+| **Module I Core & Hierarchy** | Employee to Dossier, Org Tree Nodes, Service Changes, Approvals | `REL-01` to `REL-08` | **8** |
+| **Module II Recruitment & Sourcing** | Requisitions, Teaching Models, Candidates, SCM Panels, LOIs | `REL-09` to `REL-20` | **12** |
+| **Module III Performance Appraisal** | Group-D Monthly/Annual, Staff KRA/KPI, Faculty ECM Matrices | `REL-21` to `REL-32` | **12** |
+| **Cross-Module Lifecycle Handshakes**| Candidate $\rightarrow$ Employee, Resignation $\rightarrow$ MRF, Appraisal $\rightarrow$ Change | `REL-33` to `REL-36` | **4** |
+| **Shared Platform Security & Outbox**| Users, RBAC Roles, Audit Logs, Transactional Outbox Events | `REL-37` to `REL-41` | **5** |
+| **Verified Institutional Total** | **Complete Relational Foreign Key Graph** | **REL-01 to REL-41** | **41 Relationships** |
 
 ### Key Relational Anchor Points
 1. **`EmployeeMaster` (Center of Gravity):** Acts as the foundational parent for Digital Dossiers (`1:N`), Service Change Requests (`1:N`), Org Hierarchy Nodes (`1:1`), Group-D Monthly Reviews (`1:N`), Staff KRA Goal Sheets (`1:N`), and Faculty Appraisals (`1:N`).
@@ -135,78 +121,91 @@ The 41 primary entity relationships across the database are categorized below:
 
 ## 4. Logical Relational Schema Profiles
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                 CORE SCHEMA PROFILES & FOREIGN KEYS                              │
-└──────────────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+erDiagram
+    EMPLOYEES ||--o{ SERVICE_CHANGE_REQUESTS : "initiates"
+    EMPLOYEES ||--o{ GROUP_D_MONTHLY_EVALUATIONS : "evaluated_in"
+    EMPLOYEES ||--o{ GROUP_D_MONTHLY_EVALUATIONS : "supervises"
+    EMPLOYEES ||--o| ORG_NODES : "occupies_position"
+    ORG_NODES ||--o{ EMPLOYEES : "belongs_to_dept"
+    ORG_NODES ||--o{ ORG_NODES : "parent_subordinate"
+    ORG_NODES ||--o{ MANPOWER_REQUISITIONS : "requests"
+    EMPLOYEES ||--o{ MANPOWER_REQUISITIONS : "replaced_by"
+    SERVICE_CHANGE_REQUESTS ||--o{ TRANSACTIONAL_OUTBOX_EVENTS : "triggers"
 
- [mod1_core.employees]
-  ├── id (UUID, PK)
-  ├── employee_code (VARCHAR, UNIQUE, Indexed)
-  ├── full_name (VARCHAR)
-  ├── email (VARCHAR, UNIQUE)
-  ├── current_department_id (UUID, FK -> mod1_core.org_nodes.id)
-  ├── current_designation (VARCHAR)
-  ├── current_level (VARCHAR)
-  ├── current_salary (NUMERIC(12,2))
-  ├── joining_date (DATE)
-  ├── probation_status (VARCHAR: 'PENDING', 'COMPLETED', 'EXTENDED')
-  ├── employment_status (VARCHAR: 'ACTIVE', 'RESIGNED_SERVING_NOTICE', 'SEPARATED')
-  └── is_deleted (BOOLEAN, DEFAULT FALSE)
+    EMPLOYEES {
+        uuid id PK
+        varchar employee_code UK
+        varchar full_name
+        varchar email UK
+        uuid current_department_id FK
+        varchar current_designation
+        varchar current_level
+        numeric current_salary
+        date joining_date
+        varchar probation_status
+        varchar employment_status
+        boolean is_deleted
+    }
 
- [mod1_core.org_nodes]
-  ├── id (UUID, PK)
-  ├── node_code (VARCHAR, UNIQUE)
-  ├── node_name (VARCHAR)
-  ├── node_type (VARCHAR: 'SCHOOL', 'DEPARTMENT', 'POSITION')
-  ├── parent_node_id (UUID, FK -> mod1_core.org_nodes.id, Nullable, Indexed)
-  ├── current_holder_employee_id (UUID, FK -> mod1_core.employees.id, Nullable)
-  └── is_active (BOOLEAN, DEFAULT TRUE)
+    ORG_NODES {
+        uuid id PK
+        varchar node_code UK
+        varchar node_name
+        varchar node_type
+        uuid parent_node_id FK
+        uuid current_holder_employee_id FK
+        boolean is_active
+    }
 
- [mod1_core.service_change_requests]
-  ├── id (UUID, PK)
-  ├── request_code (VARCHAR, UNIQUE, Indexed)
-  ├── employee_id (UUID, FK -> mod1_core.employees.id, Indexed)
-  ├── change_format (VARCHAR: 'SALARY', 'DESIGNATION', 'REPORTEE', 'SUPERVISOR', 'LEVEL', etc.)
-  ├── current_state_snapshot (JSONB)
-  ├── proposed_state_payload (JSONB)
-  ├── effective_date (DATE, Indexed)
-  ├── justification (TEXT)
-  ├── workflow_status (VARCHAR: 'DRAFT', 'PENDING_HR', 'PENDING_MGMT', 'APPROVED_SCHEDULED', 'ACTIVE', 'REJECTED')
-  ├── is_retrospective (BOOLEAN, DEFAULT FALSE)
-  └── created_at (TIMESTAMPTZ)
+    SERVICE_CHANGE_REQUESTS {
+        uuid id PK
+        varchar request_code UK
+        uuid employee_id FK
+        varchar change_format
+        jsonb current_state_snapshot
+        jsonb proposed_state_payload
+        date effective_date
+        text justification
+        varchar workflow_status
+        boolean is_retrospective
+        timestamptz created_at
+    }
 
- [mod2_recruitment.manpower_requisitions]
-  ├── id (UUID, PK)
-  ├── requisition_code (VARCHAR, UNIQUE, Indexed)
-  ├── track_type (VARCHAR: 'ACADEMIC', 'NON_ACADEMIC', 'URGENT_REPLACEMENT')
-  ├── requesting_dept_id (UUID, FK -> mod1_core.org_nodes.id)
-  ├── position_title (VARCHAR)
-  ├── vacancies_count (INTEGER)
-  ├── teaching_load_model_id (UUID, FK -> mod2_recruitment.teaching_load_models.id, Nullable)
-  ├── approval_status (VARCHAR: 'SUBMITTED', 'VETTED_HR', 'SANCTIONED_CHANCELLOR', 'REJECTED')
-  └── replacement_for_employee_id (UUID, FK -> mod1_core.employees.id, Nullable)
+    MANPOWER_REQUISITIONS {
+        uuid id PK
+        varchar requisition_code UK
+        varchar track_type
+        uuid requesting_dept_id FK
+        varchar position_title
+        integer vacancies_count
+        uuid teaching_load_model_id FK
+        varchar approval_status
+        uuid replacement_for_employee_id FK
+    }
 
- [mod3_performance.group_d_monthly_evaluations]
-  ├── id (UUID, PK)
-  ├── employee_id (UUID, FK -> mod1_core.employees.id, Indexed)
-  ├── evaluation_month (DATE: YYYY-MM-01, Indexed)
-  ├── supervisor_id (UUID, FK -> mod1_core.employees.id)
-  ├── attendance_score (NUMERIC(5,2))
-  ├── task_diligence_score (NUMERIC(5,2))
-  ├── composite_monthly_score (NUMERIC(5,2))
-  ├── submission_status (VARCHAR: 'DRAFT', 'SUBMITTED', 'LOCKED_NON_COMPLIANT', 'APPROVED_VP_ADMIN')
-  └── submitted_at (TIMESTAMPTZ)
+    GROUP_D_MONTHLY_EVALUATIONS {
+        uuid id PK
+        uuid employee_id FK
+        date evaluation_month
+        uuid supervisor_id FK
+        numeric attendance_score
+        numeric task_diligence_score
+        numeric composite_monthly_score
+        varchar submission_status
+        timestamptz submitted_at
+    }
 
- [shared_platform.transactional_outbox_events]
-  ├── id (UUID, PK)
-  ├── aggregate_type (VARCHAR: 'EMPLOYEE_SERVICE_CHANGE', 'NEW_ONBOARDING', 'SEPARATION')
-  ├── aggregate_id (UUID, Indexed)
-  ├── event_payload (JSONB)
-  ├── dispatch_status (VARCHAR: 'PENDING', 'DELIVERED', 'FAILED', Indexed)
-  ├── retry_count (INTEGER, DEFAULT 0)
-  ├── last_attempted_at (TIMESTAMPTZ)
-  └── created_at (TIMESTAMPTZ, Indexed)
+    TRANSACTIONAL_OUTBOX_EVENTS {
+        uuid id PK
+        varchar aggregate_type
+        uuid aggregate_id
+        jsonb event_payload
+        varchar dispatch_status
+        integer retry_count
+        timestamptz last_attempted_at
+        timestamptz created_at
+    }
 ```
 
 ---

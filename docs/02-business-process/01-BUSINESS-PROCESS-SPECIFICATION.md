@@ -50,31 +50,37 @@ The system governs interactions among 16 primary institutional actors:
 
 ## 2. Module I — HR Change Management Processes (`BP-M1-001` to `BP-M1-011`)
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                MODULE I: CHANGE WORKFLOW LIFECYCLE                               │
-└──────────────────────────────────────────────────────────────────────────────────────────────────┘
-  [HR Operations / Initiator]
-          │ 1. Initiate Change Request (Formats a-j) + Attach Proof
-          ▼
-  [Level-1: HR Operations Review]
-          │ 2. Vets Policy Compliance, Comp Band, Hierarchy Realignment
-          ├─────────────────────────┐
-      [Rejected]                [Approved]
-          ▼                         ▼
-  [Return to Initiator]    [Level-2: Senior Management Approval]
-                                    │ 3. Final Executive Sanction
-                                    ├─────────────────────────┐
-                                [Rejected]                [Approved]
-                                    ▼                         ▼
-                            [Return to HR]         [Scheduled State (effective_date)]
-                                                              │ 4. Background Processor
-                                                              ▼
-                                                   [Active Master Update]
-                                                   • Central DB Committed
-                                                   • Org Chart Realigned
-                                                   • Dossier Archived
-                                                   • ERP Outbox Event Emitted
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1e293b', 'primaryTextColor': '#f8fafc', 'primaryBorderColor': '#38bdf8', 'lineColor': '#64748b'}}}%%
+flowchart TD
+    %% Styling Classes
+    classDef initNode fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef reviewNode fill:#312e81,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef rejectNode fill:#450a0a,stroke:#f87171,stroke-width:2px,color:#fecaca;
+    classDef schedNode fill:#14532d,stroke:#4ade80,stroke-width:2px,color:#f0fdf4;
+    classDef actNode fill:#0c4a6e,stroke:#0284c7,stroke-width:3px,color:#ffffff;
+
+    INIT["📝 <b>1. Service Change Initiator</b><br/><i>(HR Ops / Admin / Dept Head)</i><br/>Selects Target Employee & Formats (a)–(j)<br/>Attaches Justification, Proof & <code>effective_date</code>"]:::initNode
+    
+    L1{"⚖️ <b>2. Level-1: HR Operations Vetting</b><br/>Validates Policy, Pay Slabs, Hierarchy & History"}:::reviewNode
+    
+    RET1["↩️ <b>Return to Initiator</b><br/><i>Status: RETURNED_FOR_CLARIFICATION</i><br/>Includes HR Deficiency Remarks"]:::rejectNode
+
+    L2{"🏛️ <b>3. Level-2: Senior Management Sanction</b><br/><i>(Pro-Chancellor / Registrar Executive Gate)</i>"}:::reviewNode
+    
+    RET2["↩️ <b>Return to HR Operations</b><br/><i>Status: REJECTED_BY_MGMT</i><br/>Includes Executive Objections"]:::rejectNode
+
+    SCHED["⏳ <b>Scheduled Invariant State</b><br/><i>Status: APPROVED_SCHEDULED</i><br/>Master DB Unchanged Until Effective Date"]:::schedNode
+    
+    ACT["⚡ <b>4. Midnight Background Activation Engine</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• <b>Master Mutation:</b> Commits new salary/role/cadre to <code>employees</code><br/>• <b>Org Realignment:</b> Recalculates supervisory edges in <code>org_nodes</code><br/>• <b>Dossier Archival:</b> Appends sanction letter to <code>digital_dossiers</code><br/>• <b>ERP Outbox Push:</b> Emits guaranteed sync payload to Outbox Queue"]:::actNode
+
+    INIT ==>|"Submit Change Request"| L1
+    L1 -- " Policy Cleared " --> L2
+    L1 -.->|" Policy Violation / Missing Proof "| RET1
+    RET1 -.->|" Resubmit with Fixes "| INIT
+    L2 -- " Executive Approval " --> SCHED
+    L2 -.->|" Budget / Executive Rejection "| RET2
+    SCHED ==>|" Cron Trigger: effective_date <= CURRENT_DATE "| ACT
 ```
 
 ### `BP-M1-001`: Employee Profile Creation & Onboarding Intake
@@ -175,36 +181,71 @@ The system governs interactions among 16 primary institutional actors:
 
 ## 3. Module II — Recruitment & Selection Processes (`BP-M2-001` to `BP-M2-020`)
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                               MODULE II: RECRUITMENT LIFECYCLE                                   │
-└──────────────────────────────────────────────────────────────────────────────────────────────────┘
-  [4 Months Prior to Semester] ──► Associate Dean Triggers Academic Manpower Planning
-          │
-          ▼
-  [Deans Submit Attachment 1 (15 Days)] ──► Teaching Load Calculation
-          │
-          ▼
-  [HR 3-Month Vetting Window] ──► Curriculum, Cadre-Ratio & Student-Faculty Checks
-          │
-          ▼
-  [Pro-Chancellor Approval (7 Days)] ──► Public Ad Launch within 7 Days
-          │
-          ▼
-  [Omnichannel CV Ingestion] ──► UGC Norms Shortlisting ──► Recruiter Calling Sheet (RCS)
-          │
-          ├────────────────────────────────────────┬───────────────────────────────────────┐
-          ▼ (Academic Track)                       ▼ (Non-Academic Track)                  ▼ (Urgent)
-  [Statutory SCM Panel]                   [3-Round Interviews]                    [Resignation Trigger]
-  • VC, Dean, HOD, External Expert        • R1: Technical Panel                   • Immediate Ad-hoc MRF
-  • Digital Scoring Matrix                • R2: HR Assessment                     • Bypass Annual Quota
-          │                               • R3: Management Review                         │
-          ├────────────────────────────────────────┴───────────────────────────────────────┘
-          ▼
-  [Management Final Sanction] ──► Auto-Generate Letter of Intent (LOI)
-          │
-          ▼
-  [Candidate Accepts LOI] ──► "Yet to Join" Pipeline ──► Day-1 Onboarding Handshake to Module I
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1e293b', 'primaryTextColor': '#f8fafc', 'primaryBorderColor': '#38bdf8', 'lineColor': '#64748b'}}}%%
+flowchart TD
+    %% Styling Classes
+    classDef planNode fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef acadNode fill:#2e1065,stroke:#c084fc,stroke-width:2px,color:#f8fafc;
+    classDef staffNode fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+    classDef urgentNode fill:#451a03,stroke:#f97316,stroke-width:2px,color:#fff7ed;
+    classDef successNode fill:#0c4a6e,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef decisionNode fill:#701a75,stroke:#f472b6,stroke-width:2px,color:#ffffff;
+
+    subgraph PLAN ["📅 MANPOWER PLANNING & REQUISITION PHASE"]
+        direction TB
+        A_TRIG["⏰ <b>Calendar Planning Trigger</b><br/><i>4 Months Pre-Semester / Pre-FY</i>"]:::planNode
+        A_DEAN["📋 <b>Deans / HODs Submit Requisitions</b><br/><i>Attachment 1: Teaching Workload & Student Ratios (15d SLA)</i>"]:::planNode
+        A_VETT["🔍 <b>HR Comprehensive Vetting</b><br/><i>Consolidated into Master Manpower Plan (Encl 1 & 3)</i>"]:::planNode
+        A_CHANC["⚖️ <b>Pro-Chancellor Executive Sanction</b><br/><i>Strict 7-Day Turnaround SLA</i>"]:::decisionNode
+        A_AD["📢 <b>Public Recruitment Advertisement</b><br/><i>Print, Portals & Digital Media (7-Day SLA)</i>"]:::planNode
+
+        A_TRIG --> A_DEAN --> A_VETT --> A_CHANC --> A_AD
+    end
+
+    subgraph SOURCING ["📥 OMNICHANNEL INGESTION & SCREENING"]
+        direction TB
+        SRC["🌐 <b>Omnichannel CV Sourcing</b><br/><i>University Portal, Job Boards, Campus & Internshala</i>"]:::planNode
+        UGC["🎓 <b>Automated UGC 2018 Screening</b><br/><i>Minimum Qualifications, Ph.D. & Experience Filter</i>"]:::planNode
+        RCS["📞 <b>Recruiter Calling Sheet (RCS)</b><br/><i>Telephonic CTC, Notice Period & Communication Rating</i>"]:::planNode
+
+        SRC --> UGC --> RCS
+    end
+
+    A_AD ==> SRC
+
+    %% Urgent Replacement Bypass
+    RESIGN["⚠️ <b>Dean Accepts Resignation</b><br/><i>(Logged in Module I)</i>"]:::urgentNode
+    URG_MRF["⚡ <b>Urgent Replacement MRF (BP-XMOD-002)</b><br/><i>Bypasses Annual Planning Quota</i>"]:::urgentNode
+    RESIGN ==> URG_MRF ==> SRC
+
+    RCS ==> SPLIT{"🔀 Cadre Selection Pathway"}:::decisionNode
+
+    subgraph EVAL_ACAD ["🎓 ACADEMIC SELECTION COMMITTEE (SCM)"]
+        direction TB
+        SCM["🏛️ <b>Statutory SCM Panel Session</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Vice-Chancellor / Nominee (Chair)<br/>• School Dean & Head of Department<br/>• Mandatory External Subject Expert<br/>• Standardized Digital Scoring Compilation"]:::acadNode
+    end
+
+    subgraph EVAL_STAFF ["🏢 NON-ACADEMIC 3-ROUND INTERVIEWS"]
+        direction TB
+        NONACAD["👥 <b>3-Round Sequential Evaluation</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Round 1: Technical & Functional Test<br/>• Round 2: HR Behavioral Assessment<br/>• Round 3: Executive Leadership Review"]:::staffNode
+    end
+
+    SPLIT -- " Academic Cadre " --> SCM
+    SPLIT -- " Non-Academic Staff " --> NONACAD
+
+    subgraph OFFER ["📜 OFFER & ONBOARDING LIFECYCLE"]
+        direction TB
+        MGMT["🤝 <b>Management Sanction & Budget Sign-Off</b>"]:::decisionNode
+        LOI["📄 <b>Formal Letter of Intent (LOI) Dispatched</b><br/><i>Automated PDF Populated with Terms & Salary</i>"]:::successNode
+        YTJ["⏳ <b>'Yet-to-Join' Pipeline Tracking</b><br/><i>Notice Period Countdown & Relocation Checks</i>"]:::successNode
+        ONB["🎉 <b>Day-1 Document Verification & Handshake</b><br/><i>(BP-XMOD-001: Direct Injection to Module I Master DB)</i>"]:::successNode
+
+        MGMT --> LOI --> YTJ --> ONB
+    end
+
+    SCM ==> MGMT
+    NONACAD ==> MGMT
 ```
 
 ### Academic Manpower Planning Sub-Workflow (`BP-M2-001` to `BP-M2-006`)
@@ -237,26 +278,61 @@ The system governs interactions among 16 primary institutional actors:
 
 ## 4. Module III — Performance Management Processes (`BP-M3-001` to `BP-M3-022`)
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                             MODULE III: THREE INDEPENDENT TRACKS                                 │
-└──────────────────────────────────────────────────────────────────────────────────────────────────┘
-  [Subsystem 1: Group-D / Band-I Monthly & Annual Reviews]
-  • 1st of Month: Forms Dispatched ──► 7th: Due Date ──► 8th–10th: Grace Period
-  • 10th Cutoff: Auto-Lockout Flag ──► VP-Admin Sign-Off ──► Enclosure 2 Collation
-  • 1-Year Milestone: 12-Month Weighted Average ──► Probation Gate ──► Pre-Defined Slab Increment
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1e293b', 'primaryTextColor': '#f8fafc', 'primaryBorderColor': '#38bdf8', 'lineColor': '#64748b'}}}%%
+flowchart TD
+    %% Styling Classes
+    classDef track1Node fill:#0c4a6e,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef track2Node fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+    classDef track3Node fill:#2e1065,stroke:#c084fc,stroke-width:2px,color:#f8fafc;
+    classDef lockNode fill:#450a0a,stroke:#f87171,stroke-width:2px,color:#fecaca;
+    classDef handoffNode fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
 
-  [Subsystem 2: General Staff KRA/KPI Lifecycle]
-  • 30 Days from DOJ: Goal Sheet Setup ──► Joint HR & Management Goal Lock
-  • Quarterly Cadence (Q1–Q4): 90d Intimation ──► 20d Reminder ──► 15d Self-Appraisal ──► 7d Review
-  • Annual Consolidation: Q1–Q4 Synthesis ──► Direct Service Change Injection to Module I
+    %% -------------------------------------------------------------
+    %% TRACK 1: GROUP-D / BAND-I
+    %% -------------------------------------------------------------
+    subgraph T1 ["🧹 TRACK 1: GROUP-D / BAND-I STAFF (MONTHLY CADENCE)"]
+        direction TB
+        G1["📅 <b>1st of Month:</b> Evaluation Forms Dispatched to HODs"]:::track1Node
+        G2["⏱️ <b>7th of Month:</b> Standard Evaluation Due Date"]:::track1Node
+        G3["🔔 <b>8th–10th:</b> 3-Day Automated Grace Period & Daily Chaser Alerts"]:::track1Node
+        G4["🔒 <b>10th at 23:59 IST: Automated Lockout</b><br/><i>Unsubmitted Forms Lock Permanently; Non-Compliance Flagged to HR</i>"]:::lockNode
+        G5["✍️ <b>VP-Administration Exclusive Review:</b> Approves or Rejects Monthly Ratings"]:::track1Node
+        G6["📊 <b>1-Year Milestone Synthesis:</b> 12-Month Weighted Parameter Scorecard"]:::track1Node
+        G7["💰 <b>Probation Clearance Gate:</b> Standard Increment Slabs Dispatched to Payroll"]:::handoffNode
 
-  [Subsystem 3: Faculty Annual Appraisal via Statutory ECM Route]
-  • Monthly 10th Scan: Probation Completed + >= 12 Months Service ──► Certified List to Registrar
-  • 7 Working Days: Faculty Self-Appraisal Submission (Enclosure 1)
-  • 4-Unit Parallel Verification: Dean, Director R&D, Placement Cell, HR (Dispute Loop)
-  • Monthly ECM Session: Statutory Panel Digital Scoring (Enclosure 2)
-  • TNU Benchmark Matrix (Enclosure 3) ──► Management Sanction in Next Salary Cycle + Auto-Letter
+        G1 --> G2 --> G3 --> G4 --> G5 --> G6 --> G7
+    end
+
+    %% -------------------------------------------------------------
+    %% TRACK 2: GENERAL ADMINISTRATIVE STAFF
+    %% -------------------------------------------------------------
+    subgraph T2 ["📈 TRACK 2: GENERAL ADMINISTRATIVE STAFF (KRA/KPI CADENCE)"]
+        direction TB
+        K1["🎯 <b>30 Days from DOJ:</b> New Joiner Formulates 3–5 Measurable KRAs"]:::track2Node
+        K2["🔐 <b>Joint Version Lock:</b> HR & Senior Management Sanction and Lock Targets"]:::track2Node
+        K3["🔄 <b>Quarterly Cycles (Q1–Q4):</b><br/>• T-90d Cycle Notice ➔ T-20d Mid-Review Reminder<br/>• 15d Employee Self-Rating Window<br/>• 7d Supervisory Final Assessment"]:::track2Node
+        K4["📊 <b>Annual Synthesis:</b> Consolidated Q1–Q4 Weighted Score Synthesis"]:::track2Node
+        K5["🚀 <b>Module I Handshake (BP-XMOD-004):</b> Auto-Injects Service Change Request"]:::handoffNode
+
+        K1 --> K2 --> K3 --> K4 --> K5
+    end
+
+    %% -------------------------------------------------------------
+    %% TRACK 3: FACULTY ANNUAL APPRAISAL (STATUTORY ECM)
+    %% -------------------------------------------------------------
+    subgraph T3 ["🎓 TRACK 3: UNIVERSITY FACULTY (STATUTORY ECM ROUTE)"]
+        direction TB
+        F1["🔍 <b>Monthly 10th Scan:</b> Identifies Faculty with Completed Probation & ≥12m Tenure"]:::track3Node
+        F2["📋 <b>Certified Roster:</b> HR Verifies and Dispatches Roster to Registrar"]:::track3Node
+        F3["📝 <b>7 Working Days:</b> Faculty Completes Enclosure 1 Self-Appraisal Dossier"]:::track3Node
+        F4["🏛️ <b>4-Unit Independent Parallel Verification:</b><br/>• School Dean • Director R&D • Placement Head • HR Ops<br/><i>(Includes Circular Clarification & Return Loop)</i>"]:::track3Node
+        F5["⚖️ <b>Statutory ECM Committee Session:</b> Digital Scoring & Benchmark Evaluation"]:::track3Node
+        F6["📈 <b>TNU Matrix Formulation:</b> Multi-Tier Increment Slab Determination"]:::track3Node
+        F7["📜 <b>Automated Letter & Payroll Injection:</b> Increment Enacted in Next Cycle"]:::handoffNode
+
+        F1 --> F2 --> F3 --> F4 --> F5 --> F6 --> F7
+    end
 ```
 
 ### Subsystem 1: Group-D / Band-I Performance (`BP-M3-001` to `BP-M3-008`)
@@ -304,30 +380,25 @@ The system governs interactions among 16 primary institutional actors:
 
 ## 6. Comprehensive SLA and Escalation Matrix
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                 AUTOMATED SLA COUNTDOWN MATRIX                                   │
-├───────────────┬───────────────────────────────┬──────────────────┬───────────────────────────────┤
-│ SLA CODE      │ PROCESS / ACTION              │ WINDOW / TIMER   │ ESCALATION PATHWAY            │
-├───────────────┼───────────────────────────────┼──────────────────┼───────────────────────────────┤
-│ `SLA-M2-01`   │ Academic Planning Trigger     │ 4 Months Pre-Sem │ Alert to Associate Dean / HR  │
-│ `SLA-M2-02`   │ Dean Attachment 1 Submission  │ 15 Calendar Days │ Escalation to Pro-Chancellor  │
-│ `SLA-M2-03`   │ HR Curriculum Vetting         │ 3-Month Window   │ Alert to Head HR & Registrar  │
-│ `SLA-M2-04`   │ Pro-Chancellor Sanction       │ 7-Day Turnaround │ Executive Briefing to Mgmt    │
-│ `SLA-M2-05`   │ Public Advertisement Launch   │ 7 Calendar Days  │ Escalation to Head HR         │
-│ `SLA-M2-06`   │ Academic Hiring Concluded     │ 1 Month Pre-Sem  │ High-Priority Staffing Alert  │
-│ `SLA-M2-07`   │ Non-Academic Planning Trigger │ 4 Months Pre-Join│ Reminder to Department Heads  │
-│ `SLA-M2-08`   │ Non-Academic MRF Submission   │ 15 Calendar Days │ Escalation to Registrar       │
-│ `SLA-M2-09`   │ Non-Academic Ad Launch        │ 7 Calendar Days  │ Escalation to Head HR         │
-│ `SLA-M2-10`   │ Non-Academic Hiring Concluded │ 15 Days Pre-Join │ Logistics Alert to Dept Head  │
-│ `SLA-M3-01`   │ Group-D Monthly Due Date      │ 7th of Month     │ Transition to Grace Period    │
-│ `SLA-M3-02`   │ Group-D Daily Reminders       │ 8th, 9th, 10th   │ Daily Alert to Supervisor/HOD │
-│ `SLA-M3-03`   │ Group-D Auto-Lockout          │ 10th at 23:59    │ Non-Compliance Flag to HR     │
-│ `SLA-M3-04`   │ Staff KRA Goal-Setting        │ 30 Days from DOJ │ Escalation to Supervisor & HR │
-│ `SLA-M3-05`   │ Staff Quarterly Self-Review   │ 15 Calendar Days │ Overdue Flag to Supervisor    │
-│ `SLA-M3-06`   │ Staff Supervisor Verification │ 7 Calendar Days  │ Escalation to HR Operations   │
-│ `SLA-M3-07`   │ Faculty Eligibility Scan      │ 10th of Month    │ Roster Dispatched to Registrar│
-│ `SLA-M3-08`   │ Faculty Self-Appraisal Form   │ 7 Working Days   │ Reminder to Faculty & Dean    │
-│ `SLA-M3-09`   │ Faculty Increment Execution   │ Next Salary Cycle│ Payroll Discrepancy Escalation│
-└───────────────┴───────────────────────────────┴──────────────────┴───────────────────────────────┘
-```
+| SLA Code | Governed Process & Target Action | Statutory Window / Countdown Timer | Escalation Pathway & Breach Notification |
+|---|---|---|---|
+| `SLA-M2-01` | **Academic Planning Trigger** | 4 Months Pre-Semester | Automated alert to Associate Dean & HR Operations |
+| `SLA-M2-02` | **Dean Workload Submission (Att. 1)** | 15 Calendar Days from Trigger | Direct escalation to Pro-Chancellor & Registrar |
+| `SLA-M2-03` | **HR Curriculum & Ratio Vetting** | 3-Month Comprehensive Window | Milestone briefing to Head HR & Vice-Chancellor |
+| `SLA-M2-04` | **Pro-Chancellor Requisition Sanction** | Strict 7-Day Turnaround SLA | Critical alert to Senior Executive Management |
+| `SLA-M2-05` | **Public Recruitment Advertisement** | 7 Calendar Days from Sanction | Escalation ticket dispatched to Head HR |
+| `SLA-M2-06` | **Academic Hiring Conclusion** | 1 Month Prior to Semester Start | High-priority staffing risk flag to Vice-Chancellor |
+| `SLA-M2-07` | **Non-Academic Annual Initiation** | 4 Months Prior to Fiscal Year / DOJ | Automated dispatch of MRF templates to Department Heads |
+| `SLA-M2-08` | **Department Non-Academic MRF** | 15 Calendar Days from Trigger | Escalation alert dispatched to Registrar |
+| `SLA-M2-09` | **Non-Academic Public Ad Launch** | 7 Calendar Days from Sanction | Operations reminder to HR Recruitment Cell |
+| `SLA-M2-10` | **Non-Academic Hiring Conclusion** | 15 Days Prior to Onboarding Date | Facility and IT provisioning alert to Department Head |
+| `SLA-M3-01` | **Group-D Evaluation Due Date** | 7th of Every Month | System initiates 3-day grace period with reminder toasts |
+| `SLA-M3-02` | **Group-D Grace Period Reminders** | Daily on 8th, 9th, and 10th | High-priority SMS and email alerts to Evaluating Supervisor |
+| `SLA-M3-03` | **Group-D Automated Lockout** | 10th of Month at 23:59:59 IST | Form auto-locks permanently; non-compliance logged to HR |
+| `SLA-M3-04` | **Staff KRA/KPI Target Setting** | 30 Days from Date of Joining | Overdue alert dispatched to Direct Supervisor & Head HR |
+| `SLA-M3-05` | **Staff Quarterly Self-Review** | 15 Calendar Days from Cycle Open | Automated reminder to Employee & Direct Supervisor |
+| `SLA-M3-06` | **Staff Supervisor Review Verification**| 7 Calendar Days from Self-Review | Escalation ticket to HR Operations Manager |
+| `SLA-M3-07` | **Faculty Eligibility Scan** | 10th of Every Month at 00:01 IST | Automated generation and certified dispatch to Registrar |
+| `SLA-M3-08` | **Faculty Self-Appraisal Submission** | 7 Working Days from Roster Notice | Formal reminder to Faculty Member & School Dean |
+| `SLA-M3-09` | **Faculty Increment Enactment** | Next Immediate Payroll Cycle | Financial discrepancy escalation to Chief Finance Officer |
+

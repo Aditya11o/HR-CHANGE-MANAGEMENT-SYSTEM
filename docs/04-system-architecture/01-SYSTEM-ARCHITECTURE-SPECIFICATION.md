@@ -20,52 +20,69 @@ The University HR Change Management & Automation System is architected as an ent
 
 Rather than deploying distributed microservices—which introduce network latency, distributed transaction complexity, and excessive DevOps overhead for an institutional HR platform—the system encapsulates distinct business modules within a single deployable application unit. Strong logical boundaries, encapsulated domain schemas, and in-memory event buses enforce decoupling between modules.
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                   HIGH-LEVEL SYSTEM TOPOLOGY                                     │
-└──────────────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1e293b', 'primaryTextColor': '#f8fafc', 'primaryBorderColor': '#38bdf8', 'lineColor': '#64748b'}}}%%
+flowchart TD
+    %% Styling Classes
+    classDef clientNode fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef feNode fill:#0c4a6e,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef beModNode fill:#1e293b,stroke:#94a3b8,stroke-width:2px,color:#f8fafc;
+    classDef sharedNode fill:#312e81,stroke:#a855f7,stroke-width:2px,color:#f8fafc;
+    classDef dbNode fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+    classDef redisNode fill:#450a0a,stroke:#f87171,stroke-width:2px,color:#fecaca;
+    classDef s3Node fill:#451a03,stroke:#fb923c,stroke-width:2px,color:#fff7ed;
+    classDef erpNode fill:#1e293b,stroke:#e2e8f0,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff;
 
-   [ Web Browser (Desktop / Tablet) ]             [ Mobile / PWA Client ]
-                  │                                         │
-                  ▼                                         ▼
-   ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
-   │                           FRONTEND TIER: NEXT.JS APP ROUTER                                 │
-   │  • Server-Side Rendering (SSR) & React Server Components (RSC)                              │
-   │  • Custom Design System with Vanilla CSS & CSS Modules (*.module.css)                       │
-   │  • Real-Time Client Socket (Socket.IO-Client) for Live Org Chart & Notification Badges       │
-   └──────────────────────────────────────────────┬──────────────────────────────────────────────┘
-                                                  │ HTTPS / REST API & WSS (Socket.IO)
-                                                  ▼
-   ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
-   │                         BACKEND TIER: NESTJS MODULAR MONOLITH                               │
-   │                                                                                             │
-   │  ┌──────────────────────┐  ┌──────────────────────┐  ┌───────────────────────────────────┐  │
-   │  │ Module I: Change Mgmt│  │ Module II: Talent Acq│  │ Module III: Performance Engine   │  │
-   │  │ • Central DB Master  │  │ • Manpower Planning  │  │ • Group-D Monthly & Annual (7/10) │  │
-   │  │ • Dynamic Org Chart  │  │ • SCM Panels & Scoring│  │ • Staff KRA/KPI Cycles (Q1-Q4)    │  │
-   │  │ • 10 Change Formats  │  │ • 3-Round Interviews │  │ • Faculty ECM Route (Monthly 10th)│  │
-   │  │ • 2-Level Approvals  │  │ • LOI Generation     │  │ • Direct Mod I Injection Handshake│  │
-   │  └──────────┬───────────┘  └──────────┬───────────┘  └─────────────────┬─────────────────┘  │
-   │             │                         │                                │                    │
-   │             └─────────────────────────┼────────────────────────────────┘                    │
-   │                                       ▼                                                     │
-   │  ┌────────────────────────────────────────────────────────────────────────────────────────┐ │
-   │  │                              SHARED PLATFORM SERVICES                                  │ │
-   │  │  • RBAC & JWT Auth Guard  • Audit Trail Interceptor  • Transactional Outbox Manager     │ │
-   │  │  • Event Bus (EventEmitter2) • Socket.IO Gateway  • File Upload Validator (MIME/SHA)   │ │
-   │  └────────────────────────────────────────────────────────────────────────────────────────┘ │
-   └───────────────────────────────────────┬───────────────┬─────────────────────────────────────┘
-                                           │               │
-                     ┌─────────────────────┘               └─────────────────────┐
-                     ▼                                                           ▼
-   ┌──────────────────────────────────────────────┐            ┌──────────────────────────────────┐
-   │         DATABASE TIER: POSTGRESQL            │            │     CACHE & QUEUE TIER: REDIS    │
-   │  • 33 Primary Conceptual Entities            │            │  • Org Chart Subtree Caching     │
-   │  • 41 Relational Foreign Key Mappings        │            │  • BullMQ Background Queues:     │
-   │  • Transactional Outbox (ERP Sync)           │            │    - Automated SLA Countdowns    │
-   │  • Append-Only Immutable Audit Logs          │            │    - Group-D 10th Auto-Lockout   │
-   │  • Temporal Versioning (effective_date)      │            │    - Asynchronous Email/SMS Push │
-   └──────────────────────────────────────────────┘            └──────────────────────────────────┘
+    subgraph CLIENTS ["💻 CLIENT WORKSTATION TIER"]
+        direction LR
+        CLI_WEB["🖥️ <b>Web Browser</b><br/><i>(Desktop / Tablet)</i>"]:::clientNode
+        CLI_MOB["📱 <b>Mobile / PWA Client</b><br/><i>(Responsive View)</i>"]:::clientNode
+    end
+
+    subgraph FRONTEND ["⚡ FRONTEND TIER: NEXT.JS APP ROUTER"]
+        direction TB
+        FE_APP["🌐 <b>Next.js App Router Application</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Server-Side Rendering (SSR) & React Server Components (RSC)<br/>• Bespoke Design System with Vanilla CSS & CSS Modules (<code>*.module.css</code>)<br/>• Real-Time Client Socket (<code>socket.io-client</code>) for Live Org Trees & Badges"]:::feNode
+    end
+
+    subgraph BACKEND ["🏛️ BACKEND TIER: NESTJS MODULAR MONOLITH"]
+        direction TB
+        subgraph MODULES ["Domain Business Modules (Encapsulated)"]
+            direction LR
+            MOD1["🏛️ <b>Module I: Core & Change</b><br/>• Central Master DB (ERP Synced)<br/>• Dynamic Org Chart Engine<br/>• 10 Change Formats (a)–(j)<br/>• 2-Level Sequential Approvals"]:::beModNode
+            MOD2["📦 <b>Module II: Talent Acquisition</b><br/>• Academic & Staff Manpower<br/>• UGC Sourcing & RCS Calling<br/>• Statutory SCM & 3-Round Panels<br/>• LOI & Notice Period Tracking"]:::beModNode
+            MOD3["🎯 <b>Module III: Performance Engine</b><br/>• Group-D Monthly & Grace (7th/10th)<br/>• Staff KRA/KPI Cycles (Q1–Q4)<br/>• Faculty Statutory ECM Route<br/>• TNU Increment Formulation"]:::beModNode
+        end
+
+        subgraph PLATFORM ["Shared Enterprise Platform Services"]
+            direction LR
+            SVC_AUTH["🔐 RBAC & JWT Guards"]:::sharedNode
+            SVC_AUDIT["📜 Immutable Audit Interceptor"]:::sharedNode
+            SVC_BUS["⚡ In-Memory Domain Event Bus<br/><i>(EventEmitter2)</i>"]:::sharedNode
+            SVC_WS["📡 Socket.IO Real-Time Gateway"]:::sharedNode
+            SVC_OUTBOX["📤 Transactional Outbox Worker"]:::sharedNode
+        end
+
+        MODULES ==> SVC_BUS
+        SVC_BUS ==> SVC_WS
+        SVC_BUS ==> SVC_OUTBOX
+    end
+
+    subgraph PERSISTENCE ["💾 DATA & INFRASTRUCTURE TIER"]
+        direction LR
+        DB[("🐘 <b>PostgreSQL 16</b><br/>• 33 Conceptual Entities<br/>• 41 Relational Mappings<br/>• Transactional Outbox Ledger<br/>• Append-Only Audit Logs")]:::dbNode
+        REDIS[("⚡ <b>Redis 7 + BullMQ</b><br/>• Dynamic Org Subtree Cache<br/>• SLA Countdown Queues<br/>• 10th Monthly Auto-Lock Cron<br/>• Outbox Dispatch Workers")]:::redisNode
+        S3[("🪣 <b>S3 / MinIO Store</b><br/>• CVs & Candidate Dossiers<br/>• Statutory SCM PDFs & LOIs<br/>• Qualification Documents")]:::s3Node
+    end
+
+    ERP[("🏢 <b>University ERP System</b><br/><i>(External System of Record)</i>")]:::erpNode
+
+    %% Inter-Tier Connections
+    CLIENTS ==>|"HTTPS / REST API & WSS (Socket.IO)"| FRONTEND
+    FRONTEND ==>|"Authenticated REST & WebSocket Handshake"| BACKEND
+    BACKEND ==>|"ACID Relational Transactions"| DB
+    BACKEND ==>|"Sub-second Cache & Message Queue"| REDIS
+    BACKEND ==>|"Presigned Binary Document I/O"| S3
+    SVC_OUTBOX -.->|"Guaranteed Eventual Consistency Sync"| ERP
 ```
 
 ---
@@ -88,19 +105,33 @@ Rather than deploying distributed microservices—which introduce network latenc
 
 Per the approved **`ADR-001-REAL-TIME-COMMUNICATION.md`**, Socket.IO provides the real-time event pipeline for institutional operations:
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                 REAL-TIME EVENT DISPATCH MODEL                                   │
-└──────────────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1e293b', 'primaryTextColor': '#f8fafc', 'primaryBorderColor': '#38bdf8', 'lineColor': '#64748b'}}}%%
+sequenceDiagram
+    autonumber
+    actor Client as 💻 Next.js Client
+    participant GW as 📡 NestJS Socket.IO Gateway
+    participant Bus as ⚡ Domain Event Bus (EventEmitter2)
+    participant Mod as 🏛️ Business Domain Module
+    participant DB as 🐘 PostgreSQL / Redis
 
-   [ Next.js Client ]  ◄── Authenticated WSS Connection ──►  [ NestJS Socket.IO Gateway ]
-                                                                        ▲
-                                                                        │ In-Memory Event Dispatch
-                                                                        │
-                                                            [ Domain Event Emitter ]
-                                                            • Change Activated
-                                                            • Evaluation Submitted
-                                                            • 10th-of-Month Lock Fired
+    Note over Client, GW: 1. Authenticated WSS Handshake
+    Client->>GW: Connect WSS (auth: { token: BearerJWT })
+    GW->>GW: WsGuard verifies JWT & extracts Actor Roles
+    GW->>Client: 200 OK Connected
+    GW->>GW: Auto-enroll in Scoped Rooms: user:{id}, dept:{deptId}, role:{role}
+
+    Note over Mod, DB: 2. Core Business Transaction Executes
+    Mod->>DB: Commit Service Change / Lock Evaluation
+    DB-->>Mod: Transaction Committed Successfully
+
+    Note over Mod, Client: 3. Real-Time View Invalidation Dispatch
+    Mod->>Bus: emit('service_change.activated', payload)
+    Bus->>GW: handleDomainEvent(payload)
+    GW->>Client: socket.to('dept:CS').emit('org-tree:invalidated', { nodeId })
+    GW->>Client: socket.to('user:emp_101').emit('notification:pushed', { title: 'Promotion Effective' })
+    
+    Note over Client: Client refetches updated subtree via REST without full reload!
 ```
 
 ### 3.1 Room & Namespace Architecture
@@ -154,25 +185,33 @@ All time-sensitive, schedule-driven, and compute-heavy operations are offloaded 
 
 To synchronize employee master data with the University ERP without distributed transaction failures, the system implements the **Transactional Outbox Pattern**:
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                TRANSACTIONAL OUTBOX FLOW                                         │
-└──────────────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1e293b', 'primaryTextColor': '#f8fafc', 'primaryBorderColor': '#38bdf8', 'lineColor': '#64748b'}}}%%
+sequenceDiagram
+    autonumber
+    participant App as ⚡ Change Engine
+    participant DB as 🐘 PostgreSQL Database
+    participant Worker as 🔄 BullMQ Outbox Worker
+    participant ERP as 🏢 University ERP Platform
 
-   [ Change Activation Transaction ]
-          │
-          ├──► 1. Update Employee Record in `employees` table
-          ├──► 2. Update Org Chart Edges in `org_nodes` table
-          └──► 3. Insert Outbox Event in `outbox_events` table (Status: PENDING)
-          │
-      [ COMMIT TRANSACTION ]
-          │
-          ▼
-   [ Asynchronous Outbox Worker (BullMQ) ]
-          │ Polls `outbox_events` WHERE status = 'PENDING'
-          ▼
-   [ Transmit Payload to University ERP Endpoint ]
-          │
-          ├──► [ Success ] ──► Update Outbox Event Status to 'DELIVERED'
-          └──► [ Failure ] ──► Retry with Exponential Backoff (Max 10 Retries)
+    Note over App, DB: Phase 1: Atomic Local Transaction
+    App->>DB: BEGIN TRANSACTION
+    App->>DB: 1. UPDATE mod1_core.employees SET designation = 'Prof', salary = 180000
+    App->>DB: 2. UPDATE mod1_core.org_nodes SET supervisor_id = 'dean_01'
+    App->>DB: 3. INSERT INTO shared_platform.outbox_events (payload, status: 'PENDING')
+    App->>DB: COMMIT TRANSACTION
+    DB-->>App: ✅ Committed Atomically (Zero Distributed Inconsistency)
+
+    Note over Worker, ERP: Phase 2: Asynchronous Guaranteed Outbox Dispatch
+    Worker->>DB: SELECT * FROM outbox_events WHERE status = 'PENDING' ORDER BY created_at ASC
+    DB-->>Worker: Return Pending Event Records
+    Worker->>ERP: POST /api/v1/erp/employee-sync (Payload)
+    alt ERP Transmission Success
+        ERP-->>Worker: 200 OK { status: 'SYNCHRONIZED' }
+        Worker->>DB: UPDATE outbox_events SET status = 'DELIVERED', updated_at = NOW()
+    else ERP Unreachable or Network Timeout
+        ERP--xWorker: 503 Service Unavailable / Timeout
+        Worker->>DB: UPDATE outbox_events SET retry_count = retry_count + 1
+        Note over Worker: Re-enqueue with Exponential Backoff (Up to 10 Attempts)
+    end
 ```
