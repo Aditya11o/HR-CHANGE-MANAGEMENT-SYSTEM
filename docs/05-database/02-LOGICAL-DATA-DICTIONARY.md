@@ -1,11 +1,11 @@
-# Logical Data Model & Entity-Wise Attribute Specification
+# Logical Data Dictionary (344 Attribute Specification)
 ## University HR Change Management & Automation System
 
-**Document Identifier:** `DOC-08-DB-05`  
-**Phase:** Phase 4 — Database Documentation (Step 4: Logical Data Model & Attribute Identification)  
-**Location:** `docs/08-database/05-ENTITY-WISE-DETAILED-SPECIFICATION.md`  
+**Document Identifier:** `DOC-05-LDD-CANONICAL`  
+**Phase:** Phase 4 — Canonical Logical Data Dictionary & Attribute Specification  
+**Location:** `docs/05-database/02-LOGICAL-DATA-DICTIONARY.md`  
 **Status:** Approved Logical Attribute Baseline  
-**Date:** October 2, 2026  
+**Date:** October 2026  
 **Workspace:** `d:\Desktop\HR-CHANGE-MANAGEMENT-SYSTEM`  
 
 ---
