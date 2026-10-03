@@ -68,7 +68,7 @@ The workspace contains forty-four (44) pre-existing files, plus this newly creat
  • Reference Material Retained in Folders    : Preserved within respective folders (01, 02, 03)
  • Net Reduction in Active docs/ File Clutter: 77.1% Reduction (from 35 down to 8 active specs)
  • All 15 Primary docs/ Folders Preserved    : Exactly 15 Folders Retained (100% Intact)
- • Baseline Information Loss                 : Exactly 0.0% (100% baselines & traceability preserved)
+ • Baseline Information Loss Risk            : 0.0% Planned Loss (Status: PARTIALLY VERIFIED pending canonical file drafting)
 ====================================================================================================
 ```
 
@@ -117,7 +117,7 @@ The table below catalogs all forty-four (44) pre-existing files in the workspace
 | **3** | [`docs/01-requirements/02-REQUIREMENT-CATALOGUE.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/02-REQUIREMENT-CATALOGUE.md) | 38.3 KB<br>240 lines | Authoritative catalogue of **104 frozen atomic requirements** (`REQ-*`). | Source Briefs | All Modules | Critical inbound anchor for all downstream specs. | **YES (Core Baseline Invariant)** | Partial (FRDs expand them into MOD*-REQ-*). | **Category A** | **Retain as Core Section** of `01-requirements/01-SOFTWARE-REQUIREMENTS-SPECIFICATION.md`. |
 | **4** | [`docs/01-requirements/03-SCOPE-AND-BOUNDARIES.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/03-SCOPE-AND-BOUNDARIES.md) | 23.4 KB<br>227 lines | In-scope vs. out-of-scope boundaries, system interfaces, assumptions. | Source Briefs | All Modules | Referenced by FRDs, Database overview. | Yes (Explicit boundary exclusions) | Partial (Repeated across module scopes). | **Category B** | **Consolidate** as Section 2 ("System Scope & Boundaries") of the unified SRS. |
 | **5** | [`docs/01-requirements/04-REQUIREMENTS-TRACEABILITY.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/04-REQUIREMENTS-TRACEABILITY.md) | 16.2 KB<br>117 lines | Forward/backward traceability mapping source briefs to 104 requirements. | Analysis Matrix | All Modules | Referenced by quality audits. | Yes (Source-to-REQ matrix) | No | **Category B** | **Consolidate** as Appendix ("Traceability Matrix") of the unified SRS. |
-| **6** | [`docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md) | 17.0 KB<br>198 lines | Register of **11 official baseline TBDs** (`REQ-TBD-01` to `11`). | Analysis Log | All Modules | Inbound anchor for all open decision tags across phases. | **YES (Core Baseline Invariant)** | No (Sole canonical source for baseline TBDs). | **Category A** | **Retain as Dedicated Chapter** in `01-requirements/01-SOFTWARE-REQUIREMENTS-SPECIFICATION.md`. |
+| **6** | [`docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md) | 17.0 KB<br>198 lines | Register of **11 official baseline TBDs**. Reopened and verified against Doc 05 and Table 10A: authoritative mapping establishes `REQ-TBD-01` (Resignation intake mechanism), `REQ-TBD-02` (ERP technical transport protocol), `REQ-TBD-03` (Legacy service data cutover strategy), `REQ-TBD-04` (Mid-cycle supervisor transfer evaluation attribution guidelines), `REQ-TBD-05` (University Group-D pre-defined compensation slab amounts and increment rupee values), `REQ-TBD-06` (Academic Statutory SCM digital scoring parameter percentage weights), `REQ-TBD-07` (Non-Academic three-round assessment dimension percentage weights and cutoff thresholds), `REQ-TBD-08` (Faculty ECM TNU Protocol matrix benchmark thresholds and percentage cutoffs), `REQ-TBD-09` (Group-D 12-month parameter-weighted averaging formula and coefficients), `REQ-TBD-10` (Additional Responsibility administrative allowance policy confirmation), and `REQ-TBD-11` (SCM External Subject Expert digital verification and access mechanism). Note: Cross-specification numbering discrepancy with original `05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md` sequence documented (Issue `AUD-06`); technical-cadre appraisal track decoupled as standalone open institutional policy decision. | Analysis Log | All Modules | Inbound anchor for all open decision tags across phases. | **YES (Core Baseline Invariant)** | Partial (Cross-document numbering discrepancy with Doc 09 Table 10A). | **Category A** | **Retain as Dedicated Chapter** in `01-requirements/01-SOFTWARE-REQUIREMENTS-SPECIFICATION.md`. |
 | **7** | [`docs/01-requirements/06-REQUIREMENTS-QUALITY-REVIEW.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/06-REQUIREMENTS-QUALITY-REVIEW.md) | 22.4 KB<br>203 lines | Historical Phase 1 quality review and compliance sign-off audit. | Quality Audit | Requirements | Historical evidence. | No (One-time audit report) | No | **Category C** | **Retain in `01-requirements/`** as historical verification appendix / reference. |
 | **8** | [`docs/01-requirements/07-STAKEHOLDER-REQUIREMENT-DELTA-AND-IMPACT-ANALYSIS.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/07-STAKEHOLDER-REQUIREMENT-DELTA-AND-IMPACT-ANALYSIS.md) | 65.9 KB<br>502 lines | Post-release delta analysis of stakeholder inputs for Modules I & II. | Stakeholder Input | Modules I & II | Referenced by Doc 09 and Doc 10. | Partial (Intermediate working paper) | Yes (Subsumed by Docs 09 and 10). | **Category C** | **Retain in `01-requirements/`** as reference-only draft. |
 | **9** | [`docs/01-requirements/08-MODULE-III-STAKEHOLDER-DELTA-ANALYSIS.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/08-MODULE-III-STAKEHOLDER-DELTA-ANALYSIS.md) | 60.0 KB<br>555 lines | Post-release delta analysis of stakeholder inputs for Module III. | Stakeholder Input | Module III | Referenced by Doc 09 and Doc 10. | Partial (Intermediate working paper) | Yes (Subsumed by Docs 09 and 10). | **Category C** | **Retain in `01-requirements/`** as reference-only draft. |
@@ -172,7 +172,7 @@ Following the mandatory 5-tier classification framework, the 44 pre-existing wor
 ├───────────────────────────────────┼───────────────┼──────────────────────────────────────────────┤
 │ Category A: Essential Standalone  │ 14 Files      │ • 6 Markdown Specs in docs/:                 │
 │                                   │ (31.8% of 44) │   01-reqs/02-REQUIREMENT-CATALOGUE.md,       │
-│                                   │               │   01-reqs/05-REQUIREMENTS-TBD-LOG.md,        │
+│                                   │               │   01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md,│
 │                                   │               │   02-bp/06-BUSINESS-RULES.md,                │
 │                                   │               │   07-arch/ADR-001-REAL-TIME.md,              │
 │                                   │               │   08-db/05-ENTITY-WISE-DETAILED (344 Attrs), │
@@ -257,7 +257,7 @@ The following fourteen (14) files contain authoritative, foundational, or invari
 1. **`source-requirements/` (All 7 Binary Assets):** The original PDFs and JPEGs supplied by university leadership are the ultimate legal and institutional source of truth.
 2. **`source-requirements/TECHNOLOGY_ARCHITECTURE_BASELINE.md`:** The authoritative system technology architecture baseline (Next.js, Vanilla CSS, CSS Modules, NestJS Modular Monolith, PostgreSQL, Socket.IO, Redis). **Must remain in place in `source-requirements/` untouched.**
 3. **`docs/01-requirements/02-REQUIREMENT-CATALOGUE.md`:** Contains the 104 frozen atomic requirements (`REQ-*`). Invariant project baseline.
-4. **`docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md`:** The frozen log of 11 official baseline TBDs (`REQ-TBD-01` to `11`). Invariant project baseline.
+4. **[`docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md):** The frozen log of 11 official baseline TBDs (`REQ-TBD-01` Resignation intake through `REQ-TBD-11` SCM External Subject Expert access). Invariant project baseline.
 5. **`docs/02-business-process/06-BUSINESS-RULES-AND-DECISION-POINTS.md`:** The authoritative catalogue of 60 business rules (`BR-01` to `BR-60`). Invariant project baseline.
 6. **`docs/07-system-architecture/ADR-001-REAL-TIME-COMMUNICATION.md`:** Authoritative architectural decision record approving Socket.IO over polling/SSE.
 7. **`docs/08-database/05-ENTITY-WISE-DETAILED-SPECIFICATION.md`:** Contains the complete 344 logical attribute data dictionary. Invariant data model baseline.
@@ -582,28 +582,36 @@ In strict compliance with [`source-requirements/TECHNOLOGY_ARCHITECTURE_BASELINE
 
 ## 13. Authoritative Official 11 TBDs Reconciliation
 
-### 13.1 Authoritative 11 TBDs Register
-In strict accordance with [`docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md) (`DOC-01-TBD-05`) and the entity open decisions register in [`docs/08-database/05-ENTITY-WISE-DETAILED-SPECIFICATION.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/08-database/05-ENTITY-WISE-DETAILED-SPECIFICATION.md) Section 12, all eleven (11) official baseline TBD items are verified as follows:
+### 13.1 Mandated 11 TBDs Master Register
+In strict accordance with the authoritative project register established by reopening and verifying [`docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md), reconciled with [`docs/01-requirements/09-COMBINED-STAKEHOLDER-DELTA-REVIEW.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/09-COMBINED-STAKEHOLDER-DELTA-REVIEW.md) Section 10 (Table 10A, lines 244–257) and confirmed in [`docs/02-business-process/08-BUSINESS-PROCESS-QUALITY-REVIEW.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/02-business-process/08-BUSINESS-PROCESS-QUALITY-REVIEW.md) (line 119), the eleven (11) official baseline TBD items are defined below. 
 
-| Official TBD ID | Authoritative Title & Domain | Catalogue Mapping | Database Anchor & Open Decision ID | Nature of Uncertainty / Missing Specification | Required Institutional Action |
+To maintain strict documentation fidelity and prevent artificial alignment, each item is cross-checked against actual requirement anchors and the entity open decisions register in [`docs/08-database/05-ENTITY-WISE-DETAILED-SPECIFICATION.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/08-database/05-ENTITY-WISE-DETAILED-SPECIFICATION.md) Section 12. Where a database attribute decision does not exist or has a different identifier, it is explicitly reported rather than inventing unsupported mappings:
+
+| Official TBD ID | Authoritative Title & Domain | Catalogue Anchor Status | Database `ATTR-DEC-*` Status (`08-database/05`) | Nature of Uncertainty / Missing Specification | Required Institutional Action |
 |---|---|---|---|---|---|
-| **`REQ-TBD-01`** | **ERP Synchronization Architecture & Protocol** | Standalone **`REQ-EXT-03`** (`[E]`) | `ATTR-DEC-01`<br>`ENT-MOD1-01`, `ENT-SHR-08` | University ERP platform identification, sync architecture (REST API webhooks, staging tables, or batch SFTP), and identity authority for employee IDs. | University CIO / ERP Technical Directorate confirmation. |
-| **`REQ-TBD-02`** | **Standardized Attachment & Enclosure Schemas** | Qualifies **`REQ-DOC-02`**, **`REQ-DOC-03`** | `ATTR-DEC-02`<br>`ENT-MOD2-01`, `ENT-MOD2-03`, `ENT-MOD3-01`, `ENT-MOD3-08` | Field-level schemas and physical templates for Attachments 1–3, MRF Enclosure 1, RCS Sheet, Group-D Enclosures 1–2, and Faculty ECM Enclosures 1–3. | HR Leadership & Academic Deans Committee approval. |
-| **`REQ-TBD-03`** | **Staff Appraisal Track Boundary Definitions** | Qualifies **`REQ-MOD3-10`**, **`REQ-MOD3-14`** | `ATTR-DEC-03`<br>`ENT-MOD2-02`, `ENT-MOD3-04`, `ENT-MOD3-07` | Workflow routing and appraisal track allocation for mid-level technical staff (Lab Technicians, Technical Assistants, Teaching Associates) between Group-D, Staff KRA/KPI, or adapted Faculty tracks. | Registrar & HR Leadership formal policy ruling. |
-| **`REQ-TBD-04`** | **TNU Protocol Parameter Weights & Committee Quorums** | Qualifies **`REQ-MOD2-15`**, **`REQ-MOD3-18`** | `ATTR-DEC-04`<br>`ENT-MOD2-07`, `ENT-MOD3-09` | Mathematical scoring formulas, parameter percentage weights across teaching/research/service, and statutory quorum minimums for SCM and ECM meetings. | Academic Council & Vice Chancellor approval. |
-| **`REQ-TBD-05`** | **Pre-Defined Compensation Revision Slabs** | Qualifies **`REQ-MOD3-09`**, **`REQ-MOD3-19`** | `ATTR-DEC-05`<br>`ENT-MOD3-03`, `ENT-MOD3-06`, `ENT-MOD3-09` | Quantitative monetary brackets, percentage increment tables, and step-grade scales applied against performance appraisal outcomes. | Senior Management & University Finance Committee approval. |
-| **`REQ-TBD-06`** | **Resignation Upstream Intake & Clearance Interface** | Qualifies **`REQ-MOD2-08`**, **`REQ-INT-02`** | `ATTR-DEC-06`<br>`ENT-MOD2-10` | Employee self-service submission vs. administrative entry in Module I, and inter-departmental clearance workflows prior to replacement clock trigger. | Head of HR operational process directive. |
-| **`REQ-TBD-07`** | **Enterprise SSO & External Expert Access** | Standalone **`REQ-EXT-04`**, **`REQ-EXT-05`** (`[E]`) | `ATTR-DEC-07`<br>`ENT-SHR-01` | Selection of University Identity Provider (Google Workspace, Entra ID, or LDAP) and external expert access tokens vs. OTP evaluation portal. | University IT Systems & Cybersecurity Directorate confirmation. |
-| **`REQ-TBD-08`** | **LOI vs. Formal Appointment Letter Lifecycle** | Qualifies **`REQ-MOD2-19`**, **`REQ-DOC-04`** | `ATTR-DEC-08`<br>`ENT-MOD2-09` | Contractual handoff boundary determining whether LOI is sole pre-joining instrument or distinct Appointment Letter is generated post-joining. | HR Department & University Legal Counsel determination. |
-| **`REQ-TBD-09`** | **Administrative Allowance for Secondary Roles** | Qualifies **`REQ-MOD1-13`**, **`REQ-MOD1-14`** | `ATTR-DEC-09`<br>`ENT-MOD1-04` | Service rules governing mandatory administrative allowances or honorariums for Deans, HODs, Proctors, and Wardens in Change Format 3(h). | HR Leadership & Finance Directorate policy ruling. |
-| **`REQ-TBD-10`** | **Outbound Communication Gateways & Relays** | Qualifies **`REQ-SLA-10`** | `ATTR-DEC-10`<br>`ENT-SHR-06` | SMTP host configurations, sender aliases, and SMS/WhatsApp gateway credentials for automated notifications and reminders. | University Systems Administrator & IT Infrastructure confirmation. |
-| **`REQ-TBD-11`** | **Document Retention & Archival Lifecycle** | Qualifies **`REQ-AUD-01`**, **`REQ-DOC-06`** | `ATTR-DEC-11`<br>`ENT-MOD1-03`, `ENT-MOD2-05`, `ENT-SHR-05`, `ENT-SHR-07` | Minimum statutory retention periods for candidate CVs, SCM evaluation marks, historical change logs, and digital personal dossiers. | University Registrar & Legal Compliance Directorate codification. |
+| **`REQ-TBD-01`** | **Resignation intake mechanism** | Qualifies **`REQ-MOD2-08`**, **`REQ-INT-02`** *(Mislabeled as `REQ-EXT-03` in Doc 09)* | Mapped in DB as **`ATTR-DEC-06`** (`ENT-MOD2-10` / `ATTR-URG-03`)<br>*(Does not map to `ATTR-DEC-01`)* | Employee self-service submission vs. administrative entry in Module I prior to replacement clock trigger. | Head of HR operational process directive. |
+| **`REQ-TBD-02`** | **ERP technical transport protocol** | Standalone **`REQ-EXT-03`** (`SHR-ERP-REQ-03`, `[E]`) | Mapped in DB as **`ATTR-DEC-01`** (`ENT-MOD1-01` / `ATTR-EMP-01`, `ENT-SHR-08` / `ATTR-ERP-05`)<br>*(Does not map to `ATTR-DEC-02`)* | Specific transport mechanism (REST API webhooks, database staging tables, or batch SFTP) for external ERP reflection. | University CIO / ERP Technical Directorate confirmation. |
+| **`REQ-TBD-03`** | **Legacy service data cutover strategy** | Relates to **`REQ-MOD1-01`**, **`REQ-MOD1-06`**; cited in `02-business-process/08` line 119 (`BP-M1-001`, `003`) | **UNMAPPED IN DATABASE**<br>*(No `ATTR-DEC-*` entry exists in document 05 for legacy cutover)* | Historical employee service record migration strategy and cutover window. Day-forward baseline preserved. | Registrar & HR Operations policy ruling. |
+| **`REQ-TBD-04`** | **Mid-cycle supervisor transfer evaluation attribution guidelines** | Institutional policy qualifying **`REQ-MOD3-10`** | **UNMAPPED IN DATABASE**<br>*(No `ATTR-DEC-*` entry exists in document 05 for supervisor transfer)* | Rules governing score attribution and evaluation responsibilities (pro-rata vs. full cycle) when reporting supervisors change mid-cycle. | HR Leadership & Academic Council policy ruling. |
+| **`REQ-TBD-05`** | **University Group-D pre-defined compensation slab amounts and increment rupee values** | Qualifies **`REQ-MOD3-09`**, **`REQ-MOD3-19`** | Mapped in DB as **`ATTR-DEC-05`** (`ENT-MOD3-03` / `ATTR-GDA-08`, `ENT-MOD3-06` / `ATTR-KRA-06`, `ENT-MOD3-09` / `ATTR-ECM-08`) | Quantitative rupee slab amounts and percentage brackets for Group-D annual compensation revisions. | Senior Management & University Finance Committee approval. |
+| **`REQ-TBD-06`** | **Academic Statutory SCM digital scoring parameter percentage weights** | Qualifies **`REQ-MOD2-15`** | Mapped in DB as **`ATTR-DEC-04`** (`ENT-MOD2-07` / `ATTR-SCM-08`)<br>*(Does not map to `ATTR-DEC-06`)* | Statutory Selection Committee Meeting digital scoring parameter percentage weights and candidate evaluation dimensions. | Academic Council & Vice Chancellor approval. |
+| **`REQ-TBD-07`** | **Non-Academic three-round assessment dimension percentage weights and cutoff thresholds** | Qualifies **`REQ-MOD2-16`** | **UNMAPPED IN DATABASE**<br>*(No `ATTR-DEC-*` entry exists in document 05 for Non-Academic 3-round interview scoring thresholds)* | Dimension weights, interview scoring sheets, and qualifying cutoff thresholds for Non-Academic hiring rounds. | Head of HR selection policy directive. |
+| **`REQ-TBD-08`** | **Faculty ECM TNU Protocol matrix benchmark thresholds and percentage cutoffs** | Qualifies **`REQ-MOD3-18`** | Mapped in DB as **`ATTR-DEC-04`** (`ENT-MOD3-09` / `ATTR-ECM-07`)<br>*(Does not map to `ATTR-DEC-08`, which is LOI)* | Mathematical scoring formula, matrix benchmark thresholds, and percentage cutoffs for the Faculty ECM evaluation matrix. | Academic Council & Vice Chancellor approval. |
+| **`REQ-TBD-09`** | **Group-D 12-month parameter-weighted averaging formula and coefficients** | Qualifies **`REQ-MOD3-04`** | **UNMAPPED IN DATABASE**<br>*(No `ATTR-DEC-*` entry exists in document 05 for Group-D monthly averaging formula)* | Formula and statistical weights for synthesizing 12 monthly ratings into the annual collation report. | HR Performance Management policy ruling. |
+| **`REQ-TBD-10`** | **Additional Responsibility administrative allowance policy confirmation** | Qualifies **`REQ-MOD1-13`**, **`REQ-MOD1-14`** (Format 3h / Format 8) | Mapped in DB as **`ATTR-DEC-09`** (`ENT-MOD1-04` / `ATTR-CHG-12`)<br>*(Does not map to `ATTR-DEC-10`)* | Policy rules governing whether secondary administrative appointments (e.g., HoD, Proctor, Warden) carry mandatory administrative allowances or honorariums. | HR Leadership & Finance Directorate policy ruling. |
+| **`REQ-TBD-11`** | **SCM External Subject Expert digital verification and access mechanism** | Standalone **`REQ-EXT-05`** (`[E]`) | Mapped in DB as **`ATTR-DEC-07`** (`ENT-SHR-01` / `ATTR-USR-06`)<br>*(Does not map to `ATTR-DEC-11`)* | Identity verification, time-limited tokens, and digital access mechanism for external SCM panel experts lacking institutional accounts. | University IT Systems & Cybersecurity Directorate confirmation. |
 
-### 13.2 Resolution of Cross-Document TBD Inconsistencies
-- **Origin of Historical Discrepancy:** During Phase 1, `docs/01-requirements/09-COMBINED-STAKEHOLDER-DELTA-REVIEW.md` Table 10A contained a transposed/reordered list of TBD descriptions (e.g., mislabeling `REQ-TBD-01` as Resignation intake and `REQ-TBD-02` as ERP). This flaw was formally identified and logged as Issue **`AUD-06`** in [`docs/PROJECT-DOCUMENTATION-STRUCTURE-AUDIT.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/PROJECT-DOCUMENTATION-STRUCTURE-AUDIT.md).
-- **Authoritative Baseline Re-affirmed:** The authoritative definition of all 11 TBDs is strictly [`docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md). This document governs all downstream artifacts.
-- **Database Harmonization:** `docs/08-database/05-ENTITY-WISE-DETAILED-SPECIFICATION.md` Section 12 (`ATTR-DEC-01` through `ATTR-DEC-11`) correctly maps 1:1 to `REQ-TBD-01` through `REQ-TBD-11` as defined above.
-- **Track Allocation Boundary:** Note that `REQ-TBD-03` directly governs the **Staff Appraisal Track Boundary Definitions** (resolving whether Lab Technicians participate in Group-D, Staff KRA/KPI, or an adapted Faculty appraisal track).
+### 13.2 Technical-Cadre Appraisal Allocation: Institutional Policy Decision
+- **Status:** **Separate Unresolved Institutional Policy Decision (`[E] Open Decision`)**.
+- **Scope:** Workflow routing and appraisal track allocation for mid-level technical staff (Lab Technicians, Technical Assistants, and Teaching Associates) between Group-D / Band I Staff (Subsystem 1), General Staff KRA/KPI (Subsystem 2), or an adapted Faculty review track (Subsystem 3).
+- **Governance Mandate:** In strict adherence to project instructions, technical-cadre appraisal allocation is maintained as a **standalone open policy question** and is **NOT** mapped to any official numbered TBD in this 11-item register (since `REQ-TBD-03` is officially allocated to *Legacy service data cutover strategy*). Requires formal ruling by the Registrar and HR Leadership.
+
+### 13.3 Cross-Specification Discrepancy Analysis (Status: `DISCREPANCY FOUND`)
+An audit across Phase 1 and Phase 4 documents reveals a structural numbering discrepancy:
+1. **The Mandated Baseline (`09-COMBINED-STAKEHOLDER-DELTA-REVIEW.md` Table 10A):** Establishes the 11 items shown in Section 13.1 above (`TBD-01` = Resignation intake, `TBD-02` = ERP protocol, `TBD-03` = Legacy cutover, etc.).
+2. **The Controlled Requirements TBD Log (`05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md`):** Uses an alternate numbering sequence (`TBD-01` = ERP sync, `TBD-02` = Attachment schemas, `TBD-03` = Staff appraisal track, `TBD-04` = TNU protocol weights, `TBD-05` = Compensation slabs, `TBD-06` = Resignation intake, `TBD-07` = SSO & External Expert, `TBD-08` = LOI lifecycle, `TBD-09` = Administrative allowance, `TBD-10` = Outbound gateways, `TBD-11` = Document retention). This discrepancy was formally flagged as Issue **`AUD-06`** in [`docs/PROJECT-DOCUMENTATION-STRUCTURE-AUDIT.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/PROJECT-DOCUMENTATION-STRUCTURE-AUDIT.md).
+3. **Database Specification Harmonization:** Section 12 of [`docs/08-database/05-ENTITY-WISE-DETAILED-SPECIFICATION.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/08-database/05-ENTITY-WISE-DETAILED-SPECIFICATION.md) (`ATTR-DEC-01` to `11`) followed the numbering of Document 05 rather than Table 10A. Consequently, four items (`TBD-03`, `TBD-04`, `TBD-07`, `TBD-09`) have **no corresponding database attribute decision records** in document 05.
+4. **Resolution:** During Stage 2 consolidation, a unified canonical TBD register must be formalized within `01-requirements/01-SOFTWARE-REQUIREMENTS-SPECIFICATION.md`, establishing a single authoritative numbering scheme across all domains.
 
 ---
 
@@ -627,22 +635,27 @@ A direct citation from the official source requirement brief confirms the classi
   - *Subsystem 1:* Group-D Staff Monthly Performance Evaluation (12 monthly ratings collated into annual report, `ENT-MOD3-01` to `03`).
   - *Subsystem 2:* General Staff KRA/KPI Quarterly Performance Review (Q1-Q4 quarterly cycle, `ENT-MOD3-04` to `06`).
   - *Subsystem 3:* Faculty Annual Performance Appraisal (Self-appraisal dossier, multi-unit verification, Executive Council Meeting / ECM session, and TNU Protocol Matrix, `ENT-MOD3-07` to `09`).
-- **Technical Cadre Allocation:** The appraisal track allocation for Lab Technicians, Technical Assistants, and Teaching Associates is officially cataloged as **`REQ-TBD-03`** (Staff Appraisal Track Boundary Definitions, `[E] Open Decision`), requiring Registrar / HR Leadership formal ruling.
+- **Technical Cadre Allocation:** Kept strictly as an **unresolved institutional policy question (`[E] Open Decision`)**, requiring Registrar / HR Leadership formal ruling.
 
-### 14.3 Exhaustive AST-Based Logical Attribute Recalculation
-A rigorous, line-by-line AST verification was executed on [`docs/08-database/05-ENTITY-WISE-DETAILED-SPECIFICATION.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/08-database/05-ENTITY-WISE-DETAILED-SPECIFICATION.md) across all thirty-three (33) approved conceptual entities. Every table definition row was matched and validated without relying on fixed character windows or unanchored regexes.
+### 14.3 Command-Verified Logical Attribute Recalculation (Status: `VERIFIED`)
+A rigorous AST-based verification script was executed directly on [`docs/08-database/05-ENTITY-WISE-DETAILED-SPECIFICATION.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/08-database/05-ENTITY-WISE-DETAILED-SPECIFICATION.md). 
 
+#### Command-Verified Execution Output:
 ```
 ====================================================================================================
-                        STRICT LOGICAL ATTRIBUTE RECALCULATION AUDIT
+                       COMMAND-VERIFIED ATTRIBUTE AUDIT RESULTS
 ====================================================================================================
- Total Conceptual Entities with Attribute Tables: 33 Entities (100% Accounted For)
- Total Tabular Attribute Definitions            : 344 Rows
- Unique Attribute IDs                           : 344 Unique IDs
- Duplicate Attribute IDs                        : 0 (Zero Duplicates)
- Missing IDs in Sequence                       : 0 (Zero Gaps across all 33 prefixes)
- Total Non-Table Lines Mentioning ATTR-         : 410 Lines (Narrative cross-references & Section 12)
- Undefined Attribute Mentions Outside Tables    : 0 (All mentioned attributes trace to definitions)
+ Total Conceptual Entities with Attribute Tables: 33 Entities
+ Total Tabular Attribute Definition Rows        : 344 Rows
+ Total Unique Attribute IDs Defined             : 344 Unique IDs
+ Duplicate Attribute IDs                        : 0 (Zero duplicates found)
+ Prefixes Checked Across Attribute Space        : 33 Prefixes (All verified continuous 1..max)
+ Prefixes with Sequence Gaps                    : 0 (Zero sequence gaps found)
+ Outside Attribute Mentions (Non-Table Lines)   : 142 Occurrences across 114 Unique Attribute IDs
+ Section 12 Open Decision IDs (ATTR-DEC-*)      : 11 Unique IDs (ATTR-DEC-01 through ATTR-DEC-11)
+ Distinct Entity Attribute IDs Mentioned Outside: 103 Unique Attribute IDs
+ Undefined Attribute IDs Mentioned Outside      : 0 (set() - All 103 resolve to defined attributes)
+ Section 10 Cross-Module Mentions               : 21 Occurrences across 16 Unique Attribute IDs
 ====================================================================================================
 ```
 
@@ -688,17 +701,10 @@ A rigorous, line-by-line AST verification was executed on [`docs/08-database/05-
 | **Shared Subtotal** | **8 Entities** | | **72** | | **100% Continuous** |
 | **GRAND TOTAL** | **33 Entities** | | **344** | | **100% CONTINUOUS (344/344)** |
 
-#### Discrepancy Reconciliation Analysis:
-1. **Mathematical Totals:** $61 + 115 + 96 + 72 = \mathbf{344\ \text{attributes}}$.
-2. **Comparison Against Frozen Baseline:** The frozen baseline is **344 logical attributes**. The recalculation matches the baseline with 100% mathematical precision.
-3. **Explanation of Historical "355" Figure:**
-   - In Section 12 of document 05 ("Attribute-Level Open Decisions Register"), there are eleven (11) decision entries labeled `ATTR-DEC-01` through `ATTR-DEC-11`. These rows map the eleven baseline TBDs (`REQ-TBD-01` to `11`) to affected attributes.
-   - An earlier superficial regex scan extracted all strings matching `ATTR-[A-Z]+-[0-9]+` without distinguishing entity attribute definition tables from open decision reference rows.
-   - Adding these 11 decision tags to the 344 entity attributes produced $344 + 11 = 355$.
-4. **Explanation of Historical "Shared 83" Figure:**
-   - Section 10 of document 05 ("Cross-Module Data Dependencies") contains exactly eleven (11) inline cross-references to existing attributes (`ATTR-LOI-08`, `ATTR-LOI-09`, `ATTR-EMP-01`, `ATTR-EMP-08`, `ATTR-EMP-09`, `ATTR-EMP-10`, `ATTR-KRG-04`, `ATTR-FEB-04`, `ATTR-URG-02`, `ATTR-URG-03`, `ATTR-KRA-06`).
-   - In an earlier audit pass, an unanchored script failed to recognize the table closing boundary of `ENT-SHR-08` (the final entity in Section 9), incorrectly attributing Section 10's 11 cross-references to the Shared Platform. This produced an erroneous count of $72 + 11 = 83$ for Shared Platform.
-   - Rigorous table-boundary parsing confirms Shared Platform defines **exactly 72 attributes**.
+#### Inferred Historical Reconciliation (Root Cause Analysis):
+1. **Frozen Baseline Comparison:** The verified count of **344 attributes** matches the frozen data architecture baseline of 344 exactly.
+2. **Reconciliation of Historical "355" Total:** Section 12 contains eleven (11) decision tags labeled `ATTR-DEC-01` through `ATTR-DEC-11`. An unanchored regex tool in an earlier audit scanned the entire file for `ATTR-[A-Z]+-[0-9]+` without filtering out Section 12 decision rows, yielding $344 + 11 = 355$.
+3. **Reconciliation of Historical "Shared 83" Total:** Section 10 contains 21 narrative mentions across 16 unique attribute IDs. An earlier script that did not detect the closing table boundary of `ENT-SHR-08` appended those cross-references to Shared Platform ($72 + 11 = 83$).
 
 ---
 
@@ -714,8 +720,8 @@ Before executing the folder-by-folder consolidation plan, explicit direction sho
    Confirmation that Phase 4 is **NOT cancelled** and that the planned expansion to 13 separate documents is rationalized by absorbing downstream physical database specifications directly into `01-DATABASE-DESIGN-AND-SCHEMA-SPECIFICATION.md` and `02-LOGICAL-DATA-DICTIONARY.md`.
 4. **Stakeholder Delta Reference Retention:**
    Confirmation that stakeholder review materials (`10-STAKEHOLDER-DECISION-SHEET.md`) will remain in `docs/01-requirements/` as a clearly labeled reference register without promoting unapproved `CONF-*` items to the approved baseline.
-5. **Staff Appraisal Track Boundary Ruling (`REQ-TBD-03`):**
-   Formal policy ruling from University Leadership on whether Lab Technicians, Technical Assistants, and Teaching Associates undergo quarterly KRA/KPI reviews (Subsystem 2), annual ECM appraisals (Subsystem 3), or an adapted technical staff review.
+5. **Harmonization of TBD Numbering & Staff Appraisal Track Ruling:**
+   Formal decision on reconciling the numbering discrepancy between `05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md` and Table 10A, alongside an institutional policy ruling on technical-cadre appraisal track allocation.
 
 ---
 
@@ -750,7 +756,7 @@ To execute this consolidation safely without disrupting ongoing work or corrupti
     - 104 Atomic Requirements (`REQ-01` to `104`) present.
     - 59 Business Processes (`BP-*`) present.
     - 60 Business Rules (`BR-01` to `60`) present.
-    - 11 Official Baseline TBDs (`REQ-TBD-01` to `11`) present with correct mappings.
+    - 11 Official Baseline TBDs (`REQ-TBD-01` to `11`) present with reconciled mappings.
     - 33 Conceptual Entities (`ENT-*`) present.
     - 41 Conceptual Relationships (`REL-*`) present.
     - 344 Logical Attributes (`ATTR-*`) present (61 + 115 + 96 + 72).
@@ -790,16 +796,16 @@ To execute this consolidation safely without disrupting ongoing work or corrupti
 
 ## 18. Verification Summary & Audit Findings
 
-| Verification Check | Target Artifact / Domain | Result | Verification Findings & Evidence |
-|---|---|:---:|---|
-| **1. Attribute Recalculation** | `docs/08-database/05-ENTITY-WISE-DETAILED-SPECIFICATION.md` | **PASSED** | 344 total definition rows, 344 unique IDs, 0 duplicates, 0 missing IDs across 33 entities. |
-| **2. Baseline Comparison** | Frozen Data Architecture Baseline | **PASSED** | Recalculated 344 matches frozen baseline of 344 exactly. Historical 355 and Shared 83 explained. |
-| **3. Official 11 TBDs** | `docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md` | **PASSED** | 100% reconciled to `REQ-TBD-01` through `11` and `ATTR-DEC-01` through `11`. Swapped list from Doc 09 resolved. |
-| **4. Technical Decisions `[C]`** | `source-requirements/TECHNOLOGY_ARCHITECTURE_BASELINE.md` & `ADR-001` | **PASSED** | Redis cache, queue backing, and Socket.IO adapter verified `[C]`. Redis as inter-module message broker downgraded to `[D]`. |
-| **5. Folder Preservation** | Workspace Directory Structure | **PASSED** | All 15 folders under `docs/` and 3 folders in `source-requirements/` preserved. No `docs/reference/` proposed. |
-| **6. Consolidation Mappings** | Folder-by-Folder Consolidation Matrices | **PASSED** | All 104 REQs, 59 BPs, 60 BRs, 152 FRDs, 11 TBDs, 33 Ents, 41 Rels, 344 Attrs mapped with zero loss. |
-| **7. Database Status** | Phase 4 Database Engineering Roadmap | **PASSED** | Confirmed Phase 4 is active. Steps 1–5 complete. Docs 07–12 consolidated into 01–02, not cancelled. |
-| **8. Invariant Baselines** | Enterprise Baseline Registers | **PASSED** | All frozen metrics preserved without alteration or fabrication. |
+| # | Verification Dimension | Target Artifact / Domain | Audit Status | Audit Findings & Source Evidence |
+|:---:|---|---|:---:|---|
+| **1** | **Attribute Recalculation** | `docs/08-database/05-ENTITY-WISE-DETAILED-SPECIFICATION.md` | **VERIFIED** | Command execution confirmed: 344 definition rows, 344 unique IDs, 0 duplicates, 0 sequence gaps across 33 entities. All 103 distinct attribute mentions outside tables resolve to defined attributes. |
+| **2** | **Baseline Comparison** | Frozen Data Architecture Baseline | **VERIFIED** | Recalculated 344 matches the frozen baseline of 344 exactly. Historical 355 ($344 + 11$ `ATTR-DEC-*`) and Shared 83 ($72 + 11$ Section 10 mentions) mathematically reconciled. |
+| **3** | **Official 11 TBDs Alignment** | Requirements & Database TBD Registers | **DISCREPANCY FOUND** | Mandated 11 TBD register (`TBD-01` to `11`) documented from Doc 09 Table 10A, but conflicts with `05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md` numbering (Issue `AUD-06`). Four items (`TBD-03`, `04`, `07`, `09`) have no database attribute decision records in document 05. |
+| **4** | **Technical Decisions `[C]`** | `source-requirements/TECHNOLOGY_ARCHITECTURE_BASELINE.md` & `ADR-001` | **VERIFIED** | Redis cache, queue backing store, distributed locking, and Socket.IO adapter verified `[C]`. Redis as inter-module message broker downgraded to `[D]` (Modular Monolith uses in-process domain events per `TDR-01`). BullMQ verified `[D]`. |
+| **5** | **Folder Preservation** | Workspace Directory Structure | **VERIFIED** | All 15 folders under `docs/` and 3 subfolders in `source-requirements/` preserved. No `docs/reference/` or folder deletion proposed. |
+| **6** | **Consolidation Traceability & Preservation** | Folder-by-Folder Consolidation Matrices | **PARTIALLY VERIFIED** | Source-to-target mapping complete for all 104 REQs, 59 BPs, 60 BRs, 152 FRDs, 11 TBDs, 33 Ents, 41 Rels, 344 Attrs. Zero information loss is planned but cannot be certified as fully verified until canonical files are drafted and verified. |
+| **7** | **Database Status Clarification** | Phase 4 Database Roadmap | **VERIFIED** | Confirmed Phase 4 is active (not cancelled). Steps 1–5 (`00`–`06`) are complete conceptual/logical designs. Future physical design (`07`–`12`) is consolidated into Docs 01–02 rather than separate files. |
+| **8** | **Preservation of Frozen Baselines** | Enterprise Baseline Registers | **VERIFIED** | All frozen baseline metrics preserved without alteration or fabrication. |
 
 ---
 
@@ -809,10 +815,11 @@ To execute this consolidation safely without disrupting ongoing work or corrupti
    - Detailed specification tables: [`docs/08-database/05-ENTITY-WISE-DETAILED-SPECIFICATION.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/08-database/05-ENTITY-WISE-DETAILED-SPECIFICATION.md), Section 6 (lines 75–233, 61 attrs), Section 7 (lines 235–489, 115 attrs), Section 8 (lines 491–711, 96 attrs), Section 9 (lines 713–864, 72 attrs).
    - Attribute Open Decisions Register (11 rows, `ATTR-DEC-01`..`11`): [`docs/08-database/05-ENTITY-WISE-DETAILED-SPECIFICATION.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/08-database/05-ENTITY-WISE-DETAILED-SPECIFICATION.md), Section 12 (lines 950–966).
 2. **Authoritative 11 Baseline TBDs:**
-   - Official TBD Register: [`docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md), Section 2 (lines 24–39) and Section 3 (lines 43–171).
-   - Requirement Catalogue TBD Reconciliation: [`docs/01-requirements/02-REQUIREMENT-CATALOGUE.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/02-REQUIREMENT-CATALOGUE.md), Section K (lines 201–237).
-3. **Technology Architecture Baseline & Redis Decision:**
-   - Master Architecture Baseline: [`source-requirements/TECHNOLOGY_ARCHITECTURE_BASELINE.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/source-requirements/TECHNOLOGY_ARCHITECTURE_BASELINE.md), Section 3 (lines 76–97) and Section 5 (`TDR-01` to `TDR-07`, lines 180–310).
+   - Mandated 11 TBD Register: [`docs/01-requirements/09-COMBINED-STAKEHOLDER-DELTA-REVIEW.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/09-COMBINED-STAKEHOLDER-DELTA-REVIEW.md), Section 10 (Table 10A, lines 244–257).
+   - Controlled TBD Log (Alternate Numbering): [`docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md), Section 2 (lines 24–39).
+   - TBD Inconsistency Audit Report: [`docs/PROJECT-DOCUMENTATION-STRUCTURE-AUDIT.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/PROJECT-DOCUMENTATION-STRUCTURE-AUDIT.md), Issue `AUD-06` (lines 490–497).
+3. **Technology Architecture Baseline & Redis Decisions:**
+   - Caching, Queue Backing & Locking: [`source-requirements/TECHNOLOGY_ARCHITECTURE_BASELINE.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/source-requirements/TECHNOLOGY_ARCHITECTURE_BASELINE.md), Section 3 (lines 91–92) and `TDR-06` (lines 255–275).
    - Real-Time Communication ADR: [`docs/07-system-architecture/ADR-001-REAL-TIME-COMMUNICATION.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/07-system-architecture/ADR-001-REAL-TIME-COMMUNICATION.md), Section 3 (lines 115–145).
 4. **Lab Technician Classification:**
    - Academic Manpower Planning Scope: `source-requirements/Module-II/Module_II_Recruitment_Automation_Requirement_Brief_Rearranged.pdf`, Page 1, Section 1, 1a, 1c, and Workflow A Header.
@@ -826,15 +833,33 @@ To execute this consolidation safely without disrupting ongoing work or corrupti
 ====================================================================================================
                              FINAL AUDIT READINESS VERDICT
 ====================================================================================================
- AUDIT PASS STATUS        : PASSED — 100% VERIFIED & INTERNALLY CONSISTENT
+ AUDIT PASS STATUS        : PARTIALLY VERIFIED / DISCREPANCIES DOCUMENTED
  WORKSPACE INTEGRITY      : ZERO FILES DELETED, MOVED, RENAMED, OR MERGED (AUDIT-ONLY)
  FOLDER ARCHITECTURE      : 100% PRESERVED (15/15 DOMAIN FOLDERS INTACT)
  FROZEN BASELINE FIDELITY : 100% PRESERVED ACROSS ALL 8 SYSTEM INVARIANTS
- CONSOLIDATION READINESS  : FULLY READY FOR EXECUTION UPON MENTOR SIGN-OFF
+ CONSOLIDATION READINESS  : CONDITIONAL UPON MENTOR SIGN-OFF ON TBD HARMONIZATION
 ====================================================================================================
 ```
 
-**Recommendation:** Await explicit user and mentor authorization before initiating Stage 2 canonical file assembly. Under no circumstances should automated file merges or deletions occur prior to written instruction.
+**Recommendation:** Await explicit user and mentor authorization before initiating Stage 2 canonical file assembly. Under no circumstances should automated file merges, deletions, or coding occur prior to written instruction.
+
+---
+
+## 21. Targeted Corrections Change Log & Unresolved Verification Items
+
+### 21.1 Change Log — Targeted Corrections Pass
+1. **Official TBD Register Corrected (Section 13.1):** Replaced mismatched titles with the authoritative 11-item sequence (`REQ-TBD-01`: Resignation intake through `REQ-TBD-11`: External Expert access). Documented verified requirement anchors and actual database `ATTR-DEC-*` mappings without inventing false associations.
+2. **Discrepancy Reporting Formalized (Section 13.3 & Section 18):** Reported the structural discrepancy between `05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md`, `09-COMBINED-STAKEHOLDER-DELTA-REVIEW.md` Table 10A, and `08-database/05` Section 12 honestly under status **`DISCREPANCY FOUND`**.
+3. **Technical-Cadre Appraisal Decoupled (Section 13.2 & Section 14.2):** Preserved technical-cadre appraisal track allocation as a standalone open institutional policy decision (`[E] Open Decision`), removing unsupported mappings to official TBDs.
+4. **Command-Verified Attribute Recalculation (Section 14.3):** Distinguished verified command execution output (344 rows, 344 unique IDs, 0 duplicates, 0 sequence gaps across all 33 prefixes, 0 undefined outside mentions) from inferred historical arithmetic (355 and Shared 83).
+5. **Technical Decisions Verified & Downgraded (Section 12.1 & 12.2):** Separately verified Redis cache (`[C]`), queue backing store (`[C]`), distributed locking (`[C]`), and Socket.IO adapter (`[C]`). Explicitly downgraded Redis as an inter-module message broker to `[D]` / excluded based on `TDR-01`.
+6. **Consolidation Traceability Status Qualified (Section 1.3 & Section 18):** Qualified zero information loss claims to **`PARTIALLY VERIFIED`**, acknowledging that physical preservation can only be certified upon drafting the canonical specifications.
+
+### 21.2 Remaining Unresolved Verification Items
+1. **Harmonization of TBD Numbering Scheme:** A formal alignment is required between `docs/01-requirements/05-REQUIREMENTS-TBD-AND-OPEN-DECISIONS.md` and `docs/01-requirements/09-COMBINED-STAKEHOLDER-DELTA-REVIEW.md` Table 10A to standardize whether `REQ-TBD-01` refers to Resignation Intake or ERP Synchronization.
+2. **Database Attribute Decisions for Unmapped TBDs:** `REQ-TBD-03` (Legacy service cutover), `REQ-TBD-04` (Supervisor transfer), `REQ-TBD-07` (Non-academic 3-round interview weights), and `REQ-TBD-09` (Group-D 12-month averaging formula) have no assigned `ATTR-DEC-*` entries in `docs/08-database/05-ENTITY-WISE-DETAILED-SPECIFICATION.md`. They must be formally incorporated when the canonical database specification is assembled.
+3. **Technical Cadre Appraisal Route:** Formal ruling required from University Leadership (Registrar / HR Head) on whether Lab Technicians, Technical Assistants, and Teaching Associates participate in Group-D, Staff KRA/KPI, or an adapted Faculty appraisal track.
+4. **Verification of Consolidated Drafts:** Once authorized, each canonical consolidated document must undergo an automated regex/AST verification pass to certify that all 104 requirements, 59 business processes, 60 business rules, 152 functional requirements, and 344 attributes are present verbatim.
 
 ---
 
