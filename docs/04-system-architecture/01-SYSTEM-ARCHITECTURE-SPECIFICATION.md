@@ -33,33 +33,33 @@ flowchart TD
     classDef s3Node fill:#451a03,stroke:#fb923c,stroke-width:2px,color:#fff7ed;
     classDef erpNode fill:#1e293b,stroke:#e2e8f0,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff;
 
-    subgraph CLIENTS ["💻 CLIENT WORKSTATION TIER"]
+    subgraph CLIENTS ["CLIENT WORKSTATION TIER"]
         direction LR
-        CLI_WEB["🖥️ <b>Web Browser</b><br/><i>(Desktop / Tablet)</i>"]:::clientNode
-        CLI_MOB["📱 <b>Mobile / PWA Client</b><br/><i>(Responsive View)</i>"]:::clientNode
+        CLI_WEB["<b>Web Browser</b><br/><i>(Desktop / Tablet)</i>"]:::clientNode
+        CLI_MOB["<b>Mobile / PWA Client</b><br/><i>(Responsive View)</i>"]:::clientNode
     end
 
-    subgraph FRONTEND ["⚡ FRONTEND TIER: NEXT.JS APP ROUTER"]
+    subgraph FRONTEND ["FRONTEND TIER: NEXT.JS APP ROUTER"]
         direction TB
-        FE_APP["🌐 <b>Next.js App Router Application</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Server-Side Rendering (SSR) & React Server Components (RSC)<br/>• Bespoke Design System with Vanilla CSS & CSS Modules (<code>*.module.css</code>)<br/>• Real-Time Client Socket (<code>socket.io-client</code>) for Live Org Trees & Badges"]:::feNode
+        FE_APP["<b>Next.js App Router Application</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Server-Side Rendering (SSR) & React Server Components (RSC)<br/>• Bespoke Design System with Vanilla CSS & CSS Modules (<code>*.module.css</code>)<br/>• Real-Time Client Socket (<code>socket.io-client</code>) for Live Org Trees & Badges"]:::feNode
     end
 
-    subgraph BACKEND ["🏛️ BACKEND TIER: NESTJS MODULAR MONOLITH"]
+    subgraph BACKEND ["BACKEND TIER: NESTJS MODULAR MONOLITH"]
         direction TB
         subgraph MODULES ["Domain Business Modules (Encapsulated)"]
             direction LR
-            MOD1["🏛️ <b>Module I: Core & Change</b><br/>• Central Master DB (ERP Synced)<br/>• Dynamic Org Chart Engine<br/>• 10 Change Formats (a)–(j)<br/>• 2-Level Sequential Approvals"]:::beModNode
-            MOD2["📦 <b>Module II: Talent Acquisition</b><br/>• Academic & Staff Manpower<br/>• UGC Sourcing & RCS Calling<br/>• Statutory SCM & 3-Round Panels<br/>• LOI & Notice Period Tracking"]:::beModNode
-            MOD3["🎯 <b>Module III: Performance Engine</b><br/>• Group-D Monthly & Grace (7th/10th)<br/>• Staff KRA/KPI Cycles (Q1–Q4)<br/>• Faculty Statutory ECM Route<br/>• TNU Increment Formulation"]:::beModNode
+            MOD1["<b>Module I: Core & Change</b><br/>• Central Master DB (ERP Synced)<br/>• Dynamic Org Chart Engine<br/>• 10 Change Formats (a)–(j)<br/>• 2-Level Sequential Approvals"]:::beModNode
+            MOD2["<b>Module II: Talent Acquisition</b><br/>• Academic & Staff Manpower<br/>• UGC Sourcing & RCS Calling<br/>• Statutory SCM & 3-Round Panels<br/>• LOI & Notice Period Tracking"]:::beModNode
+            MOD3["<b>Module III: Performance Engine</b><br/>• Group-D Monthly & Grace (7th/10th)<br/>• Staff KRA/KPI Cycles (Q1–Q4)<br/>• Faculty Statutory ECM Route<br/>• TNU Increment Formulation"]:::beModNode
         end
 
         subgraph PLATFORM ["Shared Enterprise Platform Services"]
             direction LR
-            SVC_AUTH["🔐 RBAC & JWT Guards"]:::sharedNode
-            SVC_AUDIT["📜 Immutable Audit Interceptor"]:::sharedNode
-            SVC_BUS["⚡ In-Memory Domain Event Bus<br/><i>(EventEmitter2)</i>"]:::sharedNode
-            SVC_WS["📡 Socket.IO Real-Time Gateway"]:::sharedNode
-            SVC_OUTBOX["📤 Transactional Outbox Worker"]:::sharedNode
+            SVC_AUTH["RBAC & JWT Guards"]:::sharedNode
+            SVC_AUDIT["Immutable Audit Interceptor"]:::sharedNode
+            SVC_BUS["In-Memory Domain Event Bus<br/><i>(EventEmitter2)</i>"]:::sharedNode
+            SVC_WS["Socket.IO Real-Time Gateway"]:::sharedNode
+            SVC_OUTBOX["Transactional Outbox Worker"]:::sharedNode
         end
 
         MODULES ==> SVC_BUS
@@ -67,14 +67,14 @@ flowchart TD
         SVC_BUS ==> SVC_OUTBOX
     end
 
-    subgraph PERSISTENCE ["💾 DATA & INFRASTRUCTURE TIER"]
+    subgraph PERSISTENCE ["DATA & INFRASTRUCTURE TIER"]
         direction LR
-        DB[("🐘 <b>PostgreSQL 16</b><br/>• 33 Conceptual Entities<br/>• 41 Relational Mappings<br/>• Transactional Outbox Ledger<br/>• Append-Only Audit Logs")]:::dbNode
-        REDIS[("⚡ <b>Redis 7 + BullMQ</b><br/>• Dynamic Org Subtree Cache<br/>• SLA Countdown Queues<br/>• 10th Monthly Auto-Lock Cron<br/>• Outbox Dispatch Workers")]:::redisNode
-        S3[("🪣 <b>S3 / MinIO Store</b><br/>• CVs & Candidate Dossiers<br/>• Statutory SCM PDFs & LOIs<br/>• Qualification Documents")]:::s3Node
+        DB[("<b>PostgreSQL 16</b><br/>• 33 Conceptual Entities<br/>• 41 Relational Mappings<br/>• Transactional Outbox Ledger<br/>• Append-Only Audit Logs")]:::dbNode
+        REDIS[("<b>Redis 7 + BullMQ</b><br/>• Dynamic Org Subtree Cache<br/>• SLA Countdown Queues<br/>• 10th Monthly Auto-Lock Cron<br/>• Outbox Dispatch Workers")]:::redisNode
+        S3[("<b>S3 / MinIO Store</b><br/>• CVs & Candidate Dossiers<br/>• Statutory SCM PDFs & LOIs<br/>• Qualification Documents")]:::s3Node
     end
 
-    ERP[("🏢 <b>University ERP System</b><br/><i>(External System of Record)</i>")]:::erpNode
+    ERP[("<b>University ERP System</b><br/><i>(External System of Record)</i>")]:::erpNode
 
     %% Inter-Tier Connections
     CLIENTS ==>|"HTTPS / REST API & WSS (Socket.IO)"| FRONTEND
@@ -109,11 +109,11 @@ Per the approved **`ADR-001-REAL-TIME-COMMUNICATION.md`**, Socket.IO provides th
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1e293b', 'primaryTextColor': '#f8fafc', 'primaryBorderColor': '#38bdf8', 'lineColor': '#64748b'}}}%%
 sequenceDiagram
     autonumber
-    actor Client as 💻 Next.js Client
-    participant GW as 📡 NestJS Socket.IO Gateway
-    participant Bus as ⚡ Domain Event Bus (EventEmitter2)
-    participant Mod as 🏛️ Business Domain Module
-    participant DB as 🐘 PostgreSQL / Redis
+    actor Client as Next.js Client
+    participant GW as NestJS Socket.IO Gateway
+    participant Bus as Domain Event Bus (EventEmitter2)
+    participant Mod as Business Domain Module
+    participant DB as PostgreSQL / Redis
 
     Note over Client, GW: 1. Authenticated WSS Handshake
     Client->>GW: Connect WSS (auth: { token: BearerJWT })
@@ -189,10 +189,10 @@ To synchronize employee master data with the University ERP without distributed 
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1e293b', 'primaryTextColor': '#f8fafc', 'primaryBorderColor': '#38bdf8', 'lineColor': '#64748b'}}}%%
 sequenceDiagram
     autonumber
-    participant App as ⚡ Change Engine
-    participant DB as 🐘 PostgreSQL Database
-    participant Worker as 🔄 BullMQ Outbox Worker
-    participant ERP as 🏢 University ERP Platform
+    participant App as Change Engine
+    participant DB as PostgreSQL Database
+    participant Worker as BullMQ Outbox Worker
+    participant ERP as University ERP Platform
 
     Note over App, DB: Phase 1: Atomic Local Transaction
     App->>DB: BEGIN TRANSACTION
@@ -200,7 +200,7 @@ sequenceDiagram
     App->>DB: 2. UPDATE mod1_core.org_nodes SET supervisor_id = 'dean_01'
     App->>DB: 3. INSERT INTO shared_platform.outbox_events (payload, status: 'PENDING')
     App->>DB: COMMIT TRANSACTION
-    DB-->>App: ✅ Committed Atomically (Zero Distributed Inconsistency)
+    DB-->>App: Committed Atomically (Zero Distributed Inconsistency)
 
     Note over Worker, ERP: Phase 2: Asynchronous Guaranteed Outbox Dispatch
     Worker->>DB: SELECT * FROM outbox_events WHERE status = 'PENDING' ORDER BY created_at ASC

@@ -853,39 +853,39 @@ flowchart TD
     classDef mod3Node fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#f8fafc;
     classDef erpNode fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
 
-    subgraph M2_ONB ["📦 MODULE II: CANDIDATE ONBOARDING"]
-        LOI["📜 <b>ENT-MOD2-09: Letter of Intent (LOI)</b><br/>• <code>yet_to_join_flag = TRUE</code><br/>• <code>agreed_date_of_joining</code>"]:::mod2Node
+    subgraph M2_ONB ["MODULE II: CANDIDATE ONBOARDING"]
+        LOI["<b>ENT-MOD2-09: Letter of Intent (LOI)</b><br/>• <code>yet_to_join_flag = TRUE</code><br/>• <code>agreed_date_of_joining</code>"]:::mod2Node
     end
 
-    subgraph M1_EMP ["🏛️ MODULE I: CENTRAL EMPLOYEE MASTER"]
-        EMP["🗄️ <b>ENT-MOD1-01: Employee Master Record</b><br/>• <code>employee_id</code> (Globally Unique)<br/>• <code>date_of_joining</code><br/>• <code>probation_completed = FALSE</code><br/>• <code>operational_status = ON_PROBATION</code>"]:::mod1Node
-        CHG["📝 <b>ENT-MOD1-04: Service Change Request</b><br/>• <code>Category: Salary / Designation / Level</code><br/>• <code>proposed_state_payload</code><br/>• <code>effective_date</code>"]:::mod1Node
+    subgraph M1_EMP ["MODULE I: CENTRAL EMPLOYEE MASTER"]
+        EMP["<b>ENT-MOD1-01: Employee Master Record</b><br/>• <code>employee_id</code> (Globally Unique)<br/>• <code>date_of_joining</code><br/>• <code>probation_completed = FALSE</code><br/>• <code>operational_status = ON_PROBATION</code>"]:::mod1Node
+        CHG["<b>ENT-MOD1-04: Service Change Request</b><br/>• <code>Category: Salary / Designation / Level</code><br/>• <code>proposed_state_payload</code><br/>• <code>effective_date</code>"]:::mod1Node
     end
 
-    subgraph M3_PERF ["🎯 MODULE III: PERFORMANCE CYCLES"]
-        KRA["📈 <b>Staff Goal Setting (BP-M3-KRA-001)</b><br/>• <code>DOJ + 30 Days SLA</code>"]:::mod3Node
-        ECM["🎓 <b>Faculty ECM Eligibility Scan</b><br/>• <code>probation_completed = TRUE</code><br/>• <code>tenure >= 12 Months</code>"]:::mod3Node
-        OUTCOME["🏆 <b>ENT-MOD3-06 / ENT-MOD3-09: Appraisal Outcome</b><br/>• Management Approved Increments & Promotions"]:::mod3Node
+    subgraph M3_PERF ["MODULE III: PERFORMANCE CYCLES"]
+        KRA["<b>Staff Goal Setting (BP-M3-KRA-001)</b><br/>• <code>DOJ + 30 Days SLA</code>"]:::mod3Node
+        ECM["<b>Faculty ECM Eligibility Scan</b><br/>• <code>probation_completed = TRUE</code><br/>• <code>tenure >= 12 Months</code>"]:::mod3Node
+        OUTCOME["<b>ENT-MOD3-06 / ENT-MOD3-09: Appraisal Outcome</b><br/>• Management Approved Increments & Promotions"]:::mod3Node
     end
 
-    subgraph M2_URGENT ["⚠️ MODULE II: RESIGNATION REPLACEMENT"]
-        URG["⚡ <b>ENT-MOD2-10: Urgent Replacement MRF</b><br/>• <code>resigning_employee_id</code><br/>• <code>resignation_accepted_date</code>"]:::mod2Node
-        MRF["📋 <b>ENT-MOD2-03: Ad-Hoc Replacement MRF</b><br/>• Bypasses Annual Planning Quota"]:::mod2Node
+    subgraph M2_URGENT ["MODULE II: RESIGNATION REPLACEMENT"]
+        URG["<b>ENT-MOD2-10: Urgent Replacement MRF</b><br/>• <code>resigning_employee_id</code><br/>• <code>resignation_accepted_date</code>"]:::mod2Node
+        MRF["<b>ENT-MOD2-03: Ad-Hoc Replacement MRF</b><br/>• Bypasses Annual Planning Quota"]:::mod2Node
     end
 
-    ERP_OUT[("🏢 <b>ENT-SHR-08: ERP Transactional Outbox</b><br/>• Guaranteed Outbound Master Sync (BP-M1-011)")]:::erpNode
+    ERP_OUT[("<b>ENT-SHR-08: ERP Transactional Outbox</b><br/>• Guaranteed Outbound Master Sync (BP-M1-011)")]:::erpNode
 
     %% Dependencies
-    LOI ==>|"🤝 BP-XMOD-001: Day-1 Joining Handshake"| EMP
-    EMP ==>|"📅 Master Employment Baseline"| KRA
-    EMP ==>|"🔍 Monthly 10th Service Filter"| ECM
-    EMP -.->|"⚠️ Resignation Event (BP-XMOD-002)"| URG
+    LOI ==>|"BP-XMOD-001: Day-1 Joining Handshake"| EMP
+    EMP ==>|"Master Employment Baseline"| KRA
+    EMP ==>|"Monthly 10th Service Filter"| ECM
+    EMP -.->|"Resignation Event (BP-XMOD-002)"| URG
     URG ==> MRF
     KRA --> OUTCOME
     ECM --> OUTCOME
-    OUTCOME ==>|"🚀 BP-XMOD-004: Outcome Handshake"| CHG
-    CHG ==>|"⚡ Approved Midnight Activation"| EMP
-    EMP ==>|"📤 Transactional Outbox Dispatch"| ERP_OUT
+    OUTCOME ==>|"BP-XMOD-004: Outcome Handshake"| CHG
+    CHG ==>|"Approved Midnight Activation"| EMP
+    EMP ==>|"Transactional Outbox Dispatch"| ERP_OUT
 ```
 
 ### 10.1 Key Cross-Module Dependency Rules

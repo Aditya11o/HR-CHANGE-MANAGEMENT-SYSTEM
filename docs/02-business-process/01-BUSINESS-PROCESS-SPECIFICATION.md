@@ -60,19 +60,19 @@ flowchart TD
     classDef schedNode fill:#14532d,stroke:#4ade80,stroke-width:2px,color:#f0fdf4;
     classDef actNode fill:#0c4a6e,stroke:#0284c7,stroke-width:3px,color:#ffffff;
 
-    INIT["📝 <b>1. Service Change Initiator</b><br/><i>(HR Ops / Admin / Dept Head)</i><br/>Selects Target Employee & Formats (a)–(j)<br/>Attaches Justification, Proof & <code>effective_date</code>"]:::initNode
+    INIT["<b>1. Service Change Initiator</b><br/><i>(HR Ops / Admin / Dept Head)</i><br/>Selects Target Employee & Formats (a)–(j)<br/>Attaches Justification, Proof & <code>effective_date</code>"]:::initNode
     
-    L1{"⚖️ <b>2. Level-1: HR Operations Vetting</b><br/>Validates Policy, Pay Slabs, Hierarchy & History"}:::reviewNode
+    L1{"<b>2. Level-1: HR Operations Vetting</b><br/>Validates Policy, Pay Slabs, Hierarchy & History"}:::reviewNode
     
-    RET1["↩️ <b>Return to Initiator</b><br/><i>Status: RETURNED_FOR_CLARIFICATION</i><br/>Includes HR Deficiency Remarks"]:::rejectNode
+    RET1["<b>Return to Initiator</b><br/><i>Status: RETURNED_FOR_CLARIFICATION</i><br/>Includes HR Deficiency Remarks"]:::rejectNode
 
-    L2{"🏛️ <b>3. Level-2: Senior Management Sanction</b><br/><i>(Pro-Chancellor / Registrar Executive Gate)</i>"}:::reviewNode
+    L2{"<b>3. Level-2: Senior Management Sanction</b><br/><i>(Pro-Chancellor / Registrar Executive Gate)</i>"}:::reviewNode
     
-    RET2["↩️ <b>Return to HR Operations</b><br/><i>Status: REJECTED_BY_MGMT</i><br/>Includes Executive Objections"]:::rejectNode
+    RET2["<b>Return to HR Operations</b><br/><i>Status: REJECTED_BY_MGMT</i><br/>Includes Executive Objections"]:::rejectNode
 
-    SCHED["⏳ <b>Scheduled Invariant State</b><br/><i>Status: APPROVED_SCHEDULED</i><br/>Master DB Unchanged Until Effective Date"]:::schedNode
+    SCHED["<b>Scheduled Invariant State</b><br/><i>Status: APPROVED_SCHEDULED</i><br/>Master DB Unchanged Until Effective Date"]:::schedNode
     
-    ACT["⚡ <b>4. Midnight Background Activation Engine</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• <b>Master Mutation:</b> Commits new salary/role/cadre to <code>employees</code><br/>• <b>Org Realignment:</b> Recalculates supervisory edges in <code>org_nodes</code><br/>• <b>Dossier Archival:</b> Appends sanction letter to <code>digital_dossiers</code><br/>• <b>ERP Outbox Push:</b> Emits guaranteed sync payload to Outbox Queue"]:::actNode
+    ACT["<b>4. Midnight Background Activation Engine</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• <b>Master Mutation:</b> Commits new salary/role/cadre to <code>employees</code><br/>• <b>Org Realignment:</b> Recalculates supervisory edges in <code>org_nodes</code><br/>• <b>Dossier Archival:</b> Appends sanction letter to <code>digital_dossiers</code><br/>• <b>ERP Outbox Push:</b> Emits guaranteed sync payload to Outbox Queue"]:::actNode
 
     INIT ==>|"Submit Change Request"| L1
     L1 -- " Policy Cleared " --> L2
@@ -192,22 +192,22 @@ flowchart TD
     classDef successNode fill:#0c4a6e,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
     classDef decisionNode fill:#701a75,stroke:#f472b6,stroke-width:2px,color:#ffffff;
 
-    subgraph PLAN ["📅 MANPOWER PLANNING & REQUISITION PHASE"]
+    subgraph PLAN ["MANPOWER PLANNING & REQUISITION PHASE"]
         direction TB
-        A_TRIG["⏰ <b>Calendar Planning Trigger</b><br/><i>4 Months Pre-Semester / Pre-FY</i>"]:::planNode
-        A_DEAN["📋 <b>Deans / HODs Submit Requisitions</b><br/><i>Attachment 1: Teaching Workload & Student Ratios (15d SLA)</i>"]:::planNode
-        A_VETT["🔍 <b>HR Comprehensive Vetting</b><br/><i>Consolidated into Master Manpower Plan (Encl 1 & 3)</i>"]:::planNode
-        A_CHANC["⚖️ <b>Pro-Chancellor Executive Sanction</b><br/><i>Strict 7-Day Turnaround SLA</i>"]:::decisionNode
-        A_AD["📢 <b>Public Recruitment Advertisement</b><br/><i>Print, Portals & Digital Media (7-Day SLA)</i>"]:::planNode
+        A_TRIG["<b>Calendar Planning Trigger</b><br/><i>4 Months Pre-Semester / Pre-FY</i>"]:::planNode
+        A_DEAN["<b>Deans / HODs Submit Requisitions</b><br/><i>Attachment 1: Teaching Workload & Student Ratios (15d SLA)</i>"]:::planNode
+        A_VETT["<b>HR Comprehensive Vetting</b><br/><i>Consolidated into Master Manpower Plan (Encl 1 & 3)</i>"]:::planNode
+        A_CHANC["<b>Pro-Chancellor Executive Sanction</b><br/><i>Strict 7-Day Turnaround SLA</i>"]:::decisionNode
+        A_AD["<b>Public Recruitment Advertisement</b><br/><i>Print, Portals & Digital Media (7-Day SLA)</i>"]:::planNode
 
         A_TRIG --> A_DEAN --> A_VETT --> A_CHANC --> A_AD
     end
 
-    subgraph SOURCING ["📥 OMNICHANNEL INGESTION & SCREENING"]
+    subgraph SOURCING ["OMNICHANNEL INGESTION & SCREENING"]
         direction TB
-        SRC["🌐 <b>Omnichannel CV Sourcing</b><br/><i>University Portal, Job Boards, Campus & Internshala</i>"]:::planNode
-        UGC["🎓 <b>Automated UGC 2018 Screening</b><br/><i>Minimum Qualifications, Ph.D. & Experience Filter</i>"]:::planNode
-        RCS["📞 <b>Recruiter Calling Sheet (RCS)</b><br/><i>Telephonic CTC, Notice Period & Communication Rating</i>"]:::planNode
+        SRC["<b>Omnichannel CV Sourcing</b><br/><i>University Portal, Job Boards, Campus & Internshala</i>"]:::planNode
+        UGC["<b>Automated UGC 2018 Screening</b><br/><i>Minimum Qualifications, Ph.D. & Experience Filter</i>"]:::planNode
+        RCS["<b>Recruiter Calling Sheet (RCS)</b><br/><i>Telephonic CTC, Notice Period & Communication Rating</i>"]:::planNode
 
         SRC --> UGC --> RCS
     end
@@ -215,31 +215,31 @@ flowchart TD
     A_AD ==> SRC
 
     %% Urgent Replacement Bypass
-    RESIGN["⚠️ <b>Dean Accepts Resignation</b><br/><i>(Logged in Module I)</i>"]:::urgentNode
-    URG_MRF["⚡ <b>Urgent Replacement MRF (BP-XMOD-002)</b><br/><i>Bypasses Annual Planning Quota</i>"]:::urgentNode
+    RESIGN["<b>Dean Accepts Resignation</b><br/><i>(Logged in Module I)</i>"]:::urgentNode
+    URG_MRF["<b>Urgent Replacement MRF (BP-XMOD-002)</b><br/><i>Bypasses Annual Planning Quota</i>"]:::urgentNode
     RESIGN ==> URG_MRF ==> SRC
 
-    RCS ==> SPLIT{"🔀 Cadre Selection Pathway"}:::decisionNode
+    RCS ==> SPLIT{"Cadre Selection Pathway"}:::decisionNode
 
-    subgraph EVAL_ACAD ["🎓 ACADEMIC SELECTION COMMITTEE (SCM)"]
+    subgraph EVAL_ACAD ["ACADEMIC SELECTION COMMITTEE (SCM)"]
         direction TB
-        SCM["🏛️ <b>Statutory SCM Panel Session</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Vice-Chancellor / Nominee (Chair)<br/>• School Dean & Head of Department<br/>• Mandatory External Subject Expert<br/>• Standardized Digital Scoring Compilation"]:::acadNode
+        SCM["<b>Statutory SCM Panel Session</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Vice-Chancellor / Nominee (Chair)<br/>• School Dean & Head of Department<br/>• Mandatory External Subject Expert<br/>• Standardized Digital Scoring Compilation"]:::acadNode
     end
 
-    subgraph EVAL_STAFF ["🏢 NON-ACADEMIC 3-ROUND INTERVIEWS"]
+    subgraph EVAL_STAFF ["NON-ACADEMIC 3-ROUND INTERVIEWS"]
         direction TB
-        NONACAD["👥 <b>3-Round Sequential Evaluation</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Round 1: Technical & Functional Test<br/>• Round 2: HR Behavioral Assessment<br/>• Round 3: Executive Leadership Review"]:::staffNode
+        NONACAD["<b>3-Round Sequential Evaluation</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Round 1: Technical & Functional Test<br/>• Round 2: HR Behavioral Assessment<br/>• Round 3: Executive Leadership Review"]:::staffNode
     end
 
     SPLIT -- " Academic Cadre " --> SCM
     SPLIT -- " Non-Academic Staff " --> NONACAD
 
-    subgraph OFFER ["📜 OFFER & ONBOARDING LIFECYCLE"]
+    subgraph OFFER ["OFFER & ONBOARDING LIFECYCLE"]
         direction TB
-        MGMT["🤝 <b>Management Sanction & Budget Sign-Off</b>"]:::decisionNode
-        LOI["📄 <b>Formal Letter of Intent (LOI) Dispatched</b><br/><i>Automated PDF Populated with Terms & Salary</i>"]:::successNode
-        YTJ["⏳ <b>'Yet-to-Join' Pipeline Tracking</b><br/><i>Notice Period Countdown & Relocation Checks</i>"]:::successNode
-        ONB["🎉 <b>Day-1 Document Verification & Handshake</b><br/><i>(BP-XMOD-001: Direct Injection to Module I Master DB)</i>"]:::successNode
+        MGMT["<b>Management Sanction & Budget Sign-Off</b>"]:::decisionNode
+        LOI["<b>Formal Letter of Intent (LOI) Dispatched</b><br/><i>Automated PDF Populated with Terms & Salary</i>"]:::successNode
+        YTJ["<b>'Yet-to-Join' Pipeline Tracking</b><br/><i>Notice Period Countdown & Relocation Checks</i>"]:::successNode
+        ONB["<b>Day-1 Document Verification & Handshake</b><br/><i>(BP-XMOD-001: Direct Injection to Module I Master DB)</i>"]:::successNode
 
         MGMT --> LOI --> YTJ --> ONB
     end
@@ -291,15 +291,15 @@ flowchart TD
     %% -------------------------------------------------------------
     %% TRACK 1: GROUP-D / BAND-I
     %% -------------------------------------------------------------
-    subgraph T1 ["🧹 TRACK 1: GROUP-D / BAND-I STAFF (MONTHLY CADENCE)"]
+    subgraph T1 ["TRACK 1: GROUP-D / BAND-I STAFF (MONTHLY CADENCE)"]
         direction TB
-        G1["📅 <b>1st of Month:</b> Evaluation Forms Dispatched to HODs"]:::track1Node
-        G2["⏱️ <b>7th of Month:</b> Standard Evaluation Due Date"]:::track1Node
-        G3["🔔 <b>8th–10th:</b> 3-Day Automated Grace Period & Daily Chaser Alerts"]:::track1Node
-        G4["🔒 <b>10th at 23:59 IST: Automated Lockout</b><br/><i>Unsubmitted Forms Lock Permanently; Non-Compliance Flagged to HR</i>"]:::lockNode
-        G5["✍️ <b>VP-Administration Exclusive Review:</b> Approves or Rejects Monthly Ratings"]:::track1Node
-        G6["📊 <b>1-Year Milestone Synthesis:</b> 12-Month Weighted Parameter Scorecard"]:::track1Node
-        G7["💰 <b>Probation Clearance Gate:</b> Standard Increment Slabs Dispatched to Payroll"]:::handoffNode
+        G1["<b>1st of Month:</b> Evaluation Forms Dispatched to HODs"]:::track1Node
+        G2["<b>7th of Month:</b> Standard Evaluation Due Date"]:::track1Node
+        G3["<b>8th–10th:</b> 3-Day Automated Grace Period & Daily Chaser Alerts"]:::track1Node
+        G4["<b>10th at 23:59 IST: Automated Lockout</b><br/><i>Unsubmitted Forms Lock Permanently; Non-Compliance Flagged to HR</i>"]:::lockNode
+        G5["<b>VP-Administration Exclusive Review:</b> Approves or Rejects Monthly Ratings"]:::track1Node
+        G6["<b>1-Year Milestone Synthesis:</b> 12-Month Weighted Parameter Scorecard"]:::track1Node
+        G7["<b>Probation Clearance Gate:</b> Standard Increment Slabs Dispatched to Payroll"]:::handoffNode
 
         G1 --> G2 --> G3 --> G4 --> G5 --> G6 --> G7
     end
@@ -307,13 +307,13 @@ flowchart TD
     %% -------------------------------------------------------------
     %% TRACK 2: GENERAL ADMINISTRATIVE STAFF
     %% -------------------------------------------------------------
-    subgraph T2 ["📈 TRACK 2: GENERAL ADMINISTRATIVE STAFF (KRA/KPI CADENCE)"]
+    subgraph T2 ["TRACK 2: GENERAL ADMINISTRATIVE STAFF (KRA/KPI CADENCE)"]
         direction TB
-        K1["🎯 <b>30 Days from DOJ:</b> New Joiner Formulates 3–5 Measurable KRAs"]:::track2Node
-        K2["🔐 <b>Joint Version Lock:</b> HR & Senior Management Sanction and Lock Targets"]:::track2Node
-        K3["🔄 <b>Quarterly Cycles (Q1–Q4):</b><br/>• T-90d Cycle Notice ➔ T-20d Mid-Review Reminder<br/>• 15d Employee Self-Rating Window<br/>• 7d Supervisory Final Assessment"]:::track2Node
-        K4["📊 <b>Annual Synthesis:</b> Consolidated Q1–Q4 Weighted Score Synthesis"]:::track2Node
-        K5["🚀 <b>Module I Handshake (BP-XMOD-004):</b> Auto-Injects Service Change Request"]:::handoffNode
+        K1["<b>30 Days from DOJ:</b> New Joiner Formulates 3–5 Measurable KRAs"]:::track2Node
+        K2["<b>Joint Version Lock:</b> HR & Senior Management Sanction and Lock Targets"]:::track2Node
+        K3["<b>Quarterly Cycles (Q1–Q4):</b><br/>• T-90d Cycle Notice -> T-20d Mid-Review Reminder<br/>• 15d Employee Self-Rating Window<br/>• 7d Supervisory Final Assessment"]:::track2Node
+        K4["<b>Annual Synthesis:</b> Consolidated Q1–Q4 Weighted Score Synthesis"]:::track2Node
+        K5["<b>Module I Handshake (BP-XMOD-004):</b> Auto-Injects Service Change Request"]:::handoffNode
 
         K1 --> K2 --> K3 --> K4 --> K5
     end
@@ -321,15 +321,15 @@ flowchart TD
     %% -------------------------------------------------------------
     %% TRACK 3: FACULTY ANNUAL APPRAISAL (STATUTORY ECM)
     %% -------------------------------------------------------------
-    subgraph T3 ["🎓 TRACK 3: UNIVERSITY FACULTY (STATUTORY ECM ROUTE)"]
+    subgraph T3 ["TRACK 3: UNIVERSITY FACULTY (STATUTORY ECM ROUTE)"]
         direction TB
-        F1["🔍 <b>Monthly 10th Scan:</b> Identifies Faculty with Completed Probation & ≥12m Tenure"]:::track3Node
-        F2["📋 <b>Certified Roster:</b> HR Verifies and Dispatches Roster to Registrar"]:::track3Node
-        F3["📝 <b>7 Working Days:</b> Faculty Completes Enclosure 1 Self-Appraisal Dossier"]:::track3Node
-        F4["🏛️ <b>4-Unit Independent Parallel Verification:</b><br/>• School Dean • Director R&D • Placement Head • HR Ops<br/><i>(Includes Circular Clarification & Return Loop)</i>"]:::track3Node
-        F5["⚖️ <b>Statutory ECM Committee Session:</b> Digital Scoring & Benchmark Evaluation"]:::track3Node
-        F6["📈 <b>TNU Matrix Formulation:</b> Multi-Tier Increment Slab Determination"]:::track3Node
-        F7["📜 <b>Automated Letter & Payroll Injection:</b> Increment Enacted in Next Cycle"]:::handoffNode
+        F1["<b>Monthly 10th Scan:</b> Identifies Faculty with Completed Probation & ≥12m Tenure"]:::track3Node
+        F2["<b>Certified Roster:</b> HR Verifies and Dispatches Roster to Registrar"]:::track3Node
+        F3["<b>7 Working Days:</b> Faculty Completes Enclosure 1 Self-Appraisal Dossier"]:::track3Node
+        F4["<b>4-Unit Independent Parallel Verification:</b><br/>• School Dean • Director R&D • Placement Head • HR Ops<br/><i>(Includes Circular Clarification & Return Loop)</i>"]:::track3Node
+        F5["<b>Statutory ECM Committee Session:</b> Digital Scoring & Benchmark Evaluation"]:::track3Node
+        F6["<b>TNU Matrix Formulation:</b> Multi-Tier Increment Slab Determination"]:::track3Node
+        F7["<b>Automated Letter & Payroll Injection:</b> Increment Enacted in Next Cycle"]:::handoffNode
 
         F1 --> F2 --> F3 --> F4 --> F5 --> F6 --> F7
     end

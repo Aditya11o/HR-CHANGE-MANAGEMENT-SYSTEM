@@ -26,13 +26,13 @@ flowchart TD
     classDef unit fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#f8fafc;
     classDef sec fill:#1e1b4b,stroke:#fb923c,stroke-width:2px,color:#fff7ed;
 
-    E2E["🎭 <b>TIER 3: END-TO-END UI & LIFECYCLE TESTS</b><br/><i>Framework: Playwright • Target: 100% Critical Journeys</i><br/>• Cross-module handshakes (BP-XMOD-001 to 004)<br/>• Dynamic Org Chart Canvas real-time rendering<br/>• Multi-role approval wizard & escalation flows"]:::e2e
+    E2E["<b>TIER 3: END-TO-END UI & LIFECYCLE TESTS</b><br/><i>Framework: Playwright • Target: 100% Critical Journeys</i><br/>• Cross-module handshakes (BP-XMOD-001 to 004)<br/>• Dynamic Org Chart Canvas real-time rendering<br/>• Multi-role approval wizard & escalation flows"]:::e2e
 
-    INTEG["⚡ <b>TIER 2: INTEGRATION & API CONTRACT TESTS</b><br/><i>Framework: Supertest + Testcontainers (PostgreSQL & Redis) • Target: ≥85% Coverage</i><br/>• REST Controllers, DTO Validation Pipes, RBAC Controller Guards<br/>• Transactional Outbox atomicity & BullMQ queue execution<br/>• 10th-of-month auto-lockout cron triggers & Grace Period transitions"]:::integ
+    INTEG["<b>TIER 2: INTEGRATION & API CONTRACT TESTS</b><br/><i>Framework: Supertest + Testcontainers (PostgreSQL & Redis) • Target: ≥85% Coverage</i><br/>• REST Controllers, DTO Validation Pipes, RBAC Controller Guards<br/>• Transactional Outbox atomicity & BullMQ queue execution<br/>• 10th-of-month auto-lockout cron triggers & Grace Period transitions"]:::integ
 
-    UNIT["🧪 <b>TIER 1: UNIT & DOMAIN LOGIC TESTS</b><br/><i>Framework: Vitest / Jest • Target: ≥95% Coverage</i><br/>• 60 Institutional Business Rules (BR-M1 to BR-XMOD)<br/>• Group-D weighted average algorithms & TNU benchmark calculations<br/>• Statutory UGC qualification screening rules & input transformers"]:::unit
+    UNIT["<b>TIER 1: UNIT & DOMAIN LOGIC TESTS</b><br/><i>Framework: Vitest / Jest • Target: ≥95% Coverage</i><br/>• 60 Institutional Business Rules (BR-M1 to BR-XMOD)<br/>• Group-D weighted average algorithms & TNU benchmark calculations<br/>• Statutory UGC qualification screening rules & input transformers"]:::unit
 
-    SEC["🛡️ <b>CROSS-CUTTING: SECURITY & PERFORMANCE GATES</b><br/><i>Load Target: Artillery 500 Concurrent • OWASP ZAP Audit • Sub-second Org Tree SLA</i>"]:::sec
+    SEC["<b>CROSS-CUTTING: SECURITY & PERFORMANCE GATES</b><br/><i>Load Target: Artillery 500 Concurrent • OWASP ZAP Audit • Sub-second Org Tree SLA</i>"]:::sec
 
     E2E ==> INTEG ==> UNIT ==> SEC
 ```

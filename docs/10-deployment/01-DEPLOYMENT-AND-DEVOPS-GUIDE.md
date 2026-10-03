@@ -26,22 +26,22 @@ flowchart TD
     classDef redisNode fill:#450a0a,stroke:#f87171,stroke-width:2px,color:#fecaca;
     classDef s3Node fill:#451a03,stroke:#fb923c,stroke-width:2px,color:#fff7ed;
 
-    NGINX["🛡️ <b>University Ingress / Reverse Proxy (Nginx)</b><br/><i>• TLS 1.3 Termination (Ports 80/443)<br/>• WSS Upgrade Header Forwarding<br/>• Static Asset Caching & Rate Limiting</i>"]:::proxyNode
+    NGINX["<b>University Ingress / Reverse Proxy (Nginx)</b><br/><i>• TLS 1.3 Termination (Ports 80/443)<br/>• WSS Upgrade Header Forwarding<br/>• Static Asset Caching & Rate Limiting</i>"]:::proxyNode
 
-    subgraph APPLICATION_NETWORK ["🌐 APPLICATION CONTAINER NETWORK (hrms-app-net)"]
+    subgraph APPLICATION_NETWORK ["APPLICATION CONTAINER NETWORK (hrms-app-net)"]
         direction LR
-        FE["🌐 <b>frontend-app: Next.js App Router</b><br/><i>Internal Port: 3000</i><br/>• React Server Components (RSC)<br/>• Vanilla CSS Design Tokens<br/>• Socket.IO Client Bridge"]:::feNode
+        FE["<b>frontend-app: Next.js App Router</b><br/><i>Internal Port: 3000</i><br/>• React Server Components (RSC)<br/>• Vanilla CSS Design Tokens<br/>• Socket.IO Client Bridge"]:::feNode
 
-        BE["⚡ <b>backend-api: NestJS Monolith</b><br/><i>Internal Port: 4000</i><br/>• REST Controllers & Services<br/>• Socket.IO WebSocket Gateway<br/>• BullMQ Job Producers & Consumers"]:::beNode
+        BE["<b>backend-api: NestJS Monolith</b><br/><i>Internal Port: 4000</i><br/>• REST Controllers & Services<br/>• Socket.IO WebSocket Gateway<br/>• BullMQ Job Producers & Consumers"]:::beNode
     end
 
-    subgraph DATA_ISOLATION_NETWORK ["🔒 SECURE DATA NETWORK (hrms-data-net)"]
+    subgraph DATA_ISOLATION_NETWORK ["SECURE DATA NETWORK (hrms-data-net)"]
         direction LR
-        PG[("🐘 <b>database: PostgreSQL 16</b><br/><i>Port: 5432</i><br/>• Persistent Volume: <code>postgres_data</code><br/>• ACID Transactions & Audit Logs")]:::dataNode
+        PG[("<b>database: PostgreSQL 16</b><br/><i>Port: 5432</i><br/>• Persistent Volume: <code>postgres_data</code><br/>• ACID Transactions & Audit Logs")]:::dataNode
 
-        REDIS[("⚡ <b>cache-queue: Redis 7 Alpine</b><br/><i>Port: 6379</i><br/>• Persistent Volume: <code>redis_data</code><br/>• Org Chart Cache & BullMQ Queues")]:::redisNode
+        REDIS[("<b>cache-queue: Redis 7 Alpine</b><br/><i>Port: 6379</i><br/>• Persistent Volume: <code>redis_data</code><br/>• Org Chart Cache & BullMQ Queues")]:::redisNode
 
-        MINIO[("🪣 <b>object-store: MinIO / S3</b><br/><i>Ports: 9000 (API) / 9001 (Console)</i><br/>• Persistent Volume: <code>minio_data</code><br/>• CVs, PDF LOIs, Dossier Records")]:::s3Node
+        MINIO[("<b>object-store: MinIO / S3</b><br/><i>Ports: 9000 (API) / 9001 (Console)</i><br/>• Persistent Volume: <code>minio_data</code><br/>• CVs, PDF LOIs, Dossier Records")]:::s3Node
     end
 
     NGINX ==>|"Reverse Proxy /"| FE

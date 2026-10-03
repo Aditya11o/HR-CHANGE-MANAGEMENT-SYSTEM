@@ -147,21 +147,21 @@ flowchart TD
     classDef redisNode fill:#450a0a,stroke:#f87171,stroke-width:2px,color:#fecaca;
     classDef workerNode fill:#312e81,stroke:#c084fc,stroke-width:2px,color:#f8fafc;
 
-    FE["🌐 <b>Next.js Frontend Application</b><br/><i>(Client Browser / PWA)</i>"]:::feNode
+    FE["<b>Next.js Frontend Application</b><br/><i>(Client Browser / PWA)</i>"]:::feNode
 
     subgraph PROTOCOLS ["Dual Communication Layer"]
         direction LR
-        P_REST["⚡ <b>REST API (HTTP/HTTPS)</b><br/>Commands, CRUD & Document I/O"]
-        P_WS["📡 <b>Real-Time Layer (Socket.IO WSS)</b><br/>Badges, Invalidation & SLA Toasts"]
+        P_REST["<b>REST API (HTTP/HTTPS)</b><br/>Commands, CRUD & Document I/O"]
+        P_WS["<b>Real-Time Layer (Socket.IO WSS)</b><br/>Badges, Invalidation & SLA Toasts"]
     end
 
-    BE["🏛️ <b>NestJS Modular Monolith</b><br/><i>(Domain Services + Embedded WsGateway)</i>"]:::beNode
+    BE["<b>NestJS Modular Monolith</b><br/><i>(Domain Services + Embedded WsGateway)</i>"]:::beNode
 
     subgraph INFRA ["Infrastructure Tier"]
         direction LR
-        DB[("🐘 <b>PostgreSQL 16</b><br/>ACID System of Record")]:::dbNode
-        REDIS[("⚡ <b>Redis 7</b><br/>Cache & Socket.IO Adapter")]:::redisNode
-        WORKER["🔄 <b>BullMQ Workers</b><br/>SLA Cron & Outbox Scheduler"]:::workerNode
+        DB[("<b>PostgreSQL 16</b><br/>ACID System of Record")]:::dbNode
+        REDIS[("<b>Redis 7</b><br/>Cache & Socket.IO Adapter")]:::redisNode
+        WORKER["<b>BullMQ Workers</b><br/>SLA Cron & Outbox Scheduler"]:::workerNode
     end
 
     FE ==> P_REST ==> BE
@@ -245,13 +245,13 @@ flowchart TD
     classDef step3 fill:#0c4a6e,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
     classDef step4 fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#f8fafc;
 
-    S1["🔐 <b>1. PRE-CONNECTION HANDSHAKE AUTHENTICATION</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Client transmits Bearer token in Socket.IO handshake auth object (<code>auth: { token }</code>)<br/>• NestJS <code>WsGuard</code> validates JWT signature, expiration, and user account status<br/>• Unauthenticated or expired connections are rejected during handshake (HTTP 401 equivalent)"]:::step1
+    S1["<b>1. PRE-CONNECTION HANDSHAKE AUTHENTICATION</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Client transmits Bearer token in Socket.IO handshake auth object (<code>auth: { token }</code>)<br/>• NestJS <code>WsGuard</code> validates JWT signature, expiration, and user account status<br/>• Unauthenticated or expired connections are rejected during handshake (HTTP 401 equivalent)"]:::step1
 
-    S2["🏷️ <b>2. AUTHORIZATION & SCOPED ROOM ENROLLMENT</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Gateway inspects validated user identity and assigned RBAC roles<br/>• Socket automatically enrolls in strictly authorized channels:<br/>  - <b>Individual User Room:</b> <code>user:&lt;user_id&gt;</code><br/>  - <b>Departmental Room:</b> <code>dept:&lt;department_id&gt;</code><br/>  - <b>Role-Based Room:</b> <code>role:&lt;role_name&gt;</code> (e.g., <code>role:hod</code>, <code>role:dean</code>)<br/>• Sockets are strictly forbidden from joining rooms outside their institutional boundary"]:::step2
+    S2["<b>2. AUTHORIZATION & SCOPED ROOM ENROLLMENT</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Gateway inspects validated user identity and assigned RBAC roles<br/>• Socket automatically enrolls in strictly authorized channels:<br/>  - <b>Individual User Room:</b> <code>user:&lt;user_id&gt;</code><br/>  - <b>Departmental Room:</b> <code>dept:&lt;department_id&gt;</code><br/>  - <b>Role-Based Room:</b> <code>role:&lt;role_name&gt;</code> (e.g., <code>role:hod</code>, <code>role:dean</code>)<br/>• Sockets are strictly forbidden from joining rooms outside their institutional boundary"]:::step2
 
-    S3["🛡️ <b>3. DEPARTMENTAL & DATA PRIVACY ISOLATION</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Faculty evaluation records are pushed ONLY to <code>user:&lt;faculty_id&gt;</code> and <code>role:ecm_committee</code><br/>• Group-D evaluations are pushed ONLY to the specific department HOD and VP-Admin<br/>• Cross-departmental broadcasting of confidential HR change requests is strictly blocked"]:::step3
+    S3["<b>3. DEPARTMENTAL & DATA PRIVACY ISOLATION</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Faculty evaluation records are pushed ONLY to <code>user:&lt;faculty_id&gt;</code> and <code>role:ecm_committee</code><br/>• Group-D evaluations are pushed ONLY to the specific department HOD and VP-Admin<br/>• Cross-departmental broadcasting of confidential HR change requests is strictly blocked"]:::step3
 
-    S4["📦 <b>4. LEAST-PRIVILEGE EVENT PAYLOAD POLICY</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Event payloads NEVER broadcast raw confidential data (salaries, Aadhaar, appraisals)<br/>• Payloads contain only entity IDs and status flags; client fetches full data via REST<br/>• Connection establishment, authorization failures, and disconnections are auditable"]:::step4
+    S4["<b>4. LEAST-PRIVILEGE EVENT PAYLOAD POLICY</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Event payloads NEVER broadcast raw confidential data (salaries, Aadhaar, appraisals)<br/>• Payloads contain only entity IDs and status flags; client fetches full data via REST<br/>• Connection establishment, authorization failures, and disconnections are auditable"]:::step4
 
     S1 ==> S2 ==> S3 ==> S4
 ```
@@ -272,17 +272,17 @@ flowchart TD
     classDef appNode fill:#312e81,stroke:#c084fc,stroke-width:2px,color:#f8fafc;
     classDef redisNode fill:#450a0a,stroke:#f87171,stroke-width:2px,color:#fecaca;
 
-    CLIENTS["💻 <b>Client Workstations</b><br/><i>(Next.js Web Application / PWA)</i>"]:::clientNode
+    CLIENTS["<b>Client Workstations</b><br/><i>(Next.js Web Application / PWA)</i>"]:::clientNode
     
-    LB["⚖️ <b>HTTPS / WSS Load Balancer (Nginx)</b><br/><i>Sticky Sessions for WebSocket Handshake</i>"]:::lbNode
+    LB["<b>HTTPS / WSS Load Balancer (Nginx)</b><br/><i>Sticky Sessions for WebSocket Handshake</i>"]:::lbNode
 
     subgraph CLUSTER ["Horizontally Scaled NestJS Cluster"]
         direction LR
-        APP1["⚡ <b>NestJS App Node 1</b><br/>• Modular Monolith<br/>• Socket.IO Gateway"]:::appNode
-        APP2["⚡ <b>NestJS App Node 2</b><br/>• Modular Monolith<br/>• Socket.IO Gateway"]:::appNode
+        APP1["<b>NestJS App Node 1</b><br/>• Modular Monolith<br/>• Socket.IO Gateway"]:::appNode
+        APP2["<b>NestJS App Node 2</b><br/>• Modular Monolith<br/>• Socket.IO Gateway"]:::appNode
     end
 
-    REDIS[("⚡ <b>Managed Redis Cluster</b><br/><i>(Socket.IO Redis Pub/Sub Adapter)</i><br/>• Cross-Instance Event Propagation<br/>• Shared Room Distribution")]:::redisNode
+    REDIS[("<b>Managed Redis Cluster</b><br/><i>(Socket.IO Redis Pub/Sub Adapter)</i><br/>• Cross-Instance Event Propagation<br/>• Shared Room Distribution")]:::redisNode
 
     CLIENTS ==> LB
     LB ==> APP1
