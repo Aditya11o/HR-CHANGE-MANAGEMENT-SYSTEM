@@ -801,7 +801,10 @@ To guarantee that every subsequent software artifact—from functional specifica
 
 ### Traceability Tag Schema
 Every requirement is assigned a unique, immutable Traceability Identifier using the syntax:
-$$\mathbf{[MOD\# - SECTION - SUBSECTION - REQ\#]}$$
+
+```
+[MOD# - SECTION - SUBSECTION - REQ#]
+```
 
 - `MOD1-`: Module I (Change Management & Core DB)
 - `MOD2-`: Module II (Recruitment & Selection)
