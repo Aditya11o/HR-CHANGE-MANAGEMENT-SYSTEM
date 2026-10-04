@@ -34,41 +34,44 @@ flowchart TD
     classDef erpNode fill:#1e293b,stroke:#e2e8f0,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff;
 
     subgraph CLIENTS ["CLIENT WORKSTATION TIER"]
-        direction LR
         CLI_WEB["<b>Web Browser</b><br/><i>(Desktop / Tablet)</i>"]:::clientNode
         CLI_MOB["<b>Mobile / PWA Client</b><br/><i>(Responsive View)</i>"]:::clientNode
     end
 
     subgraph FRONTEND ["FRONTEND TIER: NEXT.JS APP ROUTER"]
-        direction TB
         FE_APP["<b>Next.js App Router Application</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>• Server-Side Rendering (SSR) & React Server Components (RSC)<br/>• Bespoke Design System with Vanilla CSS & CSS Modules (<code>*.module.css</code>)<br/>• Real-Time Client Socket (<code>socket.io-client</code>) for Live Org Trees & Badges"]:::feNode
     end
 
     subgraph BACKEND ["BACKEND TIER: NESTJS MODULAR MONOLITH"]
-        direction TB
+        SVC_AUTH["<b>RBAC & JWT Security Guards</b><br/>• Multi-Role Permission Verification & Ingress Protection"]:::sharedNode
+
         subgraph MODULES ["Domain Business Modules (Encapsulated)"]
-            direction LR
             MOD1["<b>Module I: Core & Change</b><br/>• Central Master DB (ERP Synced)<br/>• Dynamic Org Chart Engine<br/>• 10 Change Formats (a)–(j)<br/>• 2-Level Sequential Approvals"]:::beModNode
             MOD2["<b>Module II: Talent Acquisition</b><br/>• Academic & Staff Manpower<br/>• UGC Sourcing & RCS Calling<br/>• Statutory SCM & 3-Round Panels<br/>• LOI & Notice Period Tracking"]:::beModNode
             MOD3["<b>Module III: Performance Engine</b><br/>• Group-D Monthly & Grace (7th/10th)<br/>• Staff KRA/KPI Cycles (Q1–Q4)<br/>• Faculty Statutory ECM Route<br/>• TNU Increment Formulation"]:::beModNode
         end
 
         subgraph PLATFORM ["Shared Enterprise Platform Services"]
-            direction LR
-            SVC_AUTH["RBAC & JWT Guards"]:::sharedNode
-            SVC_AUDIT["Immutable Audit Interceptor"]:::sharedNode
-            SVC_BUS["In-Memory Domain Event Bus<br/><i>(EventEmitter2)</i>"]:::sharedNode
-            SVC_WS["Socket.IO Real-Time Gateway"]:::sharedNode
-            SVC_OUTBOX["Transactional Outbox Worker"]:::sharedNode
+            SVC_BUS["<b>In-Memory Domain Event Bus</b><br/><i>(EventEmitter2)</i>"]:::sharedNode
+            SVC_WS["<b>Socket.IO Real-Time Gateway</b><br/>• Live WebSocket Broadcast Rooms"]:::sharedNode
+            SVC_AUDIT["<b>Immutable Audit Interceptor</b><br/>• Structured Change Ledger"]:::sharedNode
+            SVC_OUTBOX["<b>Transactional Outbox Worker</b><br/>• Reliable Outbox Dispatcher"]:::sharedNode
         end
 
-        MODULES ==> SVC_BUS
+        SVC_AUTH --> MOD1
+        SVC_AUTH --> MOD2
+        SVC_AUTH --> MOD3
+
+        MOD1 ==> SVC_BUS
+        MOD2 ==> SVC_BUS
+        MOD3 ==> SVC_BUS
+
         SVC_BUS ==> SVC_WS
+        SVC_BUS ==> SVC_AUDIT
         SVC_BUS ==> SVC_OUTBOX
     end
 
     subgraph PERSISTENCE ["DATA & INFRASTRUCTURE TIER"]
-        direction LR
         DB[("<b>PostgreSQL 16</b><br/>• 33 Conceptual Entities<br/>• 41 Relational Mappings<br/>• Transactional Outbox Ledger<br/>• Append-Only Audit Logs")]:::dbNode
         REDIS[("<b>Redis 7 + BullMQ</b><br/>• Dynamic Org Subtree Cache<br/>• SLA Countdown Queues<br/>• 10th Monthly Auto-Lock Cron<br/>• Outbox Dispatch Workers")]:::redisNode
         S3[("<b>S3 / MinIO Store</b><br/>• CVs & Candidate Dossiers<br/>• Statutory SCM PDFs & LOIs<br/>• Qualification Documents")]:::s3Node
@@ -76,12 +79,23 @@ flowchart TD
 
     ERP[("<b>University ERP System</b><br/><i>(External System of Record)</i>")]:::erpNode
 
-    %% Inter-Tier Connections
-    CLIENTS ==>|"HTTPS / REST API & WSS (Socket.IO)"| FRONTEND
-    FRONTEND ==>|"Authenticated REST & WebSocket Handshake"| BACKEND
-    BACKEND ==>|"ACID Relational Transactions"| DB
-    BACKEND ==>|"Sub-second Cache & Message Queue"| REDIS
-    BACKEND ==>|"Presigned Binary Document I/O"| S3
+    %% Clients to Frontend
+    CLI_WEB -->|"HTTPS / REST API"| FE_APP
+    CLI_MOB -->|"HTTPS / REST API"| FE_APP
+
+    %% Frontend to Backend Ingress
+    FE_APP ==>|"Authenticated REST & WebSocket Handshake"| SVC_AUTH
+
+    %% Modules to Persistence Tier
+    MOD1 ==>|"ACID Master & Change Records"| DB
+    MOD1 ==>|"Dynamic Org Subtree Cache"| REDIS
+    MOD2 ==>|"Statutory Dossiers & PDFs"| S3
+    MOD2 ==>|"Candidate & Panel Data"| DB
+    MOD3 ==>|"Appraisal Cycles & Locks"| DB
+    MOD3 ==>|"SLA Countdown Queues"| REDIS
+
+    %% Platform Services to Storage & ERP
+    SVC_AUDIT ==>|"Append-Only Audit Logs"| DB
     SVC_OUTBOX -.->|"Guaranteed Eventual Consistency Sync"| ERP
 ```
 
