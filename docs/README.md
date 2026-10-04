@@ -126,3 +126,15 @@ The [`source-requirements/`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/sour
 - **`source-requirements/Module-III/`**: Official Module III Performance Management Briefs, Subsystems, and Workflows (PDF/JPEG).
 - **`source-requirements/PROJECT_REQUIREMENTS_ANALYSIS.md`**: Foundational inception requirements extraction.
 - **`source-requirements/TECHNOLOGY_ARCHITECTURE_BASELINE.md`**: Master approved technology architecture baseline.
+
+---
+
+## 5. Proprietary & Confidential Notice
+
+**Copyright (c) 2026 The Neotia University. All Rights Reserved.**
+
+All specifications, process flows, data dictionaries, and architectural artifacts in this documentation suite are the confidential and proprietary intellectual property of **The Neotia University**. 
+
+Unauthorized downloading, cloning, forking, reproduction, or distribution without prior explicit written authorization from the repository owner is strictly forbidden and subject to formal legal action.
+
+**Official Inquiries:** [halderaditya632@gmail.com](mailto:halderaditya632@gmail.com)

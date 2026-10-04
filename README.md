@@ -10,6 +10,13 @@
 
 > An enterprise-grade, institutional HR automation platform designed to serve as the single source of truth for university employee lifecycles, talent acquisition, dynamic organizational structures, two-level change approvals, and statutory academic performance evaluations.
 
+> [!WARNING]
+> **PROPRIETARY & CONFIDENTIAL NOTICE — THE NEOTIA UNIVERSITY**  
+> This repository contains confidential, proprietary intellectual property, specifications, and architecture belonging to **The Neotia University**.  
+> - **Strict Prohibition:** Downloading, cloning, forking, scraping, reproducing, or redistributing this repository or any portion thereof without explicit prior written authorization from the repository owner is strictly forbidden.  
+> - **Legal Enforcement:** Any unauthorized possession, reproduction, or suspicious activity will be subject to immediate legal action under applicable Copyright, Intellectual Property, and Cyber Laws.  
+> - **Official Contact & Authorization:** For inquiries or access permissions, contact: [halderaditya632@gmail.com](mailto:halderaditya632@gmail.com).
+
 ---
 
 ## 1. Executive Overview
@@ -228,6 +235,14 @@ Access the application at `http://localhost:3000` and API documentation at `http
 
 ---
 
-## 8. License & Ownership
+## 8. License, Ownership & Legal Disclaimer
 
-Confidential & Proprietary. Developed for University Administration & Human Resources Operations. All rights reserved.
+**Copyright (c) 2026 The Neotia University. All Rights Reserved.**
+
+This software system, architectural design, database schemas, and documentation suite are the confidential and proprietary intellectual property of **The Neotia University**.
+
+- **All Rights Reserved:** No part of this codebase, documentation, diagrams, or requirements specifications may be copied, cloned, downloaded, forked, modified, published, or distributed in any form or by any means—electronic, mechanical, or otherwise—without prior explicit written consent from the copyright holder.
+- **Monitoring & Enforcement:** All access, downloads, or suspicious repository activities are monitored. Any unauthorized extraction, duplication, or commercial exploitation constitutes a violation of institutional intellectual property rights and will result in formal legal proceedings and prosecution under applicable state, national, and international copyright regulations.
+- **Official Inquiries & Access Requests:** For institutional clearance, collaboration agreements, or authorization requests, please direct official communications to:
+  - **Organization:** The Neotia University
+  - **Designated Contact:** [halderaditya632@gmail.com](mailto:halderaditya632@gmail.com)
