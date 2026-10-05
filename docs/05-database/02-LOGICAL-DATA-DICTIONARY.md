@@ -44,7 +44,7 @@ GOVERNANCE DIRECTIVE:
 
 ### 2.1 Purpose
 
-The primary objective of this document is to bridge the conceptual domain models established in [`03-ENTITY-IDENTIFICATION.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/08-database/03-ENTITY-IDENTIFICATION.md) and the relationship semantics formalized in [`04-ENTITY-RELATIONSHIP-SPECIFICATION.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/08-database/04-ENTITY-RELATIONSHIP-SPECIFICATION.md) into a comprehensive, source-grounded **Logical Data Model and Attribute Identification Specification**.
+The primary objective of this document is to bridge the conceptual domain models (33 Entities) and relationship semantics (41 Invariant Relationships) established in [`01-DATABASE-DESIGN-AND-SCHEMA-SPECIFICATION.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/05-database/01-DATABASE-DESIGN-AND-SCHEMA-SPECIFICATION.md) into a comprehensive, source-grounded **Logical Data Model and Attribute Identification Specification**.
 
 This specification formalizes the informational anatomy of the University HR Change Management & Automation System by identifying, defining, and classifying the logical attributes necessary to fulfill every approved business requirement, business process, business rule, and architectural capability without prematurely committing to physical database artifacts or database engine idioms.
 
@@ -94,13 +94,10 @@ This document derives its authority and attribute grounding from the following f
    - [`docs/03-functional-requirements/02-MODULE-II-FUNCTIONAL-REQUIREMENTS.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/03-functional-requirements/02-MODULE-II-FUNCTIONAL-REQUIREMENTS.md)
    - [`docs/03-functional-requirements/03-MODULE-III-FUNCTIONAL-REQUIREMENTS.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/03-functional-requirements/03-MODULE-III-FUNCTIONAL-REQUIREMENTS.md)
    - [`docs/03-functional-requirements/04-SHARED-FUNCTIONAL-REQUIREMENTS.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/03-functional-requirements/04-SHARED-FUNCTIONAL-REQUIREMENTS.md)
-4. **Architectural Baseline:**
-   - [`TECHNOLOGY_ARCHITECTURE_BASELINE.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/TECHNOLOGY_ARCHITECTURE_BASELINE.md)
-   - [`docs/08-database/00-DATABASE-DOCUMENTATION-INDEX.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/08-database/00-DATABASE-DOCUMENTATION-INDEX.md)
-   - [`docs/08-database/01-DATABASE-DESIGN-OVERVIEW.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/08-database/01-DATABASE-DESIGN-OVERVIEW.md)
-   - [`docs/08-database/02-DATA-MODEL-OVERVIEW.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/08-database/02-DATA-MODEL-OVERVIEW.md)
-   - [`docs/08-database/03-ENTITY-IDENTIFICATION.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/08-database/03-ENTITY-IDENTIFICATION.md)
-   - [`docs/08-database/04-ENTITY-RELATIONSHIP-SPECIFICATION.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/08-database/04-ENTITY-RELATIONSHIP-SPECIFICATION.md)
+4. **Architectural & Database Baseline:**
+   - [`docs/04-system-architecture/01-SYSTEM-ARCHITECTURE-SPECIFICATION.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/04-system-architecture/01-SYSTEM-ARCHITECTURE-SPECIFICATION.md)
+   - [`docs/04-system-architecture/ADR-001-REAL-TIME-COMMUNICATION.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/04-system-architecture/ADR-001-REAL-TIME-COMMUNICATION.md)
+   - [`docs/05-database/01-DATABASE-DESIGN-AND-SCHEMA-SPECIFICATION.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/05-database/01-DATABASE-DESIGN-AND-SCHEMA-SPECIFICATION.md) (Master Entity Catalogue, 41 Relationships & Relational ERD)
 
 ### 3.2 Stakeholder Delta Isolation
 
@@ -1017,31 +1014,25 @@ Across the 344 identified logical attributes:
 ### 15.1 Architectural Limitations of Current Artifact
 
 1. **Logical Domain Typing Only:** Conceptual data types (Identifier, Text, Integer, Decimal, Timestamp, Boolean, JSON) specify business information semantics but do not define physical column storage widths, collation rules, or database-level constraints.
-2. **Abstract Relationship Semantics:** Relational links are documented as logical references aligned with `04-ENTITY-RELATIONSHIP-SPECIFICATION.md`. Physical surrogate keys, relational foreign keys (`REFERENCES`), cascading delete rules, and relational integrity constraints are intentionally deferred to Step 5 (`06-DATABASE-SCHEMA-SPECIFICATION.md`) and Step 6 (`07-CONSTRAINTS-AND-RELATIONSHIPS.md`).
+2. **Abstract Relationship Semantics:** Relational links are documented as logical references aligned with [`01-DATABASE-DESIGN-AND-SCHEMA-SPECIFICATION.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/05-database/01-DATABASE-DESIGN-AND-SCHEMA-SPECIFICATION.md). Physical surrogate keys, relational foreign keys (`REFERENCES`), cascading delete rules, and relational integrity constraints are defined in Section 3 and Section 4 of that canonical specification and enforced during physical ORM implementation.
 3. **Dynamic Payload Schemas Parameterized:** Configurable dynamic payloads (such as `ATTR-CHG-06` proposed change data, `ATTR-GDT-04` Group-D KPI schemas, `ATTR-SCM-06` SCM evaluation mark arrays, and `ATTR-ERP-05` ERP outbox payloads) represent structured domain models whose physical JSON schemas depend on the resolution of `REQ-TBD-01` and `REQ-TBD-02`.
 
-### 15.2 Downstream Database Documentation Roadmap
+### 15.2 Database Documentation Structure & Implementation Roadmap
 
-Following completion and review of this Step 4 artifact, database documentation proceeds sequentially as outlined in [`00-DATABASE-DOCUMENTATION-INDEX.md`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/08-database/00-DATABASE-DOCUMENTATION-INDEX.md):
+The authoritative database documentation of the University HR Change Management & Automation System is consolidated under [`docs/05-database/`](file:///d:/Desktop/HR-CHANGE-MANAGEMENT-SYSTEM/docs/05-database/):
 
 ```
-docs/08-database/
-├── 00-DATABASE-DOCUMENTATION-INDEX.md          ◄ [Master Index & Governance]
-├── 01-DATABASE-DESIGN-OVERVIEW.md              ◄ [High-Level Architecture]
-├── 02-DATA-MODEL-OVERVIEW.md                   ◄ [Conceptual Data Domains]
-├── 03-ENTITY-IDENTIFICATION.md                 ◄ [33 Approved Conceptual Entities]
-├── 04-ENTITY-RELATIONSHIP-SPECIFICATION.md     ◄ [41 Conceptual Relationships & ERDs]
-├── 05-ENTITY-WISE-DETAILED-SPECIFICATION.md     ◄ [CURRENT ARTIFACT: Logical Attributes]
-│
-▼ [DOWNSTREAM SEQUENTIAL STEPS]
-├── 06-DATABASE-SCHEMA-SPECIFICATION.md         ◄ (Step 5: Relational tables, columns, physical types & defaults)
-├── 07-CONSTRAINTS-AND-RELATIONSHIPS.md         ◄ (Step 6: Primary keys, foreign keys, unique & check rules)
-├── 08-AUDIT-AND-VERSION-HISTORY-MODEL.md       ◄ (Step 7: Immutable audit ledger schema & temporal diff tracking)
-├── 09-EFFECTIVE-DATE-DATA-MODEL.md             ◄ (Step 8: Temporal activation schema & scheduled processing)
-├── 10-INDEXING-STRATEGY.md                     ◄ (Step 9: B-Tree, GIN, composite indexes & query performance)
-├── 11-DATA-INTEGRITY-CONSIDERATIONS.md         ◄ (Step 10: ACID transactional boundaries & consistency guards)
-└── 12-DATABASE-QUALITY-REVIEW.md               ◄ (Step 11: Traceability audit & baseline compliance review)
+docs/05-database/
+├── 01-DATABASE-DESIGN-AND-SCHEMA-SPECIFICATION.md  [Database Architecture, 33 Entities, 41 Relationships, ERD & Indexing]
+└── 02-LOGICAL-DATA-DICTIONARY.md                   [CURRENT ARTIFACT: Complete 344-Attribute Logical Data Dictionary]
 ```
+
+#### Downstream Physical Implementation Steps (Phase 5: Implementation):
+1. **Physical ORM Schema Definition:** Translation of logical entities and attributes into Prisma / TypeORM entity definitions utilizing PostgreSQL native types (`uuid`, `varchar`, `numeric`, `jsonb`, `timestamptz`).
+2. **Relational Constraints & Integrity Enforcement:** Implementation of primary keys, foreign key referential integrity with cascade rules, and check constraints (`BR-M1-001` through `BR-M3-018`).
+3. **Indexing & Query Optimization:** Deployment of B-Tree and Composite indexes per Section 5 of `01-DATABASE-DESIGN-AND-SCHEMA-SPECIFICATION.md`.
+4. **Temporal Effective-Date Processing:** Implementation of scheduled midnight activation workers (`BullMQ` on Redis) for effective-date service changes.
+5. **Transactional Outbox & Audit Logging:** Implementation of database-level audit triggers and outbox event ledger synchronization with the University ERP.
 
 ---
 *End of Document — Logical Data Model & Entity-Wise Attribute Specification.*
