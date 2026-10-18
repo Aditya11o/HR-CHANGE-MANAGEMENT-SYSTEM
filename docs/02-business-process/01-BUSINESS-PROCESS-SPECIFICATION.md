@@ -9,7 +9,8 @@
 | **Document Status** | Approved Canonical Business Process Baseline |
 | **Date** | October 2026 |
 | **Coverage** | 59 End-to-End Processes across Module I, II, III & Cross-Module, RACI Matrix, SLA Framework |
-| **Graphic Workflows** | • [`03-WORKFLOW-MODULE-1-SERVICE-CHANGE.md`](03-WORKFLOW-MODULE-1-SERVICE-CHANGE.md)<br>• [`04-WORKFLOW-MODULE-2-TALENT-ACQUISITION.md`](04-WORKFLOW-MODULE-2-TALENT-ACQUISITION.md)<br>• [`05-WORKFLOW-MODULE-3-PERFORMANCE-MANAGEMENT.md`](05-WORKFLOW-MODULE-3-PERFORMANCE-MANAGEMENT.md) |
+| **Graphic Workflows** | [`Graphic_Interpretation_of_workflow/`](Graphic_Interpretation_of_workflow/) (Dedicated Visual Lifecycles for Mod I, II, & III) |
+| **Text Write-Ups** | [`Text_write-up_of_the_workflow/`](Text_write-up_of_the_workflow/) (Descriptive Operational Specifications for Mod I, II, & III) |
 | **Authoritative Sources** | `source-requirements/` (Module I, II, III Briefs & Visual Workflows) |
 
 ---
